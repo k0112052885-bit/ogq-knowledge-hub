@@ -1,7 +1,13 @@
 ---
 title: 결정 게이트
+description: 통신사 연동 방식 최종 채택안과 결정 근거, 승인 현황 기록
+category: 운영
+tags:
+  - decision
+  - governance
 status: review
 order: 3
+updated: 2026-07-02
 ---
 
 # 결정 게이트
@@ -14,6 +20,8 @@ order: 3
 
 개발 난이도와 통신사 협조 부담의 균형, 그리고 사용자 경험 유지 측면에서
 SDK 임베드 방식을 1차 채택안으로 결정합니다.
+
+![채택된 SDK 임베드 방식의 데이터 흐름 개요](assets/images/sdk-flow-sample.svg)
 
 ## 결정 근거
 

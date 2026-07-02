@@ -31,6 +31,21 @@
   --shadow-dropdown: 0 8px 24px rgba(15, 23, 42, 0.12);
   --shadow-sidebar: 4px 0 24px rgba(15, 23, 42, 0.18);
   --overlay-bg: rgba(15, 23, 42, 0.35);
+
+  --callout-note-bg: #eaf1ff;
+  --callout-note-border: #2563eb;
+  --callout-note-text: #1e3a8a;
+  --callout-tip-bg: #ecfdf5;
+  --callout-tip-border: #16a34a;
+  --callout-tip-text: #14532d;
+  --callout-warning-bg: #fffbeb;
+  --callout-warning-border: #d97706;
+  --callout-warning-text: #78350f;
+  --callout-danger-bg: #fef2f2;
+  --callout-danger-border: #dc2626;
+  --callout-danger-text: #7f1d1d;
+
+  --mermaid-bg: #fbfbfd;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -63,6 +78,21 @@
     --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.45);
     --shadow-sidebar: 4px 0 24px rgba(0, 0, 0, 0.55);
     --overlay-bg: rgba(0, 0, 0, 0.55);
+
+    --callout-note-bg: #16233f;
+    --callout-note-border: #5b8def;
+    --callout-note-text: #bfd4ff;
+    --callout-tip-bg: #10291c;
+    --callout-tip-border: #34d399;
+    --callout-tip-text: #a7f3d0;
+    --callout-warning-bg: #332406;
+    --callout-warning-border: #f59e0b;
+    --callout-warning-text: #fde68a;
+    --callout-danger-bg: #350c0c;
+    --callout-danger-border: #f87171;
+    --callout-danger-text: #fecaca;
+
+    --mermaid-bg: #1b1e26;
   }
 }
 
@@ -225,11 +255,61 @@ a:hover {
   gap: 2px;
 }
 
+.sidebar-groups {
+  gap: 4px;
+}
+
+.sidebar-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 8px 8px 8px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.sidebar-group-toggle:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.sidebar-group-arrow {
+  display: inline-flex;
+  font-size: 10px;
+  transition: transform 0.15s ease;
+  transform: rotate(0deg);
+}
+
+.sidebar-group.open .sidebar-group-arrow {
+  transform: rotate(90deg);
+}
+
+.sidebar-group-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-group.open .sidebar-group-items {
+  display: flex;
+}
+
 .sidebar-nav a {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 8px 10px 8px 20px;
   border-radius: 8px;
   text-decoration: none;
   color: var(--color-text-muted);
@@ -346,6 +426,43 @@ a:hover {
 .content-header h1 {
   margin: 0;
   font-size: 28px;
+}
+
+/* ---------- Doc meta: updated date + tags ---------- */
+.doc-updated {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 6px 0 4px;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.doc-updated-label {
+  font-weight: 500;
+}
+
+.doc-updated-date {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.doc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 18px;
+}
+
+.tag-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 h1, h2, h3, h4 {
@@ -504,6 +621,93 @@ blockquote {
 
 blockquote p {
   margin: 0;
+}
+
+/* ---------- Callout boxes (> [!NOTE] / [!TIP] / [!WARNING] / [!DANGER]) ---------- */
+blockquote.callout {
+  border-left-width: 4px;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px 14px;
+}
+
+.callout-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 6px;
+}
+
+.callout-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+blockquote.callout-note {
+  background: var(--callout-note-bg);
+  border-left-color: var(--callout-note-border);
+  color: var(--callout-note-text);
+}
+
+blockquote.callout-tip {
+  background: var(--callout-tip-bg);
+  border-left-color: var(--callout-tip-border);
+  color: var(--callout-tip-text);
+}
+
+blockquote.callout-warning {
+  background: var(--callout-warning-bg);
+  border-left-color: var(--callout-warning-border);
+  color: var(--callout-warning-text);
+}
+
+blockquote.callout-danger {
+  background: var(--callout-danger-bg);
+  border-left-color: var(--callout-danger-border);
+  color: var(--callout-danger-text);
+}
+
+blockquote.callout p {
+  color: inherit;
+}
+
+/* ---------- Mermaid diagrams ---------- */
+.mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  padding: 16px;
+  background: var(--mermaid-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------- Images ---------- */
+figure.doc-image {
+  margin: 20px 0;
+  text-align: center;
+}
+
+figure.doc-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+figure.doc-image figcaption {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted);
 }
 
 /* ---------- Prev/Next doc navigation ---------- */

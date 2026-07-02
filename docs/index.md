@@ -1,7 +1,13 @@
 ---
 title: 통신사 구독 연동 문서 묶음
+description: 통신사 구독 연동 프로젝트의 설계, 후보 비교, 의사결정, 파트너 문의 문서 묶음 소개
+category: 개요
+tags:
+  - overview
+  - subscription
 status: review
 order: 0
+updated: 2026-07-02
 ---
 
 # 통신사 구독 연동 문서 묶음

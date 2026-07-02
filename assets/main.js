@@ -12,6 +12,43 @@
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
+  /* ---------- Mermaid diagrams ---------- */
+  function setupMermaid() {
+    var blocks = document.querySelectorAll(".mermaid");
+    if (!blocks.length) return;
+
+    function render(mermaidLib) {
+      var isDark =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+      mermaidLib.initialize({
+        startOnLoad: false,
+        theme: isDark ? "dark" : "default",
+        securityLevel: "strict",
+      });
+
+      mermaidLib.run({ nodes: blocks });
+    }
+
+    if (typeof window.mermaid !== "undefined") {
+      render(window.mermaid);
+      return;
+    }
+
+    // CDN 스크립트가 아직 로드 중일 수 있으므로 잠시 재시도 (오프라인이면 자동 포기)
+    var attempts = 0;
+    var timer = setInterval(function () {
+      attempts++;
+      if (typeof window.mermaid !== "undefined") {
+        clearInterval(timer);
+        render(window.mermaid);
+      } else if (attempts > 20) {
+        clearInterval(timer);
+      }
+    }, 150);
+  }
+
   /* ---------- Mobile sidebar toggle ---------- */
   function setupSidebar() {
     var sidebar = document.getElementById("sidebar");
@@ -34,6 +71,19 @@
     openBtn.addEventListener("click", open);
     if (closeBtn) closeBtn.addEventListener("click", close);
     if (overlay) overlay.addEventListener("click", close);
+  }
+
+  /* ---------- Sidebar category groups ---------- */
+  function setupSidebarGroups() {
+    var groups = document.querySelectorAll(".sidebar-group");
+    groups.forEach(function (group) {
+      var toggle = group.querySelector(".sidebar-group-toggle");
+      if (!toggle) return;
+      toggle.addEventListener("click", function () {
+        var isOpen = group.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+    });
   }
 
   /* ---------- Mobile TOC toggle ---------- */
@@ -140,6 +190,8 @@
   }
 
   /* ---------- Search ---------- */
+  var SEARCH_WEIGHTS = { title: 10, tags: 6, description: 4, text: 1 };
+
   function setupSearch() {
     var input = document.getElementById("searchInput");
     var resultsEl = document.getElementById("searchResults");
@@ -158,11 +210,46 @@
 
     function highlight(text, query) {
       if (!query) return escapeHtml(text);
-      var re = new RegExp("(" + escapeRegExp(query) + ")", "ig");
       return escapeHtml(text).replace(
         new RegExp("(" + escapeRegExp(escapeHtml(query)) + ")", "ig"),
         "<mark>$1</mark>"
       );
+    }
+
+    function countOccurrences(haystack, needle) {
+      if (!haystack || !needle) return 0;
+      var count = 0;
+      var pos = 0;
+      while ((pos = haystack.indexOf(needle, pos)) !== -1) {
+        count++;
+        pos += needle.length;
+      }
+      return count;
+    }
+
+    function scoreDoc(doc, qLower) {
+      var titleLower = doc.title.toLowerCase();
+      var descLower = (doc.description || "").toLowerCase();
+      var tagsLower = (doc.tags || []).join(" ").toLowerCase();
+      var textLower = doc.text.toLowerCase();
+
+      var score = 0;
+      score += countOccurrences(titleLower, qLower) * SEARCH_WEIGHTS.title;
+      score += countOccurrences(tagsLower, qLower) * SEARCH_WEIGHTS.tags;
+      score += countOccurrences(descLower, qLower) * SEARCH_WEIGHTS.description;
+      score += countOccurrences(textLower, qLower) * SEARCH_WEIGHTS.text;
+
+      // 제목이 검색어로 시작하면 가산점 (완전 일치에 가까운 결과 우선)
+      if (titleLower.indexOf(qLower) === 0) score += 5;
+
+      return score;
+    }
+
+    function bestSnippetSource(doc, qLower) {
+      if (doc.description && doc.description.toLowerCase().indexOf(qLower) !== -1) {
+        return doc.description;
+      }
+      return doc.text;
     }
 
     function render(query) {
@@ -174,12 +261,16 @@
       }
 
       var qLower = q.toLowerCase();
-      var matches = index.filter(function (doc) {
-        return (
-          doc.title.toLowerCase().indexOf(qLower) !== -1 ||
-          doc.text.toLowerCase().indexOf(qLower) !== -1
-        );
-      });
+      var matches = index
+        .map(function (doc) {
+          return { doc: doc, score: scoreDoc(doc, qLower) };
+        })
+        .filter(function (entry) {
+          return entry.score > 0;
+        })
+        .sort(function (a, b) {
+          return b.score - a.score;
+        });
 
       resultsEl.classList.remove("hidden");
 
@@ -190,11 +281,13 @@
 
       resultsEl.innerHTML = matches
         .slice(0, 15)
-        .map(function (doc) {
+        .map(function (entry) {
+          var doc = entry.doc;
+          var snippetSource = bestSnippetSource(doc, qLower);
           var snippet =
-            doc.title.toLowerCase().indexOf(qLower) !== -1
+            doc.title.toLowerCase().indexOf(qLower) !== -1 && snippetSource === doc.text
               ? doc.text.slice(0, 80)
-              : snippetFor(doc.text, q);
+              : snippetFor(snippetSource, q);
           return (
             '<li><a href="' +
             doc.url +
@@ -232,9 +325,11 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     setupSidebar();
+    setupSidebarGroups();
     setupToc();
     setupScrollSpy();
     setupCopyButtons();
     setupSearch();
+    setupMermaid();
   });
 })();

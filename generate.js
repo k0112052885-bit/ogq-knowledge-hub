@@ -36,6 +36,55 @@ md.core.ruler.after("inline", "task-checkbox", (state) => {
   });
 });
 
+// ```mermaid 코드블록을 <div class="mermaid">로 변환 (mermaid.js가 클라이언트에서 렌더링)
+const defaultFence = md.renderer.rules.fence;
+md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const info = token.info.trim().toLowerCase();
+  if (info === "mermaid") {
+    return `<div class="mermaid">\n${token.content}</div>\n`;
+  }
+  return defaultFence
+    ? defaultFence(tokens, idx, options, env, self)
+    : self.renderToken(tokens, idx, options);
+};
+
+// 이미지 단독 문단(<p>이미지만</p>)은 감싸는 <p>를 제거해
+// <figure>(block 요소)가 <p> 안에 중첩되지 않도록 함
+md.core.ruler.push("image-figure-unwrap", (state) => {
+  const tokens = state.tokens;
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i].type !== "paragraph_open") continue;
+    const inline = tokens[i + 1];
+    const close = tokens[i + 2];
+    if (
+      inline &&
+      inline.type === "inline" &&
+      close &&
+      close.type === "paragraph_close" &&
+      inline.children.length === 1 &&
+      inline.children[0].type === "image"
+    ) {
+      tokens[i].hidden = true;
+      close.hidden = true;
+    }
+  }
+});
+
+// 이미지를 <figure>로 감싸고 alt 텍스트를 캡션으로 표시
+const defaultImageRender =
+  md.renderer.rules.image ||
+  ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options));
+
+md.renderer.rules.image = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const altIdx = token.attrIndex("alt");
+  const alt = altIdx >= 0 ? token.attrs[altIdx][1] : "";
+  const imgHtml = defaultImageRender(tokens, idx, options, env, self);
+  const caption = alt ? `<figcaption>${escapeHtml(alt)}</figcaption>` : "";
+  return `<figure class="doc-image">${imgHtml}${caption}</figure>`;
+};
+
 // h2/h3에 id(slug) 부여 + TOC 수집용 heading-anchor 규칙
 const headingSlugCounts = new Map();
 
@@ -49,6 +98,64 @@ function slugify(text) {
   headingSlugCounts.set(base, count + 1);
   return count === 0 ? base || "section" : `${base}-${count}`;
 }
+
+// > [!NOTE] / [!TIP] / [!WARNING] / [!DANGER] blockquote를 callout 박스로 변환
+const CALLOUT_TYPES = {
+  note: { label: "Note", icon: "&#8505;" },
+  tip: { label: "Tip", icon: "&#128161;" },
+  warning: { label: "Warning", icon: "&#9888;" },
+  danger: { label: "Danger", icon: "&#128680;" },
+};
+
+md.core.ruler.push("callout", (state) => {
+  const tokens = state.tokens;
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i].type !== "blockquote_open") continue;
+
+    // blockquote 내부의 첫 inline 토큰 찾기 (blockquote_open -> paragraph_open -> inline)
+    let inlineIdx = -1;
+    for (let j = i + 1; j < tokens.length; j++) {
+      if (tokens[j].type === "blockquote_close") break;
+      if (tokens[j].type === "inline") {
+        inlineIdx = j;
+        break;
+      }
+    }
+    if (inlineIdx === -1) continue;
+
+    const inlineToken = tokens[inlineIdx];
+    const firstChild = inlineToken.children && inlineToken.children[0];
+    if (!firstChild || firstChild.type !== "text") continue;
+
+    const match = firstChild.content.match(/^\[!(NOTE|TIP|WARNING|DANGER)\]\s*/i);
+    if (!match) continue;
+
+    const type = match[1].toLowerCase();
+    const meta = CALLOUT_TYPES[type];
+    if (!meta) continue;
+
+    // 매칭된 마커 텍스트 제거 (뒤에 남는 공백/줄바꿈용 softbreak도 정리)
+    firstChild.content = firstChild.content.slice(match[0].length);
+    if (firstChild.content === "" && inlineToken.children[1] && inlineToken.children[1].type === "softbreak") {
+      inlineToken.children.splice(0, 2);
+    } else if (firstChild.content === "") {
+      inlineToken.children.splice(0, 1);
+    }
+
+    tokens[i].attrJoin("class", `callout callout-${type}`);
+    tokens[i].meta = { ...(tokens[i].meta || {}), calloutType: type, calloutMeta: meta };
+  }
+});
+
+md.renderer.rules.blockquote_open = (tokens, idx) => {
+  const token = tokens[idx];
+  const classAttr = token.attrGet("class");
+  if (token.meta && token.meta.calloutType) {
+    const { label, icon } = token.meta.calloutMeta;
+    return `<blockquote class="${classAttr}">\n<div class="callout-title"><span class="callout-icon">${icon}</span>${label}</div>\n`;
+  }
+  return classAttr ? `<blockquote class="${classAttr}">\n` : "<blockquote>\n";
+};
 
 md.core.ruler.push("heading-anchor", (state) => {
   const tokens = state.tokens;
@@ -76,6 +183,31 @@ function statusBadge(status) {
   return `<span class="badge badge-${status}">${STATUS_LABELS[status]}</span>`;
 }
 
+const DEFAULT_CATEGORY = "기타";
+
+function normalizeTags(tags) {
+  if (!tags) return [];
+  if (Array.isArray(tags)) {
+    return tags.map((t) => String(t).trim()).filter(Boolean);
+  }
+  if (typeof tags === "string") {
+    return tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function normalizeDate(value) {
+  if (!value) return "";
+  // gray-matter가 YAML 날짜를 Date 객체로 파싱하는 경우가 있어 문자열로 통일
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10);
+  }
+  return String(value).trim();
+}
+
 function loadDocs() {
   const files = fs
     .readdirSync(DOCS_DIR)
@@ -93,8 +225,12 @@ function loadDocs() {
       file,
       outputName,
       title: data.title || slug,
+      description: data.description || "",
+      category: data.category ? String(data.category).trim() : DEFAULT_CATEGORY,
+      tags: normalizeTags(data.tags),
       status: data.status || "",
       order: typeof data.order === "number" ? data.order : 999,
+      updated: normalizeDate(data.updated),
       content,
     };
   });
@@ -103,14 +239,46 @@ function loadDocs() {
   return docs;
 }
 
+function groupByCategory(docs) {
+  const groups = new Map();
+  docs.forEach((doc) => {
+    if (!groups.has(doc.category)) groups.set(doc.category, []);
+    groups.get(doc.category).push(doc);
+  });
+  return Array.from(groups.entries()).map(([category, items]) => ({
+    category,
+    items,
+  }));
+}
+
 function renderSidebar(docs, currentSlug) {
-  const items = docs
-    .map((doc) => {
-      const isActive = doc.slug === currentSlug;
-      const badge = statusBadge(doc.status);
-      return `<li><a href="${doc.outputName}"${
-        isActive ? ' class="active" aria-current="page"' : ""
-      }>${escapeHtml(doc.title)}${badge}</a></li>`;
+  const groups = groupByCategory(docs);
+
+  const groupsHtml = groups
+    .map((group) => {
+      const items = group.items
+        .map((doc) => {
+          const isActive = doc.slug === currentSlug;
+          const badge = statusBadge(doc.status);
+          return `<li><a href="${doc.outputName}"${
+            isActive ? ' class="active" aria-current="page"' : ""
+          }>${escapeHtml(doc.title)}${badge}</a></li>`;
+        })
+        .join("\n            ");
+
+      const hasActive = group.items.some((doc) => doc.slug === currentSlug);
+
+      return `<li class="sidebar-group${hasActive ? " open" : ""}">
+          <button type="button" class="sidebar-group-toggle" aria-expanded="${
+            hasActive ? "true" : "false"
+          }">
+            <span class="sidebar-group-arrow">&#9656;</span>
+            <span class="sidebar-group-label">${escapeHtml(group.category)}</span>
+          </button>
+          <ul class="sidebar-group-items">
+            ${items}
+          </ul>
+        </li>`;
     })
     .join("\n        ");
 
@@ -124,8 +292,8 @@ function renderSidebar(docs, currentSlug) {
         <ul id="searchResults" class="search-results hidden"></ul>
       </div>
       <nav class="sidebar-nav" aria-label="문서 목록">
-        <ul>
-        ${items}
+        <ul class="sidebar-groups">
+        ${groupsHtml}
         </ul>
       </nav>
     </aside>`;
@@ -196,6 +364,25 @@ function renderPager(docs, currentSlug) {
   return `<nav class="doc-pager" aria-label="문서 이동">\n      ${prevHtml}\n      ${nextHtml}\n    </nav>`;
 }
 
+function renderTags(tags) {
+  if (!tags.length) return "";
+  const items = tags
+    .map((tag) => `<span class="tag-pill">#${escapeHtml(tag)}</span>`)
+    .join("\n          ");
+  return `<div class="doc-tags">\n          ${items}\n        </div>`;
+}
+
+function renderUpdated(updated) {
+  if (!updated) return "";
+  return `<div class="doc-updated">
+          <span class="doc-updated-label">마지막 수정:</span>
+          <span class="doc-updated-date">${escapeHtml(updated)}</span>
+        </div>`;
+}
+
+const MERMAID_CDN_URL =
+  "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js";
+
 function renderPage(doc, docs) {
   headingSlugCounts.clear();
   const bodyHtml = md.render(stripLeadingH1(doc.content));
@@ -204,6 +391,12 @@ function renderPage(doc, docs) {
   const tocHtml = renderToc(toc);
   const pagerHtml = renderPager(docs, doc.slug);
   const badge = statusBadge(doc.status);
+  const tagsHtml = renderTags(doc.tags);
+  const updatedHtml = renderUpdated(doc.updated);
+  const hasMermaid = /```mermaid/.test(doc.content);
+  const mermaidScript = hasMermaid
+    ? `<script src="${MERMAID_CDN_URL}"></script>\n  `
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -212,7 +405,7 @@ function renderPage(doc, docs) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(doc.title)} · OGQ Knowledge Hub</title>
   <link rel="stylesheet" href="assets/style.css" />
-</head>
+  ${mermaidScript}</head>
 <body>
   <div class="app-shell">
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -228,6 +421,8 @@ function renderPage(doc, docs) {
           <h1>${escapeHtml(doc.title)}</h1>
           ${badge}
         </div>
+        ${updatedHtml}
+        ${tagsHtml}
         <div class="markdown-body">
           ${bodyHtml}
         </div>
@@ -256,11 +451,28 @@ function buildSearchIndex(docs) {
 
     return {
       title: doc.title,
+      description: doc.description,
+      category: doc.category,
+      tags: doc.tags,
       url: doc.outputName,
       status: doc.status,
+      updated: doc.updated,
       text: plainText,
     };
   });
+}
+
+function buildSidebarData(docs) {
+  return groupByCategory(docs).map((group) => ({
+    category: group.category,
+    items: group.items.map((doc) => ({
+      title: doc.title,
+      url: doc.outputName,
+      status: doc.status,
+      tags: doc.tags,
+      order: doc.order,
+    })),
+  }));
 }
 
 function build() {
@@ -289,6 +501,21 @@ function build() {
     "utf-8"
   );
   console.log("생성됨: dist/assets/search-index.js");
+
+  fs.writeFileSync(
+    path.join(DIST_DIR, "search-index.json"),
+    JSON.stringify(searchIndex, null, 2),
+    "utf-8"
+  );
+  console.log("생성됨: dist/search-index.json");
+
+  const sidebarData = buildSidebarData(docs);
+  fs.writeFileSync(
+    path.join(DIST_DIR, "sidebar.json"),
+    JSON.stringify(sidebarData, null, 2),
+    "utf-8"
+  );
+  console.log("생성됨: dist/sidebar.json");
 
   console.log(`\n빌드 완료: 총 ${docs.length}개 문서 생성됨 → dist/`);
 }

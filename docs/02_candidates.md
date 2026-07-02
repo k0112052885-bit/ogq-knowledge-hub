@@ -1,7 +1,13 @@
 ---
 title: 후보 비교
+description: 통신사 연동 방식 3가지 후보(직접 API, SDK 임베드, 딥링크)의 비교 분석
+category: 설계
+tags:
+  - architecture
+  - comparison
 status: locked
 order: 2
+updated: 2026-07-02
 ---
 
 # 후보 비교
@@ -40,6 +46,9 @@ OGQ가 제공하는 SDK를 통신사 앱에 임베드합니다.
 
 - 장점: 개발 난이도와 통신사 부담의 균형이 좋습니다.
 - 단점: SDK 버전 관리 이슈가 발생할 수 있습니다.
+
+> [!TIP]
+> 세 후보 중 가중 점수가 가장 높아 실제로 채택된 방식입니다. 자세한 근거는 [결정 게이트](03_decision_gate.html) 문서를 참고하세요.
 
 ### C. 딥링크 리다이렉트
 
