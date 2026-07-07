@@ -71,15 +71,15 @@ npm run dev
 
 ```
 OGQ Knowledge Hub 로컬 서버가 실행 중입니다.
-  사이트 보기: http://localhost:3000/
-  문서 편집:   http://localhost:3000/admin
+  사이트 보기: http://localhost:7777/
+  문서 편집:   http://localhost:7777/admin
 ```
 
-- `http://localhost:3000/` — 가장 최근에 빌드된 `dist/` 결과물을 그대로 서빙합니다.
-- `http://localhost:3000/admin` — 문서 편집 화면입니다.
+- `http://localhost:7777/` — 가장 최근에 빌드된 `dist/` 결과물을 그대로 서빙합니다.
+- `http://localhost:7777/admin` — 문서 편집 화면입니다.
 
-기본 포트는 3000번이며, 이미 사용 중이라면 `PORT=3100 npm run dev` 처럼 환경변수로
-바꿀 수 있습니다.
+기본 포트는 7777번이며, 이미 사용 중이거나 다른 포트를 쓰고 싶다면
+`PORT=8888 npm run dev` 처럼 환경변수로 바꿀 수 있습니다.
 
 ### 편집 화면 구성
 

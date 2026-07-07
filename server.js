@@ -9,7 +9,7 @@ const DIST_DIR = path.join(ROOT_DIR, "dist");
 const ADMIN_DIR = path.join(ROOT_DIR, "admin");
 const SOURCE_ASSETS_DIR = path.join(ROOT_DIR, "assets");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 7777;
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
