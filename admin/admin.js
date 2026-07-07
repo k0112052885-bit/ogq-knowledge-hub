@@ -10,6 +10,11 @@
   const btnNew = document.getElementById("btnNew");
   const btnSave = document.getElementById("btnSave");
   const btnBuild = document.getElementById("btnBuild");
+  const btnShutdown = document.getElementById("btnShutdown");
+
+  const shutdownModal = document.getElementById("shutdownModal");
+  const btnCancelShutdown = document.getElementById("btnCancelShutdown");
+  const btnConfirmShutdown = document.getElementById("btnConfirmShutdown");
 
   const newDocModal = document.getElementById("newDocModal");
   const newTitle = document.getElementById("newTitle");
@@ -145,11 +150,10 @@
     const blocks = previewEl.querySelectorAll(".mermaid");
     if (!blocks.length || typeof window.mermaid === "undefined") return;
     try {
-      const isDark =
-        window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      // 편집 화면은 항상 다크 테마이므로 미리보기 Mermaid도 dark로 고정
       window.mermaid.initialize({
         startOnLoad: false,
-        theme: isDark ? "dark" : "default",
+        theme: "dark",
         securityLevel: "strict",
       });
       window.mermaid.run({ nodes: blocks });
@@ -240,15 +244,44 @@
     }
   }
 
+  function openShutdownModal() {
+    shutdownModal.classList.remove("hidden");
+  }
+
+  function closeShutdownModal() {
+    shutdownModal.classList.add("hidden");
+  }
+
+  async function confirmShutdown() {
+    btnConfirmShutdown.disabled = true;
+    btnConfirmShutdown.textContent = "종료 중...";
+    try {
+      await api("/api/shutdown", { method: "POST" });
+    } catch (e) {
+      // 서버가 응답 직후 바로 종료되면서 연결이 끊길 수 있으므로 에러는 무시
+    }
+    closeShutdownModal();
+    document.body.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;height:100vh;' +
+      'font-family:sans-serif;color:#8b909c;background:#0f1115;font-size:14px;">' +
+      "서버가 종료되었습니다. 이 탭을 닫아도 됩니다.</div>";
+  }
+
   editorEl.addEventListener("input", () => schedulePreview(false));
 
   btnNew.addEventListener("click", openNewDocModal);
   btnSave.addEventListener("click", saveCurrentDoc);
   btnBuild.addEventListener("click", runBuild);
+  btnShutdown.addEventListener("click", openShutdownModal);
   btnCancelNew.addEventListener("click", closeNewDocModal);
   btnCreateNew.addEventListener("click", createNewDoc);
+  btnCancelShutdown.addEventListener("click", closeShutdownModal);
+  btnConfirmShutdown.addEventListener("click", confirmShutdown);
   newDocModal.addEventListener("click", (e) => {
     if (e.target === newDocModal) closeNewDocModal();
+  });
+  shutdownModal.addEventListener("click", (e) => {
+    if (e.target === shutdownModal) closeShutdownModal();
   });
 
   document.addEventListener("keydown", (e) => {

@@ -7,7 +7,6 @@ const ROOT_DIR = __dirname;
 const DOCS_DIR = path.join(ROOT_DIR, "docs");
 const DIST_DIR = path.join(ROOT_DIR, "dist");
 const ADMIN_DIR = path.join(ROOT_DIR, "admin");
-const SOURCE_ASSETS_DIR = path.join(ROOT_DIR, "assets");
 
 const PORT = process.env.PORT || 7777;
 
@@ -410,18 +409,23 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (pathname === "/api/shutdown" && req.method === "POST") {
+      sendJson(res, 200, { ok: true, message: "서버를 종료합니다." });
+      // 응답을 먼저 내려보낸 뒤 서버를 종료
+      res.on("finish", () => {
+        server.close(() => process.exit(0));
+        // 열려있는 연결이 있어도 일정 시간 뒤 강제 종료
+        setTimeout(() => process.exit(0), 500).unref();
+      });
+      return;
+    }
+
     if (pathname === "/admin" || pathname === "/admin/") {
       serveStatic(req, res, ADMIN_DIR, "/index.html");
       return;
     }
     if (pathname.startsWith("/admin/")) {
       serveStatic(req, res, ADMIN_DIR, pathname.replace(/^\/admin/, ""));
-      return;
-    }
-
-    // 관리 화면이 항상 최신 소스 CSS를 쓰도록 dist/ 빌드 여부와 무관하게 assets/를 직접 서빙
-    if (pathname.startsWith("/admin-assets/")) {
-      serveStatic(req, res, SOURCE_ASSETS_DIR, pathname.replace(/^\/admin-assets/, ""));
       return;
     }
 

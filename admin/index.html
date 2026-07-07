@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>문서 편집 · OGQ Knowledge Hub</title>
-  <link rel="stylesheet" href="/admin-assets/style.css" />
   <link rel="stylesheet" href="admin.css" />
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 </head>
@@ -12,14 +11,29 @@
   <div class="admin-shell">
     <header class="admin-toolbar">
       <div class="admin-toolbar-left">
-        <span class="admin-logo">OGQ Knowledge Hub</span>
+        <span class="admin-logo">
+          <span class="admin-logo-mark">◆</span>
+          OGQ Knowledge Hub
+        </span>
         <span class="admin-badge">로컬 편집 모드</span>
       </div>
       <div class="admin-toolbar-actions">
-        <button type="button" id="btnNew" class="btn">새 문서</button>
-        <button type="button" id="btnSave" class="btn btn-primary">저장</button>
-        <button type="button" id="btnBuild" class="btn">빌드</button>
-        <a href="/" target="_blank" rel="noopener" class="btn btn-link">사이트 보기</a>
+        <button type="button" id="btnNew" class="btn">
+          <span class="btn-icon">＋</span>새 문서
+        </button>
+        <button type="button" id="btnSave" class="btn btn-primary">
+          <span class="btn-icon">⬇</span>저장
+        </button>
+        <button type="button" id="btnBuild" class="btn">
+          <span class="btn-icon">⚙</span>빌드
+        </button>
+        <a href="/" target="_blank" rel="noopener" class="btn btn-link">
+          <span class="btn-icon">↗</span>사이트 보기
+        </a>
+        <span class="toolbar-divider"></span>
+        <button type="button" id="btnShutdown" class="btn btn-danger">
+          <span class="btn-icon">⏻</span>서버 종료
+        </button>
       </div>
     </header>
 
@@ -33,6 +47,7 @@
 
       <section class="admin-editor">
         <div class="editor-meta">
+          <span class="editor-meta-icon">✎</span>
           <input type="text" id="currentFilename" class="filename-display" readonly placeholder="문서를 선택하세요" />
         </div>
         <textarea id="editor" class="editor-textarea" spellcheck="false" placeholder="왼쪽에서 문서를 선택하거나 '새 문서'를 눌러 작성을 시작하세요."></textarea>
@@ -75,6 +90,20 @@
       <div class="modal-actions">
         <button type="button" id="btnCancelNew" class="btn">취소</button>
         <button type="button" id="btnCreateNew" class="btn btn-primary">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="shutdownModal">
+    <div class="modal">
+      <h2>서버를 종료할까요?</h2>
+      <p class="modal-desc">
+        로컬 편집 서버(<code>npm run dev</code>)가 종료됩니다. 저장하지 않은 변경사항이
+        있다면 먼저 저장 버튼을 눌러주세요.
+      </p>
+      <div class="modal-actions">
+        <button type="button" id="btnCancelShutdown" class="btn">취소</button>
+        <button type="button" id="btnConfirmShutdown" class="btn btn-danger">종료</button>
       </div>
     </div>
   </div>
