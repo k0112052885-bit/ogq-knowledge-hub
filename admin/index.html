@@ -3,111 +3,248 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>문서 편집 · OGQ Knowledge Hub</title>
-  <link rel="stylesheet" href="admin.css" />
+  <title>OGQ Docs Builder</title>
+  <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
 </head>
-<body>
-  <div class="admin-shell">
-    <header class="admin-toolbar">
-      <div class="admin-toolbar-left">
-        <span class="admin-logo">
-          <span class="admin-logo-mark">◆</span>
-          OGQ Knowledge Hub
-        </span>
-        <span class="admin-badge">로컬 편집 모드</span>
+<body data-theme="dark">
+  <div class="app">
+    <!-- ===== Top bar ===== -->
+    <header class="topbar">
+      <div class="topbar-brand">
+        <span class="brand-mark">📘</span>
+        <span class="brand-name">OGQ Docs Builder</span>
       </div>
-      <div class="admin-toolbar-actions">
-        <button type="button" id="btnNew" class="btn">
-          <span class="btn-icon">＋</span>새 문서
+
+      <div class="topbar-search">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="globalSearch"
+          class="search-input"
+          placeholder="문서 검색  (제목 · 태그 · 본문)"
+          autocomplete="off"
+        />
+        <kbd class="search-kbd">/</kbd>
+      </div>
+
+      <div class="topbar-actions">
+        <button type="button" id="btnThemeToggle" class="icon-btn" title="테마 전환" aria-label="테마 전환">
+          <span id="themeIcon">🌙</span>
         </button>
-        <button type="button" id="btnSave" class="btn btn-primary">
-          <span class="btn-icon">⬇</span>저장
-        </button>
-        <button type="button" id="btnBuild" class="btn">
-          <span class="btn-icon">⚙</span>빌드
-        </button>
-        <a href="/" target="_blank" rel="noopener" class="btn btn-link">
-          <span class="btn-icon">↗</span>사이트 보기
-        </a>
-        <span class="toolbar-divider"></span>
-        <button type="button" id="btnShutdown" class="btn btn-danger">
-          <span class="btn-icon">⏻</span>서버 종료
-        </button>
+        <button type="button" id="btnSettings" class="icon-btn" title="환경설정" aria-label="환경설정">⚙️</button>
       </div>
     </header>
 
-    <div class="admin-status" id="statusBar" role="status" aria-live="polite"></div>
+    <!-- ===== Main 3-pane workspace ===== -->
+    <div class="workspace">
+      <!-- Left: doc tree -->
+      <aside class="pane pane-tree" id="paneTree">
+        <div class="pane-header">
+          <span>문서 탐색기</span>
+          <button type="button" id="btnCollapseAll" class="pane-header-btn" title="모두 접기">⤢</button>
+        </div>
 
-    <div class="admin-body">
-      <aside class="admin-doclist">
-        <div class="admin-doclist-header">문서 목록</div>
-        <ul id="docList" class="doc-list"></ul>
+        <div class="tree-section">
+          <div class="tree-section-title">최근 수정</div>
+          <ul id="recentList" class="recent-list"></ul>
+        </div>
+
+        <div class="tree-section tree-section-grow">
+          <div class="tree-section-title">전체 문서</div>
+          <ul id="docTree" class="doc-tree"></ul>
+        </div>
       </aside>
 
-      <section class="admin-editor">
-        <div class="editor-meta">
-          <span class="editor-meta-icon">✎</span>
-          <input type="text" id="currentFilename" class="filename-display" readonly placeholder="문서를 선택하세요" />
+      <!-- Center: Monaco editor -->
+      <section class="pane pane-editor">
+        <div class="pane-header editor-header">
+          <div class="editor-path">
+            <span class="editor-path-icon">✎</span>
+            <span id="editorFilename" class="editor-filename">문서를 선택하세요</span>
+            <span id="editorDirtyDot" class="dirty-dot hidden" title="저장되지 않은 변경사항"></span>
+          </div>
+          <div class="editor-header-actions">
+            <label class="chip-toggle" title="입력을 멈추면 자동으로 저장합니다">
+              <input type="checkbox" id="toggleAutoSave" />
+              <span>자동 저장</span>
+            </label>
+            <label class="chip-toggle" title="저장할 때마다 자동으로 빌드합니다">
+              <input type="checkbox" id="toggleAutoBuild" />
+              <span>자동 빌드</span>
+            </label>
+          </div>
         </div>
-        <textarea id="editor" class="editor-textarea" spellcheck="false" placeholder="왼쪽에서 문서를 선택하거나 '새 문서'를 눌러 작성을 시작하세요."></textarea>
+        <div id="monacoContainer" class="monaco-container"></div>
       </section>
 
-      <section class="admin-preview">
-        <div class="preview-header">미리보기</div>
+      <!-- Right: live preview -->
+      <section class="pane pane-preview">
+        <div class="pane-header">
+          <span>실시간 미리보기</span>
+          <span id="previewMeta" class="preview-meta"></span>
+        </div>
         <div id="previewBody" class="preview-body markdown-body"></div>
       </section>
     </div>
+
+    <!-- ===== Bottom toolbar ===== -->
+    <footer class="bottombar">
+      <div class="bottombar-left">
+        <span id="statusText" class="status-text">준비됨</span>
+      </div>
+      <div class="bottombar-actions">
+        <button type="button" id="btnNew" class="bbtn">
+          <span class="bbtn-icon">＋</span>새 문서
+        </button>
+        <button type="button" id="btnSave" class="bbtn bbtn-primary">
+          <span class="bbtn-icon">⬇</span>저장
+        </button>
+        <button type="button" id="btnBuild" class="bbtn">
+          <span class="bbtn-icon">⚙</span>Build
+        </button>
+        <button type="button" id="btnGitPush" class="bbtn">
+          <span class="bbtn-icon">⇪</span>Git Push
+        </button>
+        <a href="/" target="_blank" rel="noopener" class="bbtn">
+          <span class="bbtn-icon">↗</span>사이트 보기
+        </a>
+        <button type="button" id="btnShutdown" class="bbtn bbtn-danger">
+          <span class="bbtn-icon">⏻</span>서버 종료
+        </button>
+      </div>
+    </footer>
   </div>
 
+  <!-- ===== Toast container ===== -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- ===== New document modal ===== -->
   <div class="modal-overlay hidden" id="newDocModal">
     <div class="modal">
-      <h2>새 문서 만들기</h2>
-      <label class="modal-field">
-        <span>제목 *</span>
-        <input type="text" id="newTitle" placeholder="예: KT API 연동 가이드" />
-      </label>
-      <label class="modal-field">
-        <span>파일명 slug (선택)</span>
-        <input type="text" id="newSlug" placeholder="예: kt_api (비우면 제목에서 자동 생성)" />
-      </label>
-      <label class="modal-field">
-        <span>카테고리</span>
-        <input type="text" id="newCategory" placeholder="예: 개발" />
-      </label>
-      <label class="modal-field">
-        <span>태그 (쉼표로 구분)</span>
-        <input type="text" id="newTags" placeholder="예: api, kt" />
-      </label>
-      <label class="modal-field">
-        <span>상태</span>
-        <select id="newStatus">
-          <option value="draft">초안</option>
-          <option value="review">검토중</option>
-          <option value="locked">확정</option>
-        </select>
-      </label>
-      <div class="modal-actions">
-        <button type="button" id="btnCancelNew" class="btn">취소</button>
-        <button type="button" id="btnCreateNew" class="btn btn-primary">생성</button>
+      <div class="modal-header">
+        <h2>새 문서 만들기</h2>
+        <button type="button" class="modal-close" data-close="newDocModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">제목 <em>*</em></span>
+          <input type="text" id="newTitle" class="field-input" placeholder="예: KT API 연동 가이드" />
+        </label>
+        <label class="field">
+          <span class="field-label">파일명 slug</span>
+          <input type="text" id="newSlug" class="field-input" placeholder="비우면 제목에서 자동 생성 (예: kt_api)" />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">카테고리</span>
+            <input type="text" id="newCategory" class="field-input" placeholder="예: 개발" />
+          </label>
+          <label class="field">
+            <span class="field-label">상태</span>
+            <select id="newStatus" class="field-input">
+              <option value="draft">초안</option>
+              <option value="review">검토중</option>
+              <option value="locked">확정</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label">태그 <small>(쉼표로 구분)</small></span>
+          <input type="text" id="newTags" class="field-input" placeholder="예: api, kt" />
+        </label>
+        <label class="field">
+          <span class="field-label">설명</span>
+          <textarea id="newDescription" class="field-input field-textarea" rows="2" placeholder="문서 한 줄 요약"></textarea>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="newDocModal">취소</button>
+        <button type="button" id="btnCreateNew" class="bbtn bbtn-primary">생성</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay hidden" id="shutdownModal">
+  <!-- ===== Settings modal ===== -->
+  <div class="modal-overlay hidden" id="settingsModal">
     <div class="modal">
-      <h2>서버를 종료할까요?</h2>
-      <p class="modal-desc">
-        로컬 편집 서버(<code>npm run dev</code>)가 종료됩니다. 저장하지 않은 변경사항이
-        있다면 먼저 저장 버튼을 눌러주세요.
-      </p>
-      <div class="modal-actions">
-        <button type="button" id="btnCancelShutdown" class="btn">취소</button>
-        <button type="button" id="btnConfirmShutdown" class="btn btn-danger">종료</button>
+      <div class="modal-header">
+        <h2>환경설정</h2>
+        <button type="button" class="modal-close" data-close="settingsModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">테마</span>
+          <select id="settingTheme" class="field-input">
+            <option value="dark">다크</option>
+            <option value="light">라이트</option>
+          </select>
+        </label>
+        <label class="field-checkbox">
+          <input type="checkbox" id="settingAutoSave" />
+          <span>편집 중 자동 저장 (2초 입력 없을 때)</span>
+        </label>
+        <label class="field-checkbox">
+          <input type="checkbox" id="settingAutoBuild" />
+          <span>저장 시 자동으로 Build 실행</span>
+        </label>
+        <label class="field">
+          <span class="field-label">에디터 폰트 크기</span>
+          <input type="range" id="settingFontSize" min="12" max="20" value="14" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn bbtn-primary" data-close="settingsModal">닫기</button>
       </div>
     </div>
   </div>
 
-  <script src="admin.js"></script>
+  <!-- ===== Shutdown confirm modal ===== -->
+  <div class="modal-overlay hidden" id="shutdownModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>서버를 종료할까요?</h2>
+        <button type="button" class="modal-close" data-close="shutdownModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          로컬 편집 서버(<code>npm run dev</code>)가 종료됩니다. 저장하지 않은 변경사항이
+          있다면 먼저 저장 버튼을 눌러주세요.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="shutdownModal">취소</button>
+        <button type="button" id="btnConfirmShutdown" class="bbtn bbtn-danger">종료</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Git push confirm modal ===== -->
+  <div class="modal-overlay hidden" id="gitPushModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Git Push</h2>
+        <button type="button" class="modal-close" data-close="gitPushModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">커밋 메시지</span>
+          <input type="text" id="gitPushMessage" class="field-input" placeholder="비우면 자동 생성됩니다" />
+        </label>
+        <p class="modal-desc">
+          <code>git add -A</code> → <code>git commit</code> → <code>git push</code> 를
+          순서대로 실행합니다. <code>main</code> 브랜치에 push되면 GitHub Actions가
+          자동으로 빌드하고 GitHub Pages에 배포합니다.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="gitPushModal">취소</button>
+        <button type="button" id="btnConfirmGitPush" class="bbtn bbtn-primary">Push 실행</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>

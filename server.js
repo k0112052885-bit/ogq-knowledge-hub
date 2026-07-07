@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const url = require("url");
+const { execFile } = require("child_process");
 
 const ROOT_DIR = __dirname;
 const DOCS_DIR = path.join(ROOT_DIR, "docs");
@@ -162,7 +163,12 @@ function slugifyTitle(title) {
 
 function formatYamlList(items) {
   if (!items.length) return "[]";
-  return "\n" + items.map((t) => `  - ${t}`).join("\n");
+  return "\n" + items.map((t) => `  - ${formatYamlString(t)}`).join("\n");
+}
+
+// YAML 큰따옴표 문자열 값으로 안전하게 이스케이프 (colon, quote 등 특수문자 방어)
+function formatYamlString(value) {
+  return JSON.stringify(String(value));
 }
 
 async function handleCreateDoc(req, res) {
@@ -197,6 +203,7 @@ async function handleCreateDoc(req, res) {
   }
 
   const category = typeof payload.category === "string" ? payload.category.trim() : "기타";
+  const description = typeof payload.description === "string" ? payload.description.trim() : "";
   const status = ["draft", "review", "locked"].includes(payload.status)
     ? payload.status
     : "draft";
@@ -237,9 +244,9 @@ async function handleCreateDoc(req, res) {
   const today = new Date().toISOString().slice(0, 10);
   const frontMatter = [
     "---",
-    `title: ${title}`,
-    `description: ""`,
-    `category: ${category}`,
+    `title: ${formatYamlString(title)}`,
+    `description: ${formatYamlString(description)}`,
+    `category: ${formatYamlString(category)}`,
     `tags:${formatYamlList(tags)}`,
     `status: ${status}`,
     `order: ${nextOrder}`,
@@ -361,6 +368,64 @@ async function handlePreview(req, res) {
   }
 }
 
+function runGit(args) {
+  return new Promise((resolve, reject) => {
+    execFile("git", args, { cwd: ROOT_DIR, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+      if (err) {
+        reject(new Error(stderr.trim() || stdout.trim() || err.message));
+        return;
+      }
+      // git push 등은 진행 메시지를 stdout이 아닌 stderr로 출력하는 경우가 많아 함께 반환
+      resolve([stdout.trim(), stderr.trim()].filter(Boolean).join("\n"));
+    });
+  });
+}
+
+async function handleGitPush(req, res) {
+  let body = "";
+  try {
+    body = await readRequestBody(req);
+  } catch (e) {
+    sendJson(res, 413, { error: e.message });
+    return;
+  }
+
+  let payload = {};
+  if (body) {
+    try {
+      payload = JSON.parse(body);
+    } catch (e) {
+      sendJson(res, 400, { error: "요청 본문이 올바른 JSON이 아닙니다." });
+      return;
+    }
+  }
+
+  const message =
+    typeof payload.message === "string" && payload.message.trim()
+      ? payload.message.trim()
+      : `docs: update via admin (${new Date().toISOString().slice(0, 19).replace("T", " ")})`;
+
+  try {
+    const status = await runGit(["status", "--porcelain"]);
+    if (!status) {
+      sendJson(res, 200, { ok: true, message: "변경사항이 없어 커밋 없이 종료했습니다.", pushed: false });
+      return;
+    }
+
+    await runGit(["add", "-A"]);
+    await runGit(["commit", "-m", message]);
+    const pushOutput = await runGit(["push"]);
+    sendJson(res, 200, {
+      ok: true,
+      message: "커밋 후 push가 완료되었습니다.",
+      detail: pushOutput,
+      pushed: true,
+    });
+  } catch (err) {
+    sendJson(res, 500, { ok: false, message: `Git push 실패: ${err.message}` });
+  }
+}
+
 function handleBuild(req, res) {
   // require 캐시를 지워 매 빌드마다 docs 최신 상태를 반영
   delete require.cache[require.resolve("./generate.js")];
@@ -401,6 +466,11 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === "/api/build" && req.method === "POST") {
       handleBuild(req, res);
+      return;
+    }
+
+    if (pathname === "/api/git-push" && req.method === "POST") {
+      await handleGitPush(req, res);
       return;
     }
 
