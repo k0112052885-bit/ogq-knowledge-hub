@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OGQ Docs Builder</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="/admin/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
 </head>
@@ -98,6 +98,9 @@
         <button type="button" id="btnNew" class="bbtn">
           <span class="bbtn-icon">＋</span>새 문서
         </button>
+        <button type="button" id="btnImportAi" class="bbtn">
+          <span class="bbtn-icon">✨</span>AI 문서 가져오기
+        </button>
         <button type="button" id="btnSave" class="bbtn bbtn-primary">
           <span class="bbtn-icon">⬇</span>저장
         </button>
@@ -162,6 +165,57 @@
       <div class="modal-footer">
         <button type="button" class="bbtn" data-close="newDocModal">취소</button>
         <button type="button" id="btnCreateNew" class="bbtn bbtn-primary">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AI document import modal ===== -->
+  <div class="modal-overlay hidden" id="importAiModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>✨ AI 문서 가져오기</h2>
+        <button type="button" class="modal-close" data-close="importAiModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          ChatGPT · Claude 등에서 작성한 Markdown 전체를 아래에 붙여넣으면, front matter가
+          자동으로 추가된 새 문서로 <code>docs/</code> 폴더에 저장됩니다.
+        </p>
+        <label class="field">
+          <span class="field-label">제목 <em>*</em></span>
+          <input type="text" id="importTitle" class="field-input" placeholder="예: 2026 마케팅 전략 초안" />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">카테고리</span>
+            <input type="text" id="importCategory" class="field-input" placeholder="예: 기획" />
+          </label>
+          <label class="field">
+            <span class="field-label">상태</span>
+            <select id="importStatus" class="field-input">
+              <option value="draft">초안</option>
+              <option value="review">검토중</option>
+              <option value="locked">확정</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label">태그 <small>(쉼표로 구분)</small></span>
+          <input type="text" id="importTags" class="field-input" placeholder="예: strategy, ai-draft" />
+        </label>
+        <label class="field">
+          <span class="field-label">Markdown 붙여넣기 <em>*</em></span>
+          <textarea
+            id="importMarkdown"
+            class="field-input field-textarea field-textarea-lg"
+            rows="12"
+            placeholder="ChatGPT/Claude에서 복사한 Markdown 전체를 여기에 붙여넣으세요."
+          ></textarea>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="importAiModal">취소</button>
+        <button type="button" id="btnCreateImport" class="bbtn bbtn-primary">문서 생성</button>
       </div>
     </div>
   </div>
@@ -245,6 +299,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="/admin/app.js"></script>
 </body>
 </html>

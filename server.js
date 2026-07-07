@@ -241,6 +241,13 @@ async function handleCreateDoc(req, res) {
     suffix++;
   }
 
+  // AI 문서 가져오기 등에서 본문(body)을 함께 보내면 그대로 사용하고,
+  // 없으면 기존 "새 문서" 동작대로 제목만 있는 빈 본문을 생성한다.
+  const hasCustomBody = typeof payload.body === "string" && payload.body.trim() !== "";
+  const bodyContent = hasCustomBody
+    ? payload.body.replace(/\r\n/g, "\n").trim() + "\n"
+    : `# ${title}\n\n`;
+
   const today = new Date().toISOString().slice(0, 10);
   const frontMatter = [
     "---",
@@ -253,9 +260,7 @@ async function handleCreateDoc(req, res) {
     `updated: ${today}`,
     "---",
     "",
-    `# ${title}`,
-    "",
-    "",
+    bodyContent,
   ].join("\n");
 
   const filePath = resolveDocPath(filename);

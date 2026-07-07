@@ -25,6 +25,7 @@
     statusText: document.getElementById("statusText"),
 
     btnNew: document.getElementById("btnNew"),
+    btnImportAi: document.getElementById("btnImportAi"),
     btnSave: document.getElementById("btnSave"),
     btnBuild: document.getElementById("btnBuild"),
     btnGitPush: document.getElementById("btnGitPush"),
@@ -40,6 +41,14 @@
     newStatus: document.getElementById("newStatus"),
     newDescription: document.getElementById("newDescription"),
     btnCreateNew: document.getElementById("btnCreateNew"),
+
+    importAiModal: document.getElementById("importAiModal"),
+    importTitle: document.getElementById("importTitle"),
+    importCategory: document.getElementById("importCategory"),
+    importTags: document.getElementById("importTags"),
+    importStatus: document.getElementById("importStatus"),
+    importMarkdown: document.getElementById("importMarkdown"),
+    btnCreateImport: document.getElementById("btnCreateImport"),
 
     settingsModal: document.getElementById("settingsModal"),
     settingTheme: document.getElementById("settingTheme"),
@@ -552,15 +561,72 @@
       });
       closeModal("newDocModal");
       toast("success", "새 문서가 생성되었습니다", data.filename);
-      await loadDocList();
-      state.currentFilename = data.filename;
-      el.editorFilename.textContent = data.filename;
-      setEditorValue(data.content);
-      markDirty(false);
-      updateActiveTreeItem();
-      schedulePreview();
+      await loadCreatedDocIntoEditor(data);
     } catch (e) {
       toast("error", "문서 생성 실패", e.message);
+    }
+  }
+
+  // 새 문서/AI 가져오기 공통: 생성된 문서를 목록 갱신 후 즉시 에디터에 열고 미리보기 갱신
+  async function loadCreatedDocIntoEditor(data) {
+    await loadDocList();
+    state.currentFilename = data.filename;
+    el.editorFilename.textContent = data.filename;
+    setEditorValue(data.content);
+    markDirty(false);
+    updateActiveTreeItem();
+    schedulePreview();
+  }
+
+  function openImportAiModal() {
+    el.importTitle.value = "";
+    el.importCategory.value = "";
+    el.importTags.value = "";
+    el.importStatus.value = "draft";
+    el.importMarkdown.value = "";
+    openModal("importAiModal");
+    el.importTitle.focus();
+  }
+
+  async function createImportedDoc() {
+    const title = el.importTitle.value.trim();
+    if (!title) {
+      el.importTitle.focus();
+      return;
+    }
+    const markdown = el.importMarkdown.value;
+    if (!markdown.trim()) {
+      toast("error", "Markdown 내용이 비어 있습니다", "붙여넣을 본문을 입력해주세요.");
+      el.importMarkdown.focus();
+      return;
+    }
+    const tags = el.importTags.value
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    el.btnCreateImport.disabled = true;
+    el.btnCreateImport.textContent = "생성 중...";
+    try {
+      const data = await api("/api/docs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          category: el.importCategory.value.trim() || "기타",
+          tags,
+          status: el.importStatus.value,
+          body: markdown,
+        }),
+      });
+      closeModal("importAiModal");
+      toast("success", "AI 문서를 가져왔습니다", data.filename);
+      await loadCreatedDocIntoEditor(data);
+    } catch (e) {
+      toast("error", "문서 가져오기 실패", e.message);
+    } finally {
+      el.btnCreateImport.disabled = false;
+      el.btnCreateImport.textContent = "문서 생성";
     }
   }
 
@@ -619,7 +685,7 @@
     document.body.innerHTML =
       '<div style="display:flex;align-items:center;justify-content:center;height:100vh;' +
       'font-family:sans-serif;color:#8b909c;background:#0d0f13;font-size:14px;">' +
-      "서버가 종료되었습니다. 이 탭을 닫아도 됩니다.</div>";
+      "서버가 종료되었습니다. 창을 닫아도 됩니다.</div>";
   }
 
   // ============================================================
@@ -727,6 +793,9 @@
 
   el.btnNew.addEventListener("click", openNewDocModal);
   el.btnCreateNew.addEventListener("click", createNewDoc);
+
+  el.btnImportAi.addEventListener("click", openImportAiModal);
+  el.btnCreateImport.addEventListener("click", createImportedDoc);
 
   el.btnSave.addEventListener("click", () => saveCurrentDoc());
   el.btnBuild.addEventListener("click", () => runBuild());
