@@ -520,4 +520,13 @@ function build() {
   console.log(`\n빌드 완료: 총 ${docs.length}개 문서 생성됨 → dist/`);
 }
 
-build();
+function renderMarkdownPreview(content) {
+  headingSlugCounts.clear();
+  return md.render(stripLeadingH1(content));
+}
+
+if (require.main === module) {
+  build();
+}
+
+module.exports = { build, renderMarkdownPreview, normalizeDate };

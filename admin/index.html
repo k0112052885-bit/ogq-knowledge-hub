@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>문서 편집 · OGQ Knowledge Hub</title>
+  <link rel="stylesheet" href="/admin-assets/style.css" />
+  <link rel="stylesheet" href="admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="admin-shell">
+    <header class="admin-toolbar">
+      <div class="admin-toolbar-left">
+        <span class="admin-logo">OGQ Knowledge Hub</span>
+        <span class="admin-badge">로컬 편집 모드</span>
+      </div>
+      <div class="admin-toolbar-actions">
+        <button type="button" id="btnNew" class="btn">새 문서</button>
+        <button type="button" id="btnSave" class="btn btn-primary">저장</button>
+        <button type="button" id="btnBuild" class="btn">빌드</button>
+        <a href="/" target="_blank" rel="noopener" class="btn btn-link">사이트 보기</a>
+      </div>
+    </header>
+
+    <div class="admin-status" id="statusBar" role="status" aria-live="polite"></div>
+
+    <div class="admin-body">
+      <aside class="admin-doclist">
+        <div class="admin-doclist-header">문서 목록</div>
+        <ul id="docList" class="doc-list"></ul>
+      </aside>
+
+      <section class="admin-editor">
+        <div class="editor-meta">
+          <input type="text" id="currentFilename" class="filename-display" readonly placeholder="문서를 선택하세요" />
+        </div>
+        <textarea id="editor" class="editor-textarea" spellcheck="false" placeholder="왼쪽에서 문서를 선택하거나 '새 문서'를 눌러 작성을 시작하세요."></textarea>
+      </section>
+
+      <section class="admin-preview">
+        <div class="preview-header">미리보기</div>
+        <div id="previewBody" class="preview-body markdown-body"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="newDocModal">
+    <div class="modal">
+      <h2>새 문서 만들기</h2>
+      <label class="modal-field">
+        <span>제목 *</span>
+        <input type="text" id="newTitle" placeholder="예: KT API 연동 가이드" />
+      </label>
+      <label class="modal-field">
+        <span>파일명 slug (선택)</span>
+        <input type="text" id="newSlug" placeholder="예: kt_api (비우면 제목에서 자동 생성)" />
+      </label>
+      <label class="modal-field">
+        <span>카테고리</span>
+        <input type="text" id="newCategory" placeholder="예: 개발" />
+      </label>
+      <label class="modal-field">
+        <span>태그 (쉼표로 구분)</span>
+        <input type="text" id="newTags" placeholder="예: api, kt" />
+      </label>
+      <label class="modal-field">
+        <span>상태</span>
+        <select id="newStatus">
+          <option value="draft">초안</option>
+          <option value="review">검토중</option>
+          <option value="locked">확정</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" id="btnCancelNew" class="btn">취소</button>
+        <button type="button" id="btnCreateNew" class="btn btn-primary">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

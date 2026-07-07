@@ -4,7 +4,8 @@
   "description": "Markdown 문서를 탭형 HTML 문서 묶음으로 변환하는 정적 문서 생성기",
   "main": "generate.js",
   "scripts": {
-    "build": "node generate.js"
+    "build": "node generate.js",
+    "dev": "node server.js"
   },
   "license": "UNLICENSED",
   "dependencies": {

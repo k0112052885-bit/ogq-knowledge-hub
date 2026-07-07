@@ -7,25 +7,33 @@ Markdown 문서를 넣으면 GitBook/Docusaurus 스타일의 탭형 HTML 문서 
 ## 폴더 구조
 
 ```
-docs/        # 원본 Markdown 문서 (Front Matter 포함)
-assets/      # CSS/JS 등 정적 자산 (빌드 시 dist/assets 로 복사됨)
-dist/        # 빌드 결과물 (npm run build 시마다 삭제 후 재생성)
-generate.js  # 빌드 스크립트
+docs/                       # 원본 Markdown 문서 (Front Matter 포함)
+assets/                     # CSS/JS 등 정적 자산 (빌드 시 dist/assets 로 복사됨)
+admin/                      # 브라우저 문서 편집 UI (index.html / admin.css / admin.js)
+dist/                       # 빌드 결과물 (npm run build 시마다 삭제 후 재생성, Git 추적 대상 아님)
+generate.js                 # 빌드 스크립트
+server.js                   # 로컬 편집 서버 (npm run dev)
+.github/workflows/deploy.yml  # GitHub Pages 자동 배포 워크플로우
 ```
 
-## 설치
+## 로컬 실행 방법
 
 ```bash
+# 1. 의존성 설치
 npm install
-```
 
-## 실행 (빌드)
-
-```bash
+# 2. 빌드
 npm run build
+
+# 3. 결과 확인 (브라우저에서 파일을 직접 열기)
+open dist/index.html   # macOS
+# 또는 dist/index.html 파일을 브라우저 창에 드래그
 ```
 
-실행하면 다음 순서로 동작합니다.
+빌드된 사이트를 파일로만 확인할 것이 아니라 **브라우저에서 직접 문서를 작성/수정**하고
+싶다면 아래 "브라우저 기반 문서 편집" 섹션의 `npm run dev` 를 사용하세요.
+
+`npm run build`(`node generate.js`)는 다음 순서로 동작합니다.
 
 1. `dist/` 폴더를 삭제하고 새로 만듭니다.
 2. `assets/` 를 `dist/assets/` 로 복사합니다.
@@ -38,7 +46,138 @@ npm run build
    `dist/search-index.json`, `dist/sidebar.json`(향후 검색/탐색 기능 확장용)로 생성합니다.
 
 빌드가 끝나면 `dist/index.html` 을 브라우저에서 더블클릭(또는 `file://` 경로로)
-열어 확인할 수 있습니다.
+열어 확인할 수 있습니다. 서버 없이 `file://` 프로토콜로 완전히 동작하도록 만들어져
+있으므로, 로컬 확인 시 별도 `http-server` 등을 띄울 필요가 없습니다.
+
+## 브라우저 기반 문서 편집 (`/admin`)
+
+VS Code를 열지 않고 브라우저에서 바로 문서를 쓰고 고칠 수 있는 로컬 전용 편집
+화면입니다. Node 내장 `http` 모듈로 만든 간단한 서버(`server.js`)가 이 화면과
+문서 읽기/쓰기 API를 제공합니다.
+
+> [!WARNING]
+> **이 서버는 로컬 개발 전용입니다.** 인증이나 접근 제어가 없으므로 `localhost`
+> 에서만 사용하고, 외부 네트워크에 노출하거나 배포용으로 쓰지 마세요.
+> GitHub Pages에 배포된 사이트는 정적 파일이라 파일 저장 자체가 불가능하며,
+> 이 편집 기능은 그 정적 사이트와 무관한 별도의 로컬 도구입니다.
+
+### 실행 방법
+
+```bash
+npm run dev
+```
+
+터미널에 아래처럼 출력되면 정상 실행된 것입니다.
+
+```
+OGQ Knowledge Hub 로컬 서버가 실행 중입니다.
+  사이트 보기: http://localhost:3000/
+  문서 편집:   http://localhost:3000/admin
+```
+
+- `http://localhost:3000/` — 가장 최근에 빌드된 `dist/` 결과물을 그대로 서빙합니다.
+- `http://localhost:3000/admin` — 문서 편집 화면입니다.
+
+기본 포트는 3000번이며, 이미 사용 중이라면 `PORT=3100 npm run dev` 처럼 환경변수로
+바꿀 수 있습니다.
+
+### 편집 화면 구성
+
+`/admin` 화면은 3단으로 구성됩니다.
+
+- **좌측**: `docs/` 의 문서 목록을 카테고리별로 보여줍니다. 클릭하면 해당 문서를 엽니다.
+- **중앙**: Markdown 원문을 직접 수정하는 편집기(textarea)입니다. Front Matter를
+  포함한 전체 파일 내용을 편집합니다.
+- **우측**: 입력할 때마다 자동으로 갱신되는 실시간 미리보기입니다. 표, 코드블록,
+  체크박스는 물론 Mermaid 다이어그램/Callout/이미지 캡션도 최대한 실제 사이트와
+  가깝게 반영해서 보여줍니다. (완벽히 동일하지는 않을 수 있으며, 정확한 최종
+  모습은 빌드 후 실제 사이트에서 확인하세요.)
+
+상단 툴바 버튼:
+
+| 버튼 | 동작 |
+| --- | --- |
+| 새 문서 | 제목/카테고리/태그/상태를 입력받아 Front Matter가 채워진 `.md` 파일을 `docs/`에 새로 생성 |
+| 저장 | 현재 편집 중인 문서를 `docs/파일명.md`에 저장 (`Cmd/Ctrl+S` 단축키 지원) |
+| 빌드 | `npm run build`와 동일한 빌드를 서버에서 실행하고 결과를 표시 |
+| 사이트 보기 | 새 탭에서 `http://localhost:포트/` (최근 빌드 결과물)를 엽니다 |
+
+### 새 문서 작성 방법
+
+1. `/admin`에서 **새 문서** 버튼 클릭
+2. 제목(필수), 파일명 slug(선택, 비우면 제목에서 자동 생성), 카테고리, 태그,
+   상태를 입력 후 **생성**
+3. 파일명은 `{다음 순번}_{slug}.md` 형식으로 자동 생성됩니다.
+   예: 기존 문서가 5개면 `06_kt_api.md` 처럼 생성됩니다.
+4. 생성 즉시 편집기에 로드되며, 이어서 본문을 작성하고 **저장**하면 됩니다.
+
+### 저장 후 빌드하는 방법
+
+1. 편집기에서 내용을 수정합니다.
+2. **저장** 버튼(또는 `Cmd/Ctrl+S`)을 눌러 `docs/*.md`에 반영합니다.
+3. **빌드** 버튼을 눌러 `dist/`를 재생성합니다.
+4. **사이트 보기** 버튼으로 실제 반영 결과를 확인합니다.
+
+빌드 없이 저장만 한 상태에서는 `dist/`(실제 사이트)에 변경이 반영되지 않으니,
+확인하려면 반드시 빌드를 거쳐야 합니다.
+
+### 문서 편집 API
+
+`admin.js`가 내부적으로 사용하는 API이며, 필요하면 다른 도구에서도 호출할 수
+있습니다.
+
+| Method | Path | 설명 |
+| --- | --- | --- |
+| GET | `/api/docs` | `docs/` 의 문서 목록(제목/카테고리/상태/수정일 등) 반환 |
+| POST | `/api/docs` | `{ title, slug?, category?, tags?, status? }` 로 새 문서 생성 |
+| GET | `/api/docs/:filename` | 해당 문서의 Markdown 원문 반환 |
+| POST | `/api/docs/:filename` | `{ content }` 를 해당 파일에 저장 |
+| POST | `/api/preview` | `{ content }` 를 HTML로 렌더링해 미리보기용으로 반환 |
+| POST | `/api/build` | `npm run build` 와 동일한 빌드 실행, 성공/실패 메시지 반환 |
+
+`:filename` 은 `docs/` 폴더를 벗어날 수 없도록 서버에서 검증합니다(영문/숫자/
+하이픈/언더스코어 + `.md` 확장자만 허용, 상위 경로 이동 문자 차단).
+
+## GitHub Pages 자동 배포
+
+`main` 브랜치에 push하면 `.github/workflows/deploy.yml` 워크플로우가 자동으로
+빌드하고 GitHub Pages에 배포합니다.
+
+### 최초 1회 설정
+
+1. GitHub 저장소 페이지에서 **Settings → Pages**로 이동합니다.
+2. **Build and deployment → Source** 를 **GitHub Actions** 로 설정합니다.
+   (Deploy from a branch 방식이 아닙니다. `dist/` 를 별도 브랜치에 커밋하지 않고,
+   Actions가 빌드 산출물을 아티팩트로 직접 업로드/배포하는 방식입니다.)
+3. 설정 후 `main` 브랜치에 push하면 워크플로우가 자동 실행됩니다.
+
+### 배포 과정
+
+`main` 브랜치에 push될 때마다 다음이 자동으로 실행됩니다.
+
+1. 저장소 체크아웃
+2. Node.js 20 설치
+3. `npm ci` — `package-lock.json` 기준으로 의존성 설치
+4. `npm run build` — `dist/` 생성
+5. `dist/` 를 GitHub Pages용 아티팩트로 업로드
+6. GitHub Pages에 배포
+
+같은 브랜치에서 짧은 시간 내 여러 번 push하더라도 `concurrency` 설정에 의해
+이전 배포는 취소되고 최신 커밋 기준으로만 배포됩니다.
+
+### 배포 URL과 경로 주의사항
+
+GitHub Pages는 프로젝트 저장소일 경우 `https://<사용자명>.github.io/<저장소명>/` 와
+같은 하위 경로에서 서빙됩니다. 이 프로젝트의 모든 HTML은 CSS/JS/이미지/문서 링크를
+**항상 상대 경로**로 생성하므로(`assets/style.css`, `01_design.html` 등, 슬래시로
+시작하는 절대 경로 아님) 별도 `baseurl` 설정 없이 하위 경로 배포와 `file://` 로컬
+실행 양쪽에서 모두 정상 동작합니다.
+
+### 배포 상태 확인
+
+GitHub 저장소의 **Actions** 탭에서 워크플로우 실행 로그와 배포 상태(성공/실패)를
+확인할 수 있습니다. 배포가 완료되면 **Settings → Pages** 상단에 배포된 사이트
+URL이 표시됩니다.
 
 ## 화면 구성
 
