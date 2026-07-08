@@ -150,25 +150,82 @@ function handleListDocs(req, res) {
   });
 }
 
-function slugifyTitle(title) {
-  const ascii = title
+// 자주 쓰는 한글 카테고리를 의미 있는 영문 slug로 매핑.
+// 제목/카테고리가 전부 한글이라 ASCII 필터링 후 빈 문자열이 될 때의 fallback으로 사용된다.
+const CATEGORY_SLUG_MAP = {
+  목표: "goal",
+  전략: "strategy",
+  기획: "plan",
+  설계: "design",
+  개발: "dev",
+  운영: "ops",
+  마케팅: "marketing",
+  영업: "sales",
+  회의록: "meeting",
+  정책: "policy",
+  가이드: "guide",
+  기타: "doc",
+};
+
+function asciiSlug(text) {
+  return String(text)
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9\s_-]/g, "")
     .replace(/[\s-]+/g, "_")
     .replace(/_+/g, "_")
     .replace(/^_+|_+$/g, "");
-  return ascii || "doc";
 }
 
+function categoryToSlug(category) {
+  if (!category) return "";
+  const trimmed = String(category).trim();
+  if (CATEGORY_SLUG_MAP[trimmed]) return CATEGORY_SLUG_MAP[trimmed];
+  return asciiSlug(trimmed);
+}
+
+// 제목 → 카테고리 → 생성 날짜 순으로 시도해 의미 있는 영문 slug를 만든다.
+// 예: 제목 "마켓본부 운영"(한글만) + 카테고리 "목표" → "goal"
+//     제목/카테고리 모두 매핑 실패 → "doc-0707"(월일) 같은 날짜 기반 fallback
+function slugifyTitle(title, category) {
+  const fromTitle = asciiSlug(title);
+  if (fromTitle) return fromTitle;
+
+  const fromCategory = categoryToSlug(category);
+  if (fromCategory) return fromCategory;
+
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `doc-${mm}${dd}`;
+}
+
+// "tags:" 뒤에 바로 붙일 수 있는 완전한 YAML 조각을 반환한다.
+// 빈 배열이면 "tags: []"(콜론 뒤 공백 필수 - 없으면 YAML 파싱 에러 발생),
+// 값이 있으면 "tags:\n  - ..." 형태의 블록 리스트를 반환한다.
 function formatYamlList(items) {
-  if (!items.length) return "[]";
+  if (!items.length) return " []";
   return "\n" + items.map((t) => `  - ${formatYamlString(t)}`).join("\n");
 }
 
 // YAML 큰따옴표 문자열 값으로 안전하게 이스케이프 (colon, quote 등 특수문자 방어)
 function formatYamlString(value) {
   return JSON.stringify(String(value));
+}
+
+// 붙여넣은 Front Matter의 tags 값(배열 또는 쉼표 구분 문자열)을 배열로 정규화
+function normalizeImportedTags(tags) {
+  if (!tags) return [];
+  if (Array.isArray(tags)) {
+    return tags.map((t) => String(t).trim()).filter(Boolean);
+  }
+  if (typeof tags === "string") {
+    return tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+  return [];
 }
 
 async function handleCreateDoc(req, res) {
@@ -202,14 +259,46 @@ async function handleCreateDoc(req, res) {
     return;
   }
 
-  const category = typeof payload.category === "string" ? payload.category.trim() : "기타";
-  const description = typeof payload.description === "string" ? payload.description.trim() : "";
+  // 붙여넣은 Markdown(payload.body)이 자체 Front Matter(---로 시작)를 포함하면
+  // 미리 걷어내고, 그 안의 값을 폼에서 비워둔 필드의 보완값으로 사용한다.
+  // 이렇게 하지 않으면 서버가 생성하는 Front Matter 뒤에 사용자가 붙여넣은
+  // Front Matter가 그대로 본문으로 남아 이중 생성된다.
+  let pastedData = {};
+  let pastedBody = typeof payload.body === "string" ? payload.body : "";
+  if (pastedBody.trim().startsWith("---")) {
+    try {
+      const parsed = matter(pastedBody);
+      pastedData = parsed.data || {};
+      pastedBody = parsed.content;
+    } catch (e) {
+      // Front Matter처럼 보이지만 파싱 실패 시 원문을 그대로 본문으로 사용
+    }
+  }
+
+  const category =
+    typeof payload.category === "string" && payload.category.trim()
+      ? payload.category.trim()
+      : typeof pastedData.category === "string" && pastedData.category.trim()
+        ? pastedData.category.trim()
+        : "기타";
+
+  const description =
+    typeof payload.description === "string" && payload.description.trim()
+      ? payload.description.trim()
+      : typeof pastedData.description === "string"
+        ? pastedData.description.trim()
+        : "";
+
   const status = ["draft", "review", "locked"].includes(payload.status)
     ? payload.status
-    : "draft";
-  const tags = Array.isArray(payload.tags)
-    ? payload.tags.map((t) => String(t).trim()).filter(Boolean)
-    : [];
+    : ["draft", "review", "locked"].includes(pastedData.status)
+      ? pastedData.status
+      : "draft";
+
+  const tags =
+    Array.isArray(payload.tags) && payload.tags.length
+      ? payload.tags.map((t) => String(t).trim()).filter(Boolean)
+      : normalizeImportedTags(pastedData.tags);
 
   let existing = [];
   try {
@@ -230,7 +319,9 @@ async function handleCreateDoc(req, res) {
   const nextOrder = maxOrder + 1;
   const paddedOrder = String(nextOrder).padStart(2, "0");
   const slugHint = typeof payload.slug === "string" ? payload.slug.trim() : "";
-  const slug = slugifyTitle(slugHint || title);
+  // slug를 직접 입력했다면 그 값을 그대로 사용(카테고리 fallback 없이),
+  // 비워뒀다면 제목 → 카테고리 → 날짜 순으로 의미 있는 slug를 찾는다.
+  const slug = slugHint ? asciiSlug(slugHint) || slugifyTitle(title, category) : slugifyTitle(title, category);
   let filename = `${paddedOrder}_${slug}.md`;
 
   // 동일 파일명이 이미 있으면 뒤에 번호를 붙여 충돌 방지
@@ -243,9 +334,10 @@ async function handleCreateDoc(req, res) {
 
   // AI 문서 가져오기 등에서 본문(body)을 함께 보내면 그대로 사용하고,
   // 없으면 기존 "새 문서" 동작대로 제목만 있는 빈 본문을 생성한다.
-  const hasCustomBody = typeof payload.body === "string" && payload.body.trim() !== "";
+  // pastedBody는 위에서 Front Matter가 이미 제거된 상태이므로 이중 생성되지 않는다.
+  const hasCustomBody = pastedBody.trim() !== "";
   const bodyContent = hasCustomBody
-    ? payload.body.replace(/\r\n/g, "\n").trim() + "\n"
+    ? pastedBody.replace(/\r\n/g, "\n").trim() + "\n"
     : `# ${title}\n\n`;
 
   const today = new Date().toISOString().slice(0, 10);

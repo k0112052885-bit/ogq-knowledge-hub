@@ -14,8 +14,10 @@
     collapseAllBtn: document.getElementById("btnCollapseAll"),
 
     editorFilename: document.getElementById("editorFilename"),
-    editorDirtyDot: document.getElementById("editorDirtyDot"),
+    saveStatus: document.getElementById("saveStatus"),
+    saveStatusText: document.getElementById("saveStatusText"),
     monacoContainer: document.getElementById("monacoContainer"),
+    editorToolbar: document.getElementById("editorToolbar"),
     toggleAutoSave: document.getElementById("toggleAutoSave"),
     toggleAutoBuild: document.getElementById("toggleAutoBuild"),
 
@@ -47,6 +49,7 @@
     importCategory: document.getElementById("importCategory"),
     importTags: document.getElementById("importTags"),
     importStatus: document.getElementById("importStatus"),
+    importDescription: document.getElementById("importDescription"),
     importMarkdown: document.getElementById("importMarkdown"),
     btnCreateImport: document.getElementById("btnCreateImport"),
 
@@ -272,6 +275,146 @@
     }
   }
 
+  function focusEditor() {
+    if (state.monacoReady) state.monacoEditor.focus();
+    else if (state.fallbackEditor) state.fallbackEditor.focus();
+  }
+
+  // ============================================================
+  // Markdown toolbar: 현재 커서/선택 영역에 Markdown 문법을 삽입
+  // ============================================================
+  const MARKDOWN_TOOLBAR_ACTIONS = {
+    h1: { type: "line-prefix", prefix: "# " },
+    h2: { type: "line-prefix", prefix: "## " },
+    bold: { type: "wrap", before: "**", after: "**", placeholder: "굵은 텍스트" },
+    quote: { type: "line-prefix", prefix: "> " },
+    checklist: { type: "line-prefix", prefix: "- [ ] " },
+    table: {
+      type: "block",
+      placeholder:
+        "| 열1 | 열2 |\n| --- | --- |\n| 값1 | 값2 |",
+    },
+    codeblock: { type: "wrap-block", before: "```\n", after: "\n```", placeholder: "코드" },
+  };
+
+  // Monaco 에디터에 서식 삽입 (선택 영역 유무에 따라 감싸기/치환)
+  function applyMarkdownActionMonaco(action) {
+    const editor = state.monacoEditor;
+    const model = editor.getModel();
+    const selection = editor.getSelection();
+    const selectedText = model.getValueInRange(selection);
+
+    if (action.type === "line-prefix") {
+      const startLine = selection.startLineNumber;
+      const endLine = selection.endLineNumber;
+      const edits = [];
+      for (let line = startLine; line <= endLine; line++) {
+        edits.push({
+          range: new window.monaco.Range(line, 1, line, 1),
+          text: action.prefix,
+        });
+      }
+      editor.executeEdits("markdown-toolbar", edits);
+      editor.focus();
+      return;
+    }
+
+    if (action.type === "wrap") {
+      const text = selectedText || action.placeholder;
+      const insertText = `${action.before}${text}${action.after}`;
+      editor.executeEdits("markdown-toolbar", [{ range: selection, text: insertText }]);
+      if (!selectedText) {
+        // 플레이스홀더를 선택 상태로 남겨 바로 타이핑해 덮어쓸 수 있게 함
+        const startPos = selection.getStartPosition();
+        const from = startPos.column + action.before.length;
+        const to = from + action.placeholder.length;
+        editor.setSelection(
+          new window.monaco.Selection(startPos.lineNumber, from, startPos.lineNumber, to)
+        );
+      }
+      editor.focus();
+      return;
+    }
+
+    if (action.type === "wrap-block" || action.type === "block") {
+      const text = action.type === "block" ? action.placeholder : selectedText || action.placeholder;
+      const insertText =
+        action.type === "wrap-block" ? `${action.before}${text}${action.after}` : text;
+      const needsNewlineBefore = selection.startColumn > 1;
+      const finalText = (needsNewlineBefore ? "\n" : "") + insertText + "\n";
+      editor.executeEdits("markdown-toolbar", [{ range: selection, text: finalText }]);
+      editor.focus();
+      return;
+    }
+  }
+
+  // 폴백 textarea에 서식 삽입 (selectionStart/End 기반)
+  function applyMarkdownActionFallback(action) {
+    const textarea = state.fallbackEditor;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const value = textarea.value;
+    const selectedText = value.slice(start, end);
+
+    function replaceSelection(newText, selectStart, selectEnd) {
+      textarea.value = value.slice(0, start) + newText + value.slice(end);
+      textarea.focus();
+      const s = selectStart !== undefined ? selectStart : start + newText.length;
+      const e = selectEnd !== undefined ? selectEnd : s;
+      textarea.setSelectionRange(s, e);
+      onEditorContentChanged();
+    }
+
+    if (action.type === "line-prefix") {
+      const lineStart = value.lastIndexOf("\n", start - 1) + 1;
+      const affected = value.slice(lineStart, end);
+      const withPrefix = affected
+        .split("\n")
+        .map((line) => action.prefix + line)
+        .join("\n");
+      textarea.value = value.slice(0, lineStart) + withPrefix + value.slice(end);
+      textarea.focus();
+      const newPos = end + action.prefix.length * (affected.split("\n").length);
+      textarea.setSelectionRange(newPos, newPos);
+      onEditorContentChanged();
+      return;
+    }
+
+    if (action.type === "wrap") {
+      const text = selectedText || action.placeholder;
+      const newText = `${action.before}${text}${action.after}`;
+      if (!selectedText) {
+        replaceSelection(newText, start + action.before.length, start + action.before.length + text.length);
+      } else {
+        replaceSelection(newText);
+      }
+      return;
+    }
+
+    if (action.type === "wrap-block" || action.type === "block") {
+      const text = action.type === "block" ? action.placeholder : selectedText || action.placeholder;
+      const insertText = action.type === "wrap-block" ? `${action.before}${text}${action.after}` : text;
+      const needsNewlineBefore = start > 0 && value[start - 1] !== "\n";
+      const finalText = (needsNewlineBefore ? "\n" : "") + insertText + "\n";
+      replaceSelection(finalText);
+      return;
+    }
+  }
+
+  function applyMarkdownAction(actionName) {
+    const action = MARKDOWN_TOOLBAR_ACTIONS[actionName];
+    if (!action) return;
+
+    if (state.monacoReady) {
+      // Monaco는 onDidChangeModelContent 리스너가 executeEdits 후 자동으로 트리거됨
+      applyMarkdownActionMonaco(action);
+    } else if (state.fallbackEditor) {
+      // 폴백 textarea는 리스너가 input 이벤트 기반이라 값을 직접 바꾸면 트리거되지 않으므로
+      // applyMarkdownActionFallback 내부에서 onEditorContentChanged()를 명시적으로 호출한다.
+      applyMarkdownActionFallback(action);
+    }
+  }
+
   // ============================================================
   // Editor change handling: dirty flag, preview, autosave
   // ============================================================
@@ -289,9 +432,27 @@
     }
   }
 
+  // 저장 상태 4단계: saved(저장됨) / unsaved(저장 안 됨) / saving(저장 중) / error(저장 실패)
+  const SAVE_STATUS_LABELS = {
+    saved: "저장됨",
+    unsaved: "저장 안 됨",
+    saving: "저장 중...",
+    error: "저장 실패",
+  };
+
+  function updateSaveStatus(status) {
+    if (!state.currentFilename) {
+      el.saveStatus.classList.add("hidden");
+      return;
+    }
+    el.saveStatus.classList.remove("hidden");
+    el.saveStatus.className = `save-status save-status-${status}`;
+    el.saveStatusText.textContent = SAVE_STATUS_LABELS[status] || status;
+  }
+
   function markDirty(dirty) {
     state.isDirty = dirty;
-    el.editorDirtyDot.classList.toggle("hidden", !dirty);
+    updateSaveStatus(dirty ? "unsaved" : "saved");
   }
 
   function schedulePreview() {
@@ -299,8 +460,17 @@
     previewTimer = setTimeout(renderPreview, 300);
   }
 
+  // 에디터에는 Front Matter가 포함된 전체 파일 내용이 들어있으므로,
+  // markdown-it이 "---"를 <hr>로 오인해 깨지지 않도록 미리보기 전에 제거한다.
+  function stripFrontMatterForPreview(content) {
+    if (!content.startsWith("---")) return content;
+    const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
+    return match ? content.slice(match[0].length) : content;
+  }
+
   async function renderPreview() {
-    const content = getEditorValue();
+    const rawContent = getEditorValue();
+    const content = stripFrontMatterForPreview(rawContent);
     if (!content.trim()) {
       el.previewBody.innerHTML = '<p class="preview-empty">편집기에 내용을 입력하면 미리보기가 표시됩니다.</p>';
       return;
@@ -504,13 +674,15 @@
       return;
     }
     setStatus("저장 중...", "busy");
+    updateSaveStatus("saving");
     try {
       await api(`/api/docs/${encodeURIComponent(state.currentFilename)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: getEditorValue() }),
       });
-      markDirty(false);
+      state.isDirty = false;
+      updateSaveStatus("saved");
       setStatus(`저장됨: ${state.currentFilename}`, "ok");
       toast("success", "저장 완료", state.currentFilename);
       loadDocList();
@@ -519,6 +691,7 @@
         runBuild(true);
       }
     } catch (e) {
+      updateSaveStatus("error");
       setStatus("저장 실패", "error");
       toast("error", "저장 실패", e.message);
     }
@@ -583,9 +756,105 @@
     el.importCategory.value = "";
     el.importTags.value = "";
     el.importStatus.value = "draft";
+    el.importDescription.value = "";
     el.importMarkdown.value = "";
+    state.importFrontMatterApplied = false;
     openModal("importAiModal");
     el.importTitle.focus();
+  }
+
+  const IMPORT_STATUS_VALUES = ["draft", "review", "locked"];
+
+  // 브라우저에는 gray-matter가 없으므로, title/description/category/status/tags
+  // 정도의 단순한 key: value / 리스트 형태만 다루는 최소 YAML Front Matter 파서.
+  // 복잡한 YAML(중첩 객체, 여러 줄 문자열 등)은 지원하지 않지만
+  // AI가 생성하는 Front Matter는 대부분 이 단순한 형태를 따른다.
+  function parseFrontMatterPreview(markdown) {
+    const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+    if (!match) return null;
+
+    const yamlBlock = match[1];
+    const lines = yamlBlock.split(/\r?\n/);
+    const data = {};
+    let currentListKey = null;
+
+    function unquote(value) {
+      const trimmed = value.trim();
+      if (
+        (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+        (trimmed.startsWith("'") && trimmed.endsWith("'"))
+      ) {
+        return trimmed.slice(1, -1);
+      }
+      return trimmed;
+    }
+
+    lines.forEach((line) => {
+      const listItemMatch = line.match(/^\s*-\s*(.+)$/);
+      if (listItemMatch && currentListKey) {
+        if (!Array.isArray(data[currentListKey])) data[currentListKey] = [];
+        data[currentListKey].push(unquote(listItemMatch[1]));
+        return;
+      }
+
+      const kvMatch = line.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*(.*)$/);
+      if (!kvMatch) return;
+
+      const key = kvMatch[1];
+      const rawValue = kvMatch[2].trim();
+      currentListKey = null;
+
+      if (rawValue === "" || rawValue === "[]") {
+        // 다음 줄부터 "- 항목" 리스트가 이어질 수 있음
+        currentListKey = key;
+        if (rawValue === "[]") data[key] = [];
+        return;
+      }
+
+      if (rawValue.startsWith("[") && rawValue.endsWith("]")) {
+        data[key] = rawValue
+          .slice(1, -1)
+          .split(",")
+          .map((v) => unquote(v))
+          .filter(Boolean);
+        return;
+      }
+
+      data[key] = unquote(rawValue);
+    });
+
+    return { data, body: markdown.slice(match[0].length) };
+  }
+
+  // Markdown 붙여넣기 즉시 Front Matter를 감지해 title/description/category/tags/status
+  // 필드를 자동으로 채운다. 사용자가 이미 직접 입력한 필드는 덮어쓰지 않는다.
+  function autofillFromPastedMarkdown() {
+    const markdown = el.importMarkdown.value;
+    const parsed = parseFrontMatterPreview(markdown);
+    if (!parsed) return;
+
+    const { data } = parsed;
+
+    if (!el.importTitle.value.trim() && typeof data.title === "string" && data.title.trim()) {
+      el.importTitle.value = data.title.trim();
+    }
+    if (!el.importCategory.value.trim() && typeof data.category === "string" && data.category.trim()) {
+      el.importCategory.value = data.category.trim();
+    }
+    if (!el.importTags.value.trim() && Array.isArray(data.tags) && data.tags.length) {
+      el.importTags.value = data.tags.join(", ");
+    }
+    if (IMPORT_STATUS_VALUES.includes(data.status)) {
+      el.importStatus.value = data.status;
+    }
+    if (!el.importDescription.value.trim() && typeof data.description === "string" && data.description.trim()) {
+      el.importDescription.value = data.description.trim();
+    }
+
+    if (!state.importFrontMatterApplied) {
+      state.importFrontMatterApplied = true;
+      toast("info", "Front Matter를 감지했습니다", "제목/카테고리/태그/상태를 자동으로 채웠습니다.");
+    }
   }
 
   async function createImportedDoc() {
@@ -608,14 +877,17 @@
     el.btnCreateImport.disabled = true;
     el.btnCreateImport.textContent = "생성 중...";
     try {
+      // 카테고리/태그를 입력하지 않았다면 빈 값 그대로 보내
+      // 붙여넣은 Markdown 안의 Front Matter 값(있다면)으로 서버가 보완하도록 한다.
       const data = await api("/api/docs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          category: el.importCategory.value.trim() || "기타",
+          category: el.importCategory.value.trim(),
           tags,
           status: el.importStatus.value,
+          description: el.importDescription.value.trim(),
           body: markdown,
         }),
       });
@@ -796,9 +1068,21 @@
 
   el.btnImportAi.addEventListener("click", openImportAiModal);
   el.btnCreateImport.addEventListener("click", createImportedDoc);
+  el.importMarkdown.addEventListener("input", autofillFromPastedMarkdown);
+  el.importMarkdown.addEventListener("paste", () => {
+    // paste 이벤트 시점엔 textarea.value가 아직 갱신 전이므로 다음 tick에 처리
+    setTimeout(autofillFromPastedMarkdown, 0);
+  });
 
   el.btnSave.addEventListener("click", () => saveCurrentDoc());
   el.btnBuild.addEventListener("click", () => runBuild());
+
+  el.editorToolbar.addEventListener("click", (e) => {
+    const btn = e.target.closest(".toolbar-btn");
+    if (!btn) return;
+    if (!state.monacoReady && !state.fallbackEditor) return;
+    applyMarkdownAction(btn.dataset.mdAction);
+  });
 
   el.btnGitPush.addEventListener("click", () => {
     el.gitPushMessage.value = "";

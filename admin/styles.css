@@ -518,12 +518,62 @@ body {
   white-space: nowrap;
 }
 
-.dirty-dot {
+/* ---------- Save status badge ---------- */
+.save-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  flex: 0 0 auto;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.save-status-dot {
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: var(--warning);
   flex: 0 0 auto;
+}
+
+.save-status-saved {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.save-status-saved .save-status-dot {
+  background: var(--success);
+}
+
+.save-status-unsaved {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.save-status-unsaved .save-status-dot {
+  background: var(--warning);
+}
+
+.save-status-saving {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+.save-status-saving .save-status-dot {
+  background: var(--accent);
+  animation: save-status-pulse 1s ease-in-out infinite;
+}
+
+.save-status-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.save-status-error .save-status-dot {
+  background: var(--danger);
+}
+
+@keyframes save-status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
 }
 
 .editor-header-actions {
@@ -552,6 +602,53 @@ body {
 
 .chip-toggle:has(input:checked) {
   color: var(--accent);
+}
+
+/* ---------- Markdown formatting toolbar ---------- */
+.editor-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.toolbar-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.toolbar-btn:active {
+  transform: translateY(1px);
+}
+
+.editor-toolbar .toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-default);
+  margin: 0 4px;
+  flex: 0 0 auto;
 }
 
 .monaco-container {

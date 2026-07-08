@@ -63,7 +63,10 @@
           <div class="editor-path">
             <span class="editor-path-icon">✎</span>
             <span id="editorFilename" class="editor-filename">문서를 선택하세요</span>
-            <span id="editorDirtyDot" class="dirty-dot hidden" title="저장되지 않은 변경사항"></span>
+            <span id="saveStatus" class="save-status save-status-saved hidden">
+              <span class="save-status-dot"></span>
+              <span id="saveStatusText">저장됨</span>
+            </span>
           </div>
           <div class="editor-header-actions">
             <label class="chip-toggle" title="입력을 멈추면 자동으로 저장합니다">
@@ -75,6 +78,22 @@
               <span>자동 빌드</span>
             </label>
           </div>
+        </div>
+        <div class="editor-toolbar" id="editorToolbar" role="toolbar" aria-label="Markdown 서식 도구">
+          <button type="button" class="toolbar-btn" data-md-action="h1" title="제목 1 (H1)">
+            <strong>H1</strong>
+          </button>
+          <button type="button" class="toolbar-btn" data-md-action="h2" title="제목 2 (H2)">
+            <strong>H2</strong>
+          </button>
+          <span class="toolbar-divider"></span>
+          <button type="button" class="toolbar-btn" data-md-action="bold" title="굵게 (Bold)">
+            <strong>B</strong>
+          </button>
+          <button type="button" class="toolbar-btn" data-md-action="quote" title="인용문">❝</button>
+          <button type="button" class="toolbar-btn" data-md-action="checklist" title="체크리스트">☑</button>
+          <button type="button" class="toolbar-btn" data-md-action="table" title="표 삽입">▦</button>
+          <button type="button" class="toolbar-btn" data-md-action="codeblock" title="코드블록">{ }</button>
         </div>
         <div id="monacoContainer" class="monaco-container"></div>
       </section>
@@ -202,6 +221,10 @@
         <label class="field">
           <span class="field-label">태그 <small>(쉼표로 구분)</small></span>
           <input type="text" id="importTags" class="field-input" placeholder="예: strategy, ai-draft" />
+        </label>
+        <label class="field">
+          <span class="field-label">설명 <small>(Front Matter에 있으면 자동 채움)</small></span>
+          <textarea id="importDescription" class="field-input field-textarea" rows="2" placeholder="문서 한 줄 요약"></textarea>
         </label>
         <label class="field">
           <span class="field-label">Markdown 붙여넣기 <em>*</em></span>
