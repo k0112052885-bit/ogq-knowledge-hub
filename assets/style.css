@@ -691,6 +691,32 @@ blockquote.callout p {
   height: auto;
 }
 
+.mermaid.mermaid-error {
+  display: block;
+  background: var(--callout-danger-bg);
+  border-color: var(--callout-danger-border);
+}
+
+.mermaid-error-box {
+  text-align: left;
+  width: 100%;
+}
+
+.mermaid-error-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--callout-danger-text);
+  margin-bottom: 6px;
+}
+
+.mermaid-error-message {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* ---------- Images ---------- */
 figure.doc-image {
   margin: 20px 0;

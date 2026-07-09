@@ -34,6 +34,7 @@
 
     btnNew: document.getElementById("btnNew"),
     btnImportAi: document.getElementById("btnImportAi"),
+    btnAiDiagram: document.getElementById("btnAiDiagram"),
     btnSave: document.getElementById("btnSave"),
     btnBuild: document.getElementById("btnBuild"),
     btnGitPush: document.getElementById("btnGitPush"),
@@ -301,6 +302,11 @@
         "| 열1 | 열2 |\n| --- | --- |\n| 값1 | 값2 |",
     },
     codeblock: { type: "wrap-block", before: "```\n", after: "\n```", placeholder: "코드" },
+    mermaid: {
+      type: "block",
+      placeholder:
+        "```mermaid\nflowchart LR\n  A[시작] --> B[처리]\n  B --> C[완료]\n```",
+    },
   };
 
   // Monaco 에디터에 서식 삽입 (선택 영역 유무에 따라 감싸기/치환)
@@ -444,6 +450,62 @@
       textarea.focus();
       textarea.setSelectionRange(pos, pos);
       onEditorContentChanged();
+    }
+  }
+
+  function getSelectedEditorText() {
+    if (state.monacoReady) {
+      const editor = state.monacoEditor;
+      return editor.getModel().getValueInRange(editor.getSelection());
+    }
+    if (state.fallbackEditor) {
+      const textarea = state.fallbackEditor;
+      return textarea.value.slice(textarea.selectionStart, textarea.selectionEnd);
+    }
+    return "";
+  }
+
+  // 선택 영역을 Mermaid 코드 펜스로 감싼 텍스트로 치환한다.
+  // insertTextAtCursor는 현재 selection 범위를 그대로 덮어쓰므로,
+  // 선택했던 원본 문장은 사라지고 변환된 다이어그램으로 대체된다.
+  function replaceSelectionWithMermaid(code) {
+    const block = `\`\`\`mermaid\n${code.trim()}\n\`\`\`\n`;
+    insertTextAtCursor(block);
+  }
+
+  async function generateAiDiagram() {
+    if (!state.currentFilename) {
+      toast("error", "다이어그램을 삽입할 문서가 없습니다", "먼저 문서를 열거나 새로 만들어주세요.");
+      return;
+    }
+    const selectedText = getSelectedEditorText().trim();
+    if (!selectedText) {
+      toast("error", "변환할 텍스트를 선택해주세요", "다이어그램으로 만들 문장을 에디터에서 드래그해 선택한 뒤 다시 눌러주세요.");
+      return;
+    }
+
+    el.btnAiDiagram.disabled = true;
+    const originalLabel = el.btnAiDiagram.textContent;
+    el.btnAiDiagram.textContent = "생성 중...";
+    setStatus("AI 다이어그램 생성 중...", "busy");
+    toast("info", "AI 다이어그램 생성 중...", "선택한 텍스트를 Mermaid 코드로 변환하고 있습니다.");
+
+    try {
+      const data = await api("/api/ai-diagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: selectedText }),
+      });
+      replaceSelectionWithMermaid(data.code);
+      setStatus("AI 다이어그램 생성 완료", "ok");
+      toast("success", "다이어그램 생성 완료", "Mermaid 코드가 삽입되었습니다.");
+      schedulePreview();
+    } catch (e) {
+      setStatus("AI 다이어그램 생성 실패", "error");
+      toast("error", "AI 다이어그램 생성 실패", e.message);
+    } finally {
+      el.btnAiDiagram.disabled = false;
+      el.btnAiDiagram.textContent = originalLabel;
     }
   }
 
@@ -592,10 +654,14 @@
 
   // 에디터에는 Front Matter가 포함된 전체 파일 내용이 들어있으므로,
   // markdown-it이 "---"를 <hr>로 오인해 깨지지 않도록 미리보기 전에 제거한다.
+  // BOM/선행 공백이 섞여 있어도 안전하게 감지하도록 trim 후 검사한다.
   function stripFrontMatterForPreview(content) {
-    if (!content.startsWith("---")) return content;
-    const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
-    return match ? content.slice(match[0].length) : content;
+    const withoutBom = content.replace(/^﻿/, "");
+    const leading = withoutBom.match(/^\s*/)[0];
+    const body = withoutBom.slice(leading.length);
+    if (!body.startsWith("---")) return content;
+    const match = body.match(/^---\r?\n[\s\S]*?\r?\n---[ \t]*\r?\n?/);
+    return match ? body.slice(match[0].length) : content;
   }
 
   async function renderPreview() {
@@ -612,24 +678,44 @@
         body: JSON.stringify({ content }),
       });
       el.previewBody.innerHTML = data.html;
-      runMermaid();
+      await runMermaid();
     } catch (e) {
       el.previewBody.innerHTML = `<p style="color:var(--danger);">미리보기 렌더링 실패: ${escapeHtml(e.message)}</p>`;
     }
   }
 
-  function runMermaid() {
-    const blocks = el.previewBody.querySelectorAll(".mermaid");
+  let mermaidRenderSeq = 0;
+
+  // 블록 단위로 개별 렌더링해서, 문서에 여러 다이어그램이 있을 때
+  // 하나가 문법 오류여도 나머지는 정상 렌더링되고 실패한 블록에만 에러가 표시되게 한다.
+  async function runMermaid() {
+    const blocks = Array.from(el.previewBody.querySelectorAll(".mermaid"));
     if (!blocks.length || typeof window.mermaid === "undefined") return;
+
     try {
       window.mermaid.initialize({
         startOnLoad: false,
         theme: state.settings.theme === "dark" ? "dark" : "default",
         securityLevel: "strict",
       });
-      window.mermaid.run({ nodes: blocks });
     } catch (e) {
-      // Mermaid 문법 오류는 미리보기 단계에서 무시
+      // initialize 자체가 실패하는 경우는 드물지만, 실패해도 블록별 렌더링은 계속 시도한다.
+    }
+
+    for (const block of blocks) {
+      const code = block.textContent;
+      const id = `mermaid-preview-${++mermaidRenderSeq}`;
+      try {
+        const { svg } = await window.mermaid.render(id, code);
+        block.innerHTML = svg;
+        block.classList.remove("mermaid-error");
+      } catch (e) {
+        block.classList.add("mermaid-error");
+        block.innerHTML = `<div class="mermaid-error-box">
+          <div class="mermaid-error-title">Mermaid 렌더링 실패</div>
+          <div class="mermaid-error-message">${escapeHtml(e.message || String(e))}</div>
+        </div>`;
+      }
     }
   }
 
@@ -1243,11 +1329,13 @@
   el.btnBuild.addEventListener("click", () => runBuild());
 
   el.editorToolbar.addEventListener("click", (e) => {
-    const btn = e.target.closest(".toolbar-btn");
+    const btn = e.target.closest(".toolbar-btn[data-md-action]");
     if (!btn) return;
     if (!state.monacoReady && !state.fallbackEditor) return;
     applyMarkdownAction(btn.dataset.mdAction);
   });
+
+  el.btnAiDiagram.addEventListener("click", generateAiDiagram);
 
   el.btnGitPush.addEventListener("click", () => {
     el.gitPushMessage.value = "";

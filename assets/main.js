@@ -17,6 +17,30 @@
     var blocks = document.querySelectorAll(".mermaid");
     if (!blocks.length) return;
 
+    var mermaidRenderSeq = 0;
+
+    // 블록 단위로 개별 렌더링해서 하나가 문법 오류여도 나머지 다이어그램은
+    // 정상 렌더링되고, 실패한 블록에는 에러 메시지만 표시되게 한다.
+    function renderBlock(mermaidLib, block) {
+      var code = block.textContent;
+      var id = "mermaid-site-" + ++mermaidRenderSeq;
+      mermaidLib
+        .render(id, code)
+        .then(function (result) {
+          block.innerHTML = result.svg;
+          block.classList.remove("mermaid-error");
+        })
+        .catch(function (err) {
+          block.classList.add("mermaid-error");
+          block.innerHTML =
+            '<div class="mermaid-error-box">' +
+            '<div class="mermaid-error-title">Mermaid 렌더링 실패</div>' +
+            '<div class="mermaid-error-message">' +
+            escapeHtml((err && err.message) || String(err)) +
+            "</div></div>";
+        });
+    }
+
     function render(mermaidLib) {
       var isDark =
         window.matchMedia &&
@@ -28,7 +52,9 @@
         securityLevel: "strict",
       });
 
-      mermaidLib.run({ nodes: blocks });
+      blocks.forEach(function (block) {
+        renderBlock(mermaidLib, block);
+      });
     }
 
     if (typeof window.mermaid !== "undefined") {

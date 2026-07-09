@@ -6,6 +6,7 @@ const MarkdownIt = require("markdown-it");
 const DOCS_DIR = path.join(__dirname, "docs");
 const ASSETS_DIR = path.join(__dirname, "assets");
 const DIST_DIR = path.join(__dirname, "dist");
+const DOCS_IMAGES_DIR = path.join(DOCS_DIR, "images");
 
 const STATUS_LABELS = {
   draft: "초안",
@@ -478,6 +479,11 @@ function buildSidebarData(docs) {
 function build() {
   fs.emptyDirSync(DIST_DIR);
   fs.copySync(ASSETS_DIR, path.join(DIST_DIR, "assets"));
+
+  if (fs.existsSync(DOCS_IMAGES_DIR)) {
+    fs.copySync(DOCS_IMAGES_DIR, path.join(DIST_DIR, "images"));
+    console.log("복사됨: dist/images");
+  }
 
   const docs = loadDocs();
 
