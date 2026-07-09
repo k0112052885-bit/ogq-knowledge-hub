@@ -13,6 +13,7 @@ flowchart LR
     B -->|URL 접속| C[OGQ]
     C -->|이모티콘 다운로드| B
 ```
+![image](images/08_kt_poc-1.png)
 
 # KT 지자체 poc
 
