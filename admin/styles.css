@@ -654,6 +654,31 @@ body {
 .monaco-container {
   flex: 1 1 auto;
   min-height: 0;
+  position: relative;
+}
+
+/* ---------- Image drag & drop overlay ---------- */
+.image-drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-bg);
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+}
+
+.image-drop-overlay.hidden {
+  display: none;
+}
+
+.image-drop-overlay-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-strong);
 }
 
 .editor-fallback {
@@ -887,15 +912,99 @@ body {
 
 .markdown-body figure.doc-image img {
   max-width: 100%;
+  max-height: 700px;
+  width: auto;
   height: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm);
+  cursor: zoom-in;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.markdown-body figure.doc-image img:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .markdown-body figure.doc-image figcaption {
   margin-top: 8px;
   font-size: 12.5px;
   color: var(--text-secondary);
+}
+
+/* ---------- Image lightbox ---------- */
+.image-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgba(0, 0, 0, 0.78);
+  animation: lightbox-in 140ms ease;
+}
+
+.image-lightbox-overlay.hidden {
+  display: none;
+}
+
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.image-lightbox-figure {
+  position: relative;
+  max-width: 92vw;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.image-lightbox-img {
+  display: block;
+  max-width: 92vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.image-lightbox-caption {
+  margin-top: var(--space-3);
+  font-size: 13px;
+  color: #f4f5f7;
+  text-align: center;
+}
+
+.image-lightbox-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+}
+
+.image-lightbox-close:hover {
+  background: var(--bg-hover);
 }
 
 .markdown-body .tag-pill {

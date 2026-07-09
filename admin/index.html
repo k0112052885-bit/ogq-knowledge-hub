@@ -95,7 +95,11 @@
           <button type="button" class="toolbar-btn" data-md-action="table" title="표 삽입">▦</button>
           <button type="button" class="toolbar-btn" data-md-action="codeblock" title="코드블록">{ }</button>
         </div>
-        <div id="monacoContainer" class="monaco-container"></div>
+        <div id="monacoContainer" class="monaco-container">
+          <div id="imageDropOverlay" class="image-drop-overlay hidden">
+            <span class="image-drop-overlay-text">이미지를 놓으면 업로드됩니다</span>
+          </div>
+        </div>
       </section>
 
       <!-- Right: live preview -->
@@ -141,6 +145,15 @@
 
   <!-- ===== Toast container ===== -->
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- ===== Image lightbox ===== -->
+  <div class="image-lightbox-overlay hidden" id="imageLightbox">
+    <figure class="image-lightbox-figure">
+      <button type="button" class="image-lightbox-close" id="imageLightboxClose" aria-label="닫기">✕</button>
+      <img id="imageLightboxImg" class="image-lightbox-img" src="" alt="" />
+      <figcaption id="imageLightboxCaption" class="image-lightbox-caption"></figcaption>
+    </figure>
+  </div>
 
   <!-- ===== New document modal ===== -->
   <div class="modal-overlay hidden" id="newDocModal">

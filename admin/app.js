@@ -17,12 +17,18 @@
     saveStatus: document.getElementById("saveStatus"),
     saveStatusText: document.getElementById("saveStatusText"),
     monacoContainer: document.getElementById("monacoContainer"),
+    imageDropOverlay: document.getElementById("imageDropOverlay"),
     editorToolbar: document.getElementById("editorToolbar"),
     toggleAutoSave: document.getElementById("toggleAutoSave"),
     toggleAutoBuild: document.getElementById("toggleAutoBuild"),
 
     previewBody: document.getElementById("previewBody"),
     previewMeta: document.getElementById("previewMeta"),
+
+    imageLightbox: document.getElementById("imageLightbox"),
+    imageLightboxImg: document.getElementById("imageLightboxImg"),
+    imageLightboxCaption: document.getElementById("imageLightboxCaption"),
+    imageLightboxClose: document.getElementById("imageLightboxClose"),
 
     statusText: document.getElementById("statusText"),
 
@@ -416,6 +422,130 @@
   }
 
   // ============================================================
+  // Image paste / drag & drop upload
+  // ============================================================
+  const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+  function insertTextAtCursor(text) {
+    if (state.monacoReady) {
+      const editor = state.monacoEditor;
+      const selection = editor.getSelection();
+      editor.executeEdits("image-insert", [{ range: selection, text }]);
+      editor.focus();
+      return;
+    }
+    if (state.fallbackEditor) {
+      const textarea = state.fallbackEditor;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const value = textarea.value;
+      textarea.value = value.slice(0, start) + text + value.slice(end);
+      const pos = start + text.length;
+      textarea.focus();
+      textarea.setSelectionRange(pos, pos);
+      onEditorContentChanged();
+    }
+  }
+
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error || new Error("파일을 읽을 수 없습니다."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadAndInsertImage(file) {
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      toast("error", "지원하지 않는 이미지 형식입니다", "PNG, JPEG, WebP만 업로드할 수 있습니다.");
+      return;
+    }
+    if (!state.currentFilename) {
+      toast("error", "이미지를 삽입할 문서가 없습니다", "먼저 문서를 열거나 새로 만들어주세요.");
+      return;
+    }
+
+    setStatus("이미지 업로드 중...", "busy");
+    toast("info", "업로드 중...", file.name);
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      const data = await api("/api/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mimeType: file.type, data: dataUrl }),
+      });
+
+      insertTextAtCursor(`![image](${data.path})\n`);
+      setStatus("이미지 업로드 완료", "ok");
+      toast("success", "업로드 완료", data.filename);
+      schedulePreview();
+    } catch (e) {
+      setStatus("이미지 업로드 실패", "error");
+      toast("error", "업로드 실패", e.message);
+    }
+  }
+
+  function extractImageFilesFromClipboard(clipboardData) {
+    if (!clipboardData || !clipboardData.items) return [];
+    const files = [];
+    for (const item of clipboardData.items) {
+      if (item.kind === "file" && ACCEPTED_IMAGE_TYPES.includes(item.type)) {
+        const file = item.getAsFile();
+        if (file) files.push(file);
+      }
+    }
+    return files;
+  }
+
+  function extractImageFilesFromDrop(dataTransfer) {
+    if (!dataTransfer || !dataTransfer.files) return [];
+    return Array.from(dataTransfer.files).filter((f) => ACCEPTED_IMAGE_TYPES.includes(f.type));
+  }
+
+  function setupImagePasteAndDrop() {
+    // Monaco는 내부 hidden textarea가 paste 이벤트를 먼저 소비하므로,
+    // capture 단계에서 monacoContainer 상위(document)로 붙여 항상 먼저 가로챈다.
+    document.addEventListener(
+      "paste",
+      (e) => {
+        if (!el.monacoContainer.contains(e.target)) return;
+        const files = extractImageFilesFromClipboard(e.clipboardData);
+        if (!files.length) return; // 텍스트 붙여넣기는 에디터 기본 동작에 맡김
+        e.preventDefault();
+        e.stopPropagation();
+        files.forEach(uploadAndInsertImage);
+      },
+      true
+    );
+
+    let dragDepth = 0;
+    el.monacoContainer.addEventListener("dragenter", (e) => {
+      if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return;
+      e.preventDefault();
+      dragDepth++;
+      el.imageDropOverlay.classList.remove("hidden");
+    });
+    el.monacoContainer.addEventListener("dragover", (e) => {
+      if (!e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return;
+      e.preventDefault();
+    });
+    el.monacoContainer.addEventListener("dragleave", () => {
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (dragDepth === 0) el.imageDropOverlay.classList.add("hidden");
+    });
+    el.monacoContainer.addEventListener("drop", (e) => {
+      dragDepth = 0;
+      el.imageDropOverlay.classList.add("hidden");
+      const files = extractImageFilesFromDrop(e.dataTransfer);
+      if (!files.length) return;
+      e.preventDefault();
+      files.forEach(uploadAndInsertImage);
+    });
+  }
+
+  // ============================================================
   // Editor change handling: dirty flag, preview, autosave
   // ============================================================
   let previewTimer = null;
@@ -501,6 +631,41 @@
     } catch (e) {
       // Mermaid 문법 오류는 미리보기 단계에서 무시
     }
+  }
+
+  // ============================================================
+  // Image lightbox: Preview 이미지 클릭 시 원본 크기로 확대
+  // ============================================================
+  function openImageLightbox(img) {
+    el.imageLightboxImg.src = img.currentSrc || img.src;
+    el.imageLightboxImg.alt = img.alt || "";
+    el.imageLightboxCaption.textContent = img.alt || "";
+    el.imageLightboxCaption.classList.toggle("hidden", !img.alt);
+    el.imageLightbox.classList.remove("hidden");
+  }
+
+  function closeImageLightbox() {
+    el.imageLightbox.classList.add("hidden");
+    el.imageLightboxImg.src = "";
+  }
+
+  function setupImageLightbox() {
+    // Preview는 렌더링마다 innerHTML이 통째로 교체되므로 위임 리스너로 처리
+    el.previewBody.addEventListener("click", (e) => {
+      const img = e.target.closest("figure.doc-image img");
+      if (!img) return;
+      openImageLightbox(img);
+    });
+
+    el.imageLightboxClose.addEventListener("click", closeImageLightbox);
+    el.imageLightbox.addEventListener("click", (e) => {
+      if (e.target === el.imageLightbox) closeImageLightbox();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !el.imageLightbox.classList.contains("hidden")) {
+        closeImageLightbox();
+      }
+    });
   }
 
   // ============================================================
@@ -1107,6 +1272,8 @@
   el.toggleAutoSave.checked = state.settings.autoSave;
   el.toggleAutoBuild.checked = state.settings.autoBuild;
   initEditor();
+  setupImagePasteAndDrop();
+  setupImageLightbox();
   loadDocList();
   renderPreview();
 })();
