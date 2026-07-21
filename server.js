@@ -169,6 +169,14 @@ function handleListDocs(req, res) {
           status: data.status || "",
           updated: normalizeDate(data.updated),
           order: typeof data.order === "number" ? data.order : 999,
+          // 다중 페이지 프로젝트 지원을 위한 선택 필드.
+          // 기존 문서에는 없으므로 null로 반환되어 "단일 페이지 문서"로 취급된다.
+          project: typeof data.project === "string" && data.project.trim() ? data.project.trim() : null,
+          projectTitle:
+            typeof data.projectTitle === "string" && data.projectTitle.trim()
+              ? data.projectTitle.trim()
+              : null,
+          pageOrder: typeof data.pageOrder === "number" ? data.pageOrder : null,
         };
       })
       .sort((a, b) => a.order - b.order);

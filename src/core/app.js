@@ -18,6 +18,7 @@ import { schedulePreview, renderPreview, setupImageLightbox } from "../features/
 import { setupImagePasteAndDrop } from "../features/image/image-upload.js";
 import { initAiDiagram } from "../features/diagram/ai-diagram.js";
 import { initExport, runBuild } from "../features/export/export.js";
+import { groupIntoProjectsAndPages } from "./docs-grouping.js";
 
 // ============================================================
 // Document list / tree / recent / search
@@ -26,11 +27,43 @@ async function loadDocList() {
   try {
     const docs = await api("/api/docs");
     state.docs = docs;
-    renderTree(docs);
+
+    // Phase 2: 문서 목록을 프로젝트(다중 페이지) / 단일 문서로 분리해 사이드바에 각각 렌더링한다.
+    const { projects, standalonePages } = groupIntoProjectsAndPages(docs);
+    state.projects = projects;
+    state.standaloneDocs = standalonePages;
+
+    renderProjects(projects);
+    // "단일 문서" 영역은 기존 카테고리(개요/설계/운영/목표/기타) 그룹핑을 그대로 유지한다.
+    renderTree(state.standaloneDocs);
     renderRecent(docs);
   } catch (e) {
     toast("error", "문서 목록을 불러오지 못했습니다", e.message);
   }
+}
+
+// 프로젝트(다중 페이지 문서 묶음) 목록 렌더링.
+// 프로젝트 내부 페이지 UI/새 프로젝트 생성 기능은 아직 구현하지 않으며,
+// 여기서는 프로젝트가 있다는 사실과 페이지 수만 보여준다.
+function renderProjects(projects) {
+  el.projectTree.innerHTML = "";
+
+  if (!projects.length) {
+    el.projectTree.innerHTML = '<li class="tree-empty">프로젝트 없음</li>';
+    return;
+  }
+
+  projects.forEach((project) => {
+    const li = document.createElement("li");
+    li.className = "tree-item";
+    li.dataset.projectId = project.id;
+    li.innerHTML = `
+        <span class="tree-item-icon">📁</span>
+        <span class="tree-item-title"></span>
+      `;
+    li.querySelector(".tree-item-title").textContent = `${project.title} (${project.pages.length})`;
+    el.projectTree.appendChild(li);
+  });
 }
 
 function renderRecent(docs) {

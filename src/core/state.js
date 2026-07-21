@@ -1,6 +1,7 @@
 // DOM refs
 export const el = {
   docTree: document.getElementById("docTree"),
+  projectTree: document.getElementById("projectTree"),
   recentList: document.getElementById("recentList"),
   globalSearch: document.getElementById("globalSearch"),
   themeToggle: document.getElementById("btnThemeToggle"),
@@ -93,6 +94,11 @@ export function saveSettings() {
 
 export const state = {
   docs: [],
+  // docs로부터 파생되는 프로젝트/단일 페이지 구조. loadDocList()에서
+  // groupIntoProjectsAndPages(docs) 결과로 채워지며, 사이드바의
+  // "프로젝트" / "단일 문서" 두 영역이 각각 이 값을 렌더링한다.
+  projects: [],
+  standaloneDocs: [],
   currentFilename: null,
   isDirty: false,
   monacoEditor: null,
