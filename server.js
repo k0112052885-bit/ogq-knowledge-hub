@@ -34,7 +34,7 @@ function loadDotEnv() {
 }
 loadDotEnv();
 
-const PORT = process.env.PORT || 7777;
+const PORT = process.env.PORT || 7778;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
@@ -891,6 +891,13 @@ const server = http.createServer(async (req, res) => {
     }
     if (pathname.startsWith("/admin/")) {
       serveStatic(req, res, ADMIN_DIR, pathname.replace(/^\/admin/, ""));
+      return;
+    }
+
+    // admin/app.js가 ES 모듈로 분리되어 /src 아래 파일들을 상대 경로로 import하므로
+    // 브라우저가 직접 요청할 수 있도록 정적 서빙 경로를 추가한다 (ADMIN_DIR과 동일한 패턴).
+    if (pathname.startsWith("/src/")) {
+      serveStatic(req, res, ROOT_DIR, pathname);
       return;
     }
 
