@@ -52,7 +52,10 @@
         </div>
 
         <div class="tree-section">
-          <div class="tree-section-title">프로젝트</div>
+          <div class="tree-section-header">
+            <span class="tree-section-title">프로젝트</span>
+            <button type="button" id="btnNewProject" class="tree-section-action" title="새 프로젝트">+ 새 프로젝트</button>
+          </div>
           <ul id="projectTree" class="doc-tree"></ul>
         </div>
 
@@ -207,6 +210,30 @@
       <div class="modal-footer">
         <button type="button" class="bbtn" data-close="newDocModal">취소</button>
         <button type="button" id="btnCreateNew" class="bbtn bbtn-primary">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== New project modal ===== -->
+  <div class="modal-overlay hidden" id="newProjectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>새 프로젝트 만들기</h2>
+        <button type="button" class="modal-close" data-close="newProjectModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          프로젝트를 만들면 첫 페이지 "개요"가 자동으로 생성됩니다. 이후 페이지는
+          프로젝트를 펼쳐서 이어서 추가할 수 있습니다.
+        </p>
+        <label class="field">
+          <span class="field-label">프로젝트명 <em>*</em></span>
+          <input type="text" id="newProjectTitle" class="field-input" placeholder="예: 통신사 구독 연동" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="newProjectModal">취소</button>
+        <button type="button" id="btnCreateNewProject" class="bbtn bbtn-primary">생성</button>
       </div>
     </div>
   </div>

@@ -375,8 +375,17 @@ async function handleCreateDoc(req, res) {
     ? pastedBody.replace(/\r\n/g, "\n").trim() + "\n"
     : `# ${title}\n\n`;
 
+  // 다중 페이지 프로젝트 지원을 위한 선택 필드. 값이 없으면 front matter에
+  // 아예 쓰지 않아 기존 "단일 문서 생성"과 결과물이 동일하게 유지된다.
+  const project = typeof payload.project === "string" && payload.project.trim() ? payload.project.trim() : "";
+  const projectTitle =
+    typeof payload.projectTitle === "string" && payload.projectTitle.trim()
+      ? payload.projectTitle.trim()
+      : "";
+  const pageOrder = typeof payload.pageOrder === "number" ? payload.pageOrder : null;
+
   const today = new Date().toISOString().slice(0, 10);
-  const frontMatter = [
+  const frontMatterLines = [
     "---",
     `title: ${formatYamlString(title)}`,
     `description: ${formatYamlString(description)}`,
@@ -385,10 +394,13 @@ async function handleCreateDoc(req, res) {
     `status: ${status}`,
     `order: ${nextOrder}`,
     `updated: ${today}`,
-    "---",
-    "",
-    bodyContent,
-  ].join("\n");
+  ];
+  if (project) frontMatterLines.push(`project: ${formatYamlString(project)}`);
+  if (projectTitle) frontMatterLines.push(`projectTitle: ${formatYamlString(projectTitle)}`);
+  if (pageOrder !== null) frontMatterLines.push(`pageOrder: ${pageOrder}`);
+  frontMatterLines.push("---", "", bodyContent);
+
+  const frontMatter = frontMatterLines.join("\n");
 
   const filePath = resolveDocPath(filename);
   if (!filePath) {

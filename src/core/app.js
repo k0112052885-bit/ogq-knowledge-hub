@@ -43,8 +43,8 @@ async function loadDocList() {
 }
 
 // 프로젝트(다중 페이지 문서 묶음) 목록 렌더링.
-// 프로젝트 내부 페이지 UI/새 프로젝트 생성 기능은 아직 구현하지 않으며,
-// 여기서는 프로젝트가 있다는 사실과 페이지 수만 보여준다.
+// 카테고리 트리(renderTree)와 동일한 아코디언 패턴(tree-group/tree-group-items)을
+// 사용해, 프로젝트를 펼치면 그 안의 페이지들이 나열되고 클릭하면 openDoc으로 열린다.
 function renderProjects(projects) {
   el.projectTree.innerHTML = "";
 
@@ -54,15 +54,50 @@ function renderProjects(projects) {
   }
 
   projects.forEach((project) => {
-    const li = document.createElement("li");
-    li.className = "tree-item";
-    li.dataset.projectId = project.id;
-    li.innerHTML = `
-        <span class="tree-item-icon">📁</span>
-        <span class="tree-item-title"></span>
+    const hasActive = project.pages.some((d) => d.filename === state.currentFilename);
+    const groupLi = document.createElement("li");
+    groupLi.className = "tree-group" + (hasActive ? " open" : "");
+
+    const header = document.createElement("button");
+    header.type = "button";
+    header.className = "tree-group-header";
+    header.innerHTML = `
+        <span class="tree-group-arrow">▶</span>
+        <span class="tree-group-name"></span>
+        <span class="tree-group-count"></span>
       `;
-    li.querySelector(".tree-item-title").textContent = `${project.title} (${project.pages.length})`;
-    el.projectTree.appendChild(li);
+    header.querySelector(".tree-group-name").textContent = project.title;
+    header.querySelector(".tree-group-count").textContent = project.pages.length;
+    header.addEventListener("click", () => groupLi.classList.toggle("open"));
+    groupLi.appendChild(header);
+
+    const itemsUl = document.createElement("ul");
+    itemsUl.className = "tree-group-items";
+
+    project.pages.forEach((doc) => {
+      const li = document.createElement("li");
+      li.className = "tree-item" + (doc.filename === state.currentFilename ? " active" : "");
+      li.dataset.filename = doc.filename;
+      li.innerHTML = `
+          <span class="tree-item-icon">📄</span>
+          <span class="tree-item-title"></span>
+        `;
+      li.querySelector(".tree-item-title").textContent = doc.title;
+
+      const label = statusLabel(doc.status);
+      if (label) {
+        const badge = document.createElement("span");
+        badge.className = `badge badge-${doc.status}`;
+        badge.textContent = label;
+        li.appendChild(badge);
+      }
+
+      li.addEventListener("click", () => openDoc(doc.filename));
+      itemsUl.appendChild(li);
+    });
+
+    groupLi.appendChild(itemsUl);
+    el.projectTree.appendChild(groupLi);
   });
 }
 
@@ -325,6 +360,61 @@ async function loadCreatedDocIntoEditor(data) {
   schedulePreview();
 }
 
+// ============================================================
+// New project (Phase 2): 프로젝트 식별자(project)는 사람이 읽는 값이 아니라
+// 같은 프로젝트의 페이지들을 묶는 내부 키이므로, 파일명 slug 규칙과
+// 완전히 동일할 필요는 없다. 여기서는 충돌을 줄이기 위해 타임스탬프를 덧붙인다.
+// ============================================================
+function openNewProjectModal() {
+  el.newProjectTitle.value = "";
+  openModal("newProjectModal");
+  el.newProjectTitle.focus();
+}
+
+function makeProjectId(title) {
+  const base = title
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s_-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const suffix = Date.now().toString(36);
+  return base ? `${base}-${suffix}` : `project-${suffix}`;
+}
+
+async function createNewProject() {
+  const projectTitle = el.newProjectTitle.value.trim();
+  if (!projectTitle) {
+    el.newProjectTitle.focus();
+    return;
+  }
+
+  const projectId = makeProjectId(projectTitle);
+
+  try {
+    const data = await api("/api/docs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "개요",
+        category: "기타",
+        tags: [],
+        status: "draft",
+        description: "",
+        project: projectId,
+        projectTitle,
+        pageOrder: 1,
+      }),
+    });
+    closeModal("newProjectModal");
+    toast("success", "새 프로젝트가 생성되었습니다", projectTitle);
+    await loadCreatedDocIntoEditor(data);
+  } catch (e) {
+    toast("error", "프로젝트 생성 실패", e.message);
+  }
+}
+
 function openImportAiModal() {
   el.importTitle.value = "";
   el.importCategory.value = "";
@@ -548,6 +638,9 @@ function initEventBindings() {
 
   el.btnNew.addEventListener("click", openNewDocModal);
   el.btnCreateNew.addEventListener("click", createNewDoc);
+
+  el.btnNewProject.addEventListener("click", openNewProjectModal);
+  el.btnCreateNewProject.addEventListener("click", createNewProject);
 
   el.btnImportAi.addEventListener("click", openImportAiModal);
   el.btnCreateImport.addEventListener("click", createImportedDoc);

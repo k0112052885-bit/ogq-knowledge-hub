@@ -29,6 +29,7 @@ export const el = {
   statusText: document.getElementById("statusText"),
 
   btnNew: document.getElementById("btnNew"),
+  btnNewProject: document.getElementById("btnNewProject"),
   btnImportAi: document.getElementById("btnImportAi"),
   btnAiDiagram: document.getElementById("btnAiDiagram"),
   btnSave: document.getElementById("btnSave"),
@@ -46,6 +47,10 @@ export const el = {
   newStatus: document.getElementById("newStatus"),
   newDescription: document.getElementById("newDescription"),
   btnCreateNew: document.getElementById("btnCreateNew"),
+
+  newProjectModal: document.getElementById("newProjectModal"),
+  newProjectTitle: document.getElementById("newProjectTitle"),
+  btnCreateNewProject: document.getElementById("btnCreateNewProject"),
 
   importAiModal: document.getElementById("importAiModal"),
   importTitle: document.getElementById("importTitle"),
