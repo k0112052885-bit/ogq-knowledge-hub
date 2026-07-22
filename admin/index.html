@@ -223,16 +223,17 @@
       </div>
       <div class="modal-body">
         <p class="modal-desc">
-          프로젝트를 만들면 입력한 이름으로 첫 페이지가 자동으로 생성됩니다. 이후
-          페이지는 프로젝트를 펼쳐서 이어서 추가할 수 있습니다.
+          프로젝트를 만들면 첫 페이지가 자동으로 생성됩니다. 첫 페이지명을 입력하면
+          그 이름으로, 비워두면 프로젝트명과 동일한 이름으로 생성됩니다. 이후 페이지는
+          프로젝트를 펼쳐서 이어서 추가할 수 있습니다.
         </p>
         <label class="field">
           <span class="field-label">프로젝트명 <em>*</em></span>
           <input type="text" id="newProjectTitle" class="field-input" placeholder="예: 통신사 구독 연동" />
         </label>
         <label class="field">
-          <span class="field-label">첫 페이지명</span>
-          <input type="text" id="newProjectFirstPageTitle" class="field-input" placeholder="예: 개요, 목표, 시작하기" />
+          <span class="field-label">첫 페이지명 <small>(선택)</small></span>
+          <input type="text" id="newProjectFirstPageTitle" class="field-input" placeholder="비워두면 프로젝트명과 동일하게 생성됩니다." />
         </label>
       </div>
       <div class="modal-footer">
@@ -259,6 +260,81 @@
       <div class="modal-footer">
         <button type="button" class="bbtn" data-close="newProjectPageModal">취소</button>
         <button type="button" id="btnCreateNewProjectPage" class="bbtn bbtn-primary">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Rename page modal ===== -->
+  <div class="modal-overlay hidden" id="renamePageModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>페이지 이름 변경</h2>
+        <button type="button" class="modal-close" data-close="renamePageModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">페이지 제목 <em>*</em></span>
+          <input type="text" id="renamePageTitle" class="field-input" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="renamePageModal">취소</button>
+        <button type="button" id="btnConfirmRenamePage" class="bbtn bbtn-primary">변경</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Rename project modal ===== -->
+  <div class="modal-overlay hidden" id="renameProjectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>프로젝트 이름 변경</h2>
+        <button type="button" class="modal-close" data-close="renameProjectModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">프로젝트명 <em>*</em></span>
+          <input type="text" id="renameProjectTitle" class="field-input" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="renameProjectModal">취소</button>
+        <button type="button" id="btnConfirmRenameProject" class="bbtn bbtn-primary">변경</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Delete page confirm modal ===== -->
+  <div class="modal-overlay hidden" id="deletePageConfirmModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>페이지를 삭제할까요?</h2>
+        <button type="button" class="modal-close" data-close="deletePageConfirmModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="deletePageConfirmMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="deletePageConfirmModal">취소</button>
+        <button type="button" id="btnConfirmDeletePage" class="bbtn bbtn-danger">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Delete project confirm modal ===== -->
+  <div class="modal-overlay hidden" id="deleteProjectConfirmModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>프로젝트를 삭제할까요?</h2>
+        <button type="button" class="modal-close" data-close="deleteProjectConfirmModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="deleteProjectConfirmMessage"></p>
+        <ul class="modal-list" id="deleteProjectConfirmPageList"></ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="deleteProjectConfirmModal">취소</button>
+        <button type="button" id="btnConfirmDeleteProject" class="bbtn bbtn-danger">모두 삭제</button>
       </div>
     </div>
   </div>

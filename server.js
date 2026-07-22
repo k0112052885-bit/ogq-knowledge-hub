@@ -480,6 +480,230 @@ async function handleSaveDoc(req, res, filename) {
   });
 }
 
+// ---------- 페이지/프로젝트 이름 변경 · 삭제 ----------
+// front matter 블록 안에서 특정 key: 줄 하나만 정확히 찾아 치환한다.
+// gray-matter로 파싱 후 matter.stringify로 재조합하면 따옴표 스타일, 날짜 포맷,
+// 필드 순서 등이 원본과 달라져 "기존 문서 수정 금지" 원칙에 어긋나므로,
+// 문자열 치환만으로 해당 줄 하나(그리고 그 값)만 바꾸고 나머지는 완전히 보존한다.
+// 필드 자체가 없으면 null을 반환한다(title/projectTitle은 항상 존재해야 하는 필드이므로
+// 없는 경우는 파일 형식이 예상과 다르다는 뜻이며 실패로 처리한다).
+function replaceFrontMatterField(content, key, value) {
+  const match = content.match(/^(---\r?\n)([\s\S]*?)(\r?\n---[ \t]*\r?\n?)/);
+  if (!match) return null;
+
+  const [, open, yamlBlock, close] = match;
+  const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const keyRe = new RegExp(`^${escapedKey}\\s*:`);
+
+  let found = false;
+  const newYaml = yamlBlock
+    .split(/\r?\n/)
+    .map((line) => {
+      if (keyRe.test(line)) {
+        found = true;
+        return `${key}: ${formatYamlString(value)}`;
+      }
+      return line;
+    })
+    .join("\n");
+
+  if (!found) return null;
+  return open + newYaml + close + content.slice(match[0].length);
+}
+
+async function handleRenamePage(req, res, filename) {
+  if (!isSafeDocFilename(filename)) {
+    sendJson(res, 400, { error: "유효하지 않은 파일명입니다." });
+    return;
+  }
+  const filePath = resolveDocPath(filename);
+  if (!filePath) {
+    sendJson(res, 400, { error: "허용되지 않은 경로입니다." });
+    return;
+  }
+
+  let body;
+  try {
+    body = await readRequestBody(req);
+  } catch (e) {
+    sendJson(res, 413, { error: e.message });
+    return;
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(body);
+  } catch (e) {
+    sendJson(res, 400, { error: "요청 본문이 올바른 JSON이 아닙니다." });
+    return;
+  }
+
+  const title = typeof payload.title === "string" ? payload.title.trim() : "";
+  if (!title) {
+    sendJson(res, 400, { error: "title은 필수입니다." });
+    return;
+  }
+
+  fs.readFile(filePath, "utf-8", (readErr, content) => {
+    if (readErr) {
+      sendJson(res, 404, { error: "문서를 찾을 수 없습니다." });
+      return;
+    }
+
+    const updated = replaceFrontMatterField(content, "title", title);
+    if (updated === null) {
+      sendJson(res, 500, { error: "문서의 title 필드를 찾을 수 없습니다." });
+      return;
+    }
+
+    fs.writeFile(filePath, updated, "utf-8", (writeErr) => {
+      if (writeErr) {
+        sendJson(res, 500, { error: "제목 변경에 실패했습니다." });
+        return;
+      }
+      sendJson(res, 200, { ok: true, filename, title });
+    });
+  });
+}
+
+async function handleDeletePage(req, res, filename) {
+  if (!isSafeDocFilename(filename)) {
+    sendJson(res, 400, { error: "유효하지 않은 파일명입니다." });
+    return;
+  }
+  const filePath = resolveDocPath(filename);
+  if (!filePath) {
+    sendJson(res, 400, { error: "허용되지 않은 경로입니다." });
+    return;
+  }
+
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      if (err.code === "ENOENT") {
+        sendJson(res, 404, { error: "문서를 찾을 수 없습니다." });
+        return;
+      }
+      sendJson(res, 500, { error: "문서 삭제에 실패했습니다." });
+      return;
+    }
+    sendJson(res, 200, { ok: true, filename });
+  });
+}
+
+// project id를 가진 모든 문서 파일명을 찾는다 (handleListDocs와 동일한 방식으로 docs/ 전체를 스캔).
+function findProjectPageFiles(matter, projectId) {
+  const files = fs.readdirSync(DOCS_DIR).filter((f) => f.endsWith(".md"));
+  const matches = [];
+  for (const filename of files) {
+    const raw = fs.readFileSync(path.join(DOCS_DIR, filename), "utf-8");
+    const { data } = matter(raw);
+    if (typeof data.project === "string" && data.project.trim() === projectId) {
+      matches.push(filename);
+    }
+  }
+  return matches;
+}
+
+async function handleRenameProject(req, res, projectId) {
+  let matter;
+  try {
+    matter = require("gray-matter");
+  } catch (e) {
+    sendJson(res, 500, { error: "gray-matter 모듈을 불러올 수 없습니다." });
+    return;
+  }
+
+  let body;
+  try {
+    body = await readRequestBody(req);
+  } catch (e) {
+    sendJson(res, 413, { error: e.message });
+    return;
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(body);
+  } catch (e) {
+    sendJson(res, 400, { error: "요청 본문이 올바른 JSON이 아닙니다." });
+    return;
+  }
+
+  const projectTitle = typeof payload.projectTitle === "string" ? payload.projectTitle.trim() : "";
+  if (!projectTitle) {
+    sendJson(res, 400, { error: "projectTitle은 필수입니다." });
+    return;
+  }
+
+  let filenames;
+  try {
+    filenames = findProjectPageFiles(matter, projectId);
+  } catch (e) {
+    sendJson(res, 500, { error: "docs 폴더를 읽을 수 없습니다." });
+    return;
+  }
+
+  if (!filenames.length) {
+    sendJson(res, 404, { error: "해당 프로젝트를 찾을 수 없습니다." });
+    return;
+  }
+
+  try {
+    for (const filename of filenames) {
+      const filePath = resolveDocPath(filename);
+      if (!filePath) continue;
+      const content = fs.readFileSync(filePath, "utf-8");
+      const updated = replaceFrontMatterField(content, "projectTitle", projectTitle);
+      if (updated !== null) {
+        fs.writeFileSync(filePath, updated, "utf-8");
+      }
+    }
+  } catch (e) {
+    sendJson(res, 500, { error: "프로젝트 이름 변경에 실패했습니다." });
+    return;
+  }
+
+  sendJson(res, 200, { ok: true, projectId, projectTitle, updatedFiles: filenames });
+}
+
+async function handleDeleteProject(req, res, projectId) {
+  let matter;
+  try {
+    matter = require("gray-matter");
+  } catch (e) {
+    sendJson(res, 500, { error: "gray-matter 모듈을 불러올 수 없습니다." });
+    return;
+  }
+
+  let filenames;
+  try {
+    filenames = findProjectPageFiles(matter, projectId);
+  } catch (e) {
+    sendJson(res, 500, { error: "docs 폴더를 읽을 수 없습니다." });
+    return;
+  }
+
+  if (!filenames.length) {
+    sendJson(res, 404, { error: "해당 프로젝트를 찾을 수 없습니다." });
+    return;
+  }
+
+  const deleted = [];
+  try {
+    for (const filename of filenames) {
+      const filePath = resolveDocPath(filename);
+      if (!filePath) continue;
+      fs.unlinkSync(filePath);
+      deleted.push(filename);
+    }
+  } catch (e) {
+    sendJson(res, 500, { error: `프로젝트 삭제 중 일부 파일 삭제에 실패했습니다. (삭제됨: ${deleted.join(", ")})` });
+    return;
+  }
+
+  sendJson(res, 200, { ok: true, projectId, deletedFiles: deleted });
+}
+
 async function handlePreview(req, res) {
   let body;
   try {
@@ -866,6 +1090,28 @@ const server = http.createServer(async (req, res) => {
     }
     if (docMatch && req.method === "POST") {
       await handleSaveDoc(req, res, decodeURIComponent(docMatch[1]));
+      return;
+    }
+    if (docMatch && req.method === "DELETE") {
+      await handleDeletePage(req, res, decodeURIComponent(docMatch[1]));
+      return;
+    }
+
+    const docTitleMatch = pathname.match(/^\/api\/docs\/([^/]+)\/title$/);
+    if (docTitleMatch && req.method === "PATCH") {
+      await handleRenamePage(req, res, decodeURIComponent(docTitleMatch[1]));
+      return;
+    }
+
+    const projectTitleMatch = pathname.match(/^\/api\/projects\/([^/]+)\/title$/);
+    if (projectTitleMatch && req.method === "PATCH") {
+      await handleRenameProject(req, res, decodeURIComponent(projectTitleMatch[1]));
+      return;
+    }
+
+    const projectMatch = pathname.match(/^\/api\/projects\/([^/]+)$/);
+    if (projectMatch && req.method === "DELETE") {
+      await handleDeleteProject(req, res, decodeURIComponent(projectMatch[1]));
       return;
     }
 

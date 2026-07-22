@@ -58,6 +58,23 @@ export const el = {
   newProjectPageTitle: document.getElementById("newProjectPageTitle"),
   btnCreateNewProjectPage: document.getElementById("btnCreateNewProjectPage"),
 
+  renamePageModal: document.getElementById("renamePageModal"),
+  renamePageTitle: document.getElementById("renamePageTitle"),
+  btnConfirmRenamePage: document.getElementById("btnConfirmRenamePage"),
+
+  renameProjectModal: document.getElementById("renameProjectModal"),
+  renameProjectTitle: document.getElementById("renameProjectTitle"),
+  btnConfirmRenameProject: document.getElementById("btnConfirmRenameProject"),
+
+  deletePageConfirmModal: document.getElementById("deletePageConfirmModal"),
+  deletePageConfirmMessage: document.getElementById("deletePageConfirmMessage"),
+  btnConfirmDeletePage: document.getElementById("btnConfirmDeletePage"),
+
+  deleteProjectConfirmModal: document.getElementById("deleteProjectConfirmModal"),
+  deleteProjectConfirmMessage: document.getElementById("deleteProjectConfirmMessage"),
+  deleteProjectConfirmPageList: document.getElementById("deleteProjectConfirmPageList"),
+  btnConfirmDeleteProject: document.getElementById("btnConfirmDeleteProject"),
+
   importAiModal: document.getElementById("importAiModal"),
   importTitle: document.getElementById("importTitle"),
   importCategory: document.getElementById("importCategory"),

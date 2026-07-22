@@ -89,6 +89,28 @@ function renderProjects(projects) {
     });
     headerRow.appendChild(addPageBtn);
 
+    const renameProjectBtn = document.createElement("button");
+    renameProjectBtn.type = "button";
+    renameProjectBtn.className = "tree-group-action tree-group-action-icon";
+    renameProjectBtn.title = "프로젝트 이름 변경";
+    renameProjectBtn.textContent = "✎";
+    renameProjectBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openRenameProjectModal(project);
+    });
+    headerRow.appendChild(renameProjectBtn);
+
+    const deleteProjectBtn = document.createElement("button");
+    deleteProjectBtn.type = "button";
+    deleteProjectBtn.className = "tree-group-action tree-group-action-icon tree-group-action-danger";
+    deleteProjectBtn.title = "프로젝트 삭제";
+    deleteProjectBtn.textContent = "🗑";
+    deleteProjectBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openDeleteProjectConfirmModal(project);
+    });
+    headerRow.appendChild(deleteProjectBtn);
+
     groupLi.appendChild(headerRow);
 
     const itemsUl = document.createElement("ul");
@@ -96,7 +118,7 @@ function renderProjects(projects) {
 
     project.pages.forEach((doc) => {
       const li = document.createElement("li");
-      li.className = "tree-item" + (doc.filename === state.currentFilename ? " active" : "");
+      li.className = "tree-item tree-item-with-actions" + (doc.filename === state.currentFilename ? " active" : "");
       li.dataset.filename = doc.filename;
       li.innerHTML = `
           <span class="tree-item-icon">📄</span>
@@ -111,6 +133,28 @@ function renderProjects(projects) {
         badge.textContent = label;
         li.appendChild(badge);
       }
+
+      const renamePageBtn = document.createElement("button");
+      renamePageBtn.type = "button";
+      renamePageBtn.className = "tree-item-action";
+      renamePageBtn.title = "페이지 이름 변경";
+      renamePageBtn.textContent = "✎";
+      renamePageBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openRenamePageModal(doc);
+      });
+      li.appendChild(renamePageBtn);
+
+      const deletePageBtn = document.createElement("button");
+      deletePageBtn.type = "button";
+      deletePageBtn.className = "tree-item-action tree-item-action-danger";
+      deletePageBtn.title = "페이지 삭제";
+      deletePageBtn.textContent = "🗑";
+      deletePageBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openDeletePageConfirmModal(doc);
+      });
+      li.appendChild(deletePageBtn);
 
       li.addEventListener("click", () => openDoc(doc.filename));
       itemsUl.appendChild(li);
@@ -388,8 +432,6 @@ async function loadCreatedDocIntoEditor(data) {
 // 같은 프로젝트의 페이지들을 묶는 내부 키이므로, 파일명 slug 규칙과
 // 완전히 동일할 필요는 없다. 여기서는 충돌을 줄이기 위해 타임스탬프를 덧붙인다.
 // ============================================================
-const DEFAULT_FIRST_PAGE_TITLE = "개요";
-
 function openNewProjectModal() {
   el.newProjectTitle.value = "";
   el.newProjectFirstPageTitle.value = "";
@@ -416,7 +458,8 @@ async function createNewProject() {
     return;
   }
 
-  const firstPageTitle = el.newProjectFirstPageTitle.value.trim() || DEFAULT_FIRST_PAGE_TITLE;
+  // 첫 페이지명을 비워두면 "개요" 같은 고정 기본값이 아니라 프로젝트명을 그대로 사용한다.
+  const firstPageTitle = el.newProjectFirstPageTitle.value.trim() || projectTitle;
   const projectId = makeProjectId(projectTitle);
 
   try {
@@ -504,6 +547,153 @@ async function createNewProjectPage() {
     toast("error", "페이지 생성 실패", e.message);
   } finally {
     pendingNewPageProject = null;
+  }
+}
+
+// ============================================================
+// Rename / delete: 페이지 이름 변경 · 삭제, 프로젝트 이름 변경 · 삭제.
+// 이름 변경은 front matter의 title/projectTitle 값만 바꾸고 파일명은 그대로 유지한다.
+// ============================================================
+let pendingRenamePageDoc = null;
+let pendingRenameProject = null;
+let pendingDeletePageDoc = null;
+let pendingDeleteProject = null;
+
+function openRenamePageModal(doc) {
+  pendingRenamePageDoc = doc;
+  el.renamePageTitle.value = doc.title;
+  openModal("renamePageModal");
+  el.renamePageTitle.focus();
+  el.renamePageTitle.select();
+}
+
+async function confirmRenamePage() {
+  const doc = pendingRenamePageDoc;
+  if (!doc) return;
+
+  const title = el.renamePageTitle.value.trim();
+  if (!title) {
+    el.renamePageTitle.focus();
+    return;
+  }
+
+  try {
+    await api(`/api/docs/${encodeURIComponent(doc.filename)}/title`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title }),
+    });
+    closeModal("renamePageModal");
+    toast("success", "페이지 이름이 변경되었습니다", title);
+    if (state.currentFilename === doc.filename) {
+      el.editorFilename.textContent = doc.filename;
+    }
+    await loadDocList();
+  } catch (e) {
+    toast("error", "페이지 이름 변경 실패", e.message);
+  } finally {
+    pendingRenamePageDoc = null;
+  }
+}
+
+function openRenameProjectModal(project) {
+  pendingRenameProject = project;
+  el.renameProjectTitle.value = project.title;
+  openModal("renameProjectModal");
+  el.renameProjectTitle.focus();
+  el.renameProjectTitle.select();
+}
+
+async function confirmRenameProject() {
+  const project = pendingRenameProject;
+  if (!project) return;
+
+  const projectTitle = el.renameProjectTitle.value.trim();
+  if (!projectTitle) {
+    el.renameProjectTitle.focus();
+    return;
+  }
+
+  try {
+    await api(`/api/projects/${encodeURIComponent(project.id)}/title`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectTitle }),
+    });
+    closeModal("renameProjectModal");
+    toast("success", "프로젝트 이름이 변경되었습니다", projectTitle);
+    await loadDocList();
+    expandProjectGroup(project.id);
+  } catch (e) {
+    toast("error", "프로젝트 이름 변경 실패", e.message);
+  } finally {
+    pendingRenameProject = null;
+  }
+}
+
+// 현재 에디터에 열려 있던 문서가 삭제되었을 때, 에디터를 초기 상태로 되돌린다.
+function resetEditorIfCurrentlyOpen(filename) {
+  if (state.currentFilename !== filename) return;
+  state.currentFilename = null;
+  el.editorFilename.textContent = "문서를 선택하세요";
+  setEditorValue("");
+  markDirty(false);
+  schedulePreview();
+}
+
+function openDeletePageConfirmModal(doc) {
+  pendingDeletePageDoc = doc;
+  el.deletePageConfirmMessage.textContent = `"${doc.title}" 페이지를 삭제합니다. 이 작업은 되돌릴 수 없습니다.`;
+  openModal("deletePageConfirmModal");
+}
+
+async function confirmDeletePage() {
+  const doc = pendingDeletePageDoc;
+  if (!doc) return;
+
+  try {
+    await api(`/api/docs/${encodeURIComponent(doc.filename)}`, { method: "DELETE" });
+    closeModal("deletePageConfirmModal");
+    toast("success", "페이지가 삭제되었습니다", doc.title);
+    resetEditorIfCurrentlyOpen(doc.filename);
+    await loadDocList();
+  } catch (e) {
+    toast("error", "페이지 삭제 실패", e.message);
+  } finally {
+    pendingDeletePageDoc = null;
+  }
+}
+
+function openDeleteProjectConfirmModal(project) {
+  pendingDeleteProject = project;
+  el.deleteProjectConfirmMessage.textContent =
+    `"${project.title}" 프로젝트에는 ${project.pages.length}개의 페이지가 있습니다. ` +
+    "프로젝트를 삭제하면 아래 페이지가 모두 함께 삭제됩니다.";
+  el.deleteProjectConfirmPageList.innerHTML = "";
+  project.pages.forEach((doc) => {
+    const li = document.createElement("li");
+    li.textContent = doc.title;
+    el.deleteProjectConfirmPageList.appendChild(li);
+  });
+  openModal("deleteProjectConfirmModal");
+}
+
+async function confirmDeleteProject() {
+  const project = pendingDeleteProject;
+  if (!project) return;
+
+  try {
+    await api(`/api/projects/${encodeURIComponent(project.id)}`, { method: "DELETE" });
+    closeModal("deleteProjectConfirmModal");
+    toast("success", "프로젝트가 삭제되었습니다", project.title);
+    // 삭제된 프로젝트의 페이지 중 하나가 현재 열려 있었다면 에디터를 초기화한다.
+    const openedPage = project.pages.find((doc) => doc.filename === state.currentFilename);
+    if (openedPage) resetEditorIfCurrentlyOpen(openedPage.filename);
+    await loadDocList();
+  } catch (e) {
+    toast("error", "프로젝트 삭제 실패", e.message);
+  } finally {
+    pendingDeleteProject = null;
   }
 }
 
@@ -749,6 +939,25 @@ function initEventBindings() {
       createNewProject();
     }
   });
+
+  el.btnConfirmRenamePage.addEventListener("click", confirmRenamePage);
+  el.renamePageTitle.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      confirmRenamePage();
+    }
+  });
+
+  el.btnConfirmRenameProject.addEventListener("click", confirmRenameProject);
+  el.renameProjectTitle.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      confirmRenameProject();
+    }
+  });
+
+  el.btnConfirmDeletePage.addEventListener("click", confirmDeletePage);
+  el.btnConfirmDeleteProject.addEventListener("click", confirmDeleteProject);
 
   el.btnImportAi.addEventListener("click", openImportAiModal);
   el.btnCreateImport.addEventListener("click", createImportedDoc);
