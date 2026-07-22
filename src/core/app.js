@@ -57,6 +57,13 @@ function renderProjects(projects) {
     const hasActive = project.pages.some((d) => d.filename === state.currentFilename);
     const groupLi = document.createElement("li");
     groupLi.className = "tree-group" + (hasActive ? " open" : "");
+    groupLi.dataset.projectId = project.id;
+
+    // tree-group-header는 <button>이라 그 안에 또 다른 버튼(+페이지)을 넣을 수 없으므로,
+    // 헤더와 액션 버튼을 나란히 두는 row로 감싼다. 기존 카테고리 트리(renderTree)의
+    // 마크업/동작은 그대로이며 이 변경은 프로젝트 트리에만 적용된다.
+    const headerRow = document.createElement("div");
+    headerRow.className = "tree-group-header-row";
 
     const header = document.createElement("button");
     header.type = "button";
@@ -69,7 +76,20 @@ function renderProjects(projects) {
     header.querySelector(".tree-group-name").textContent = project.title;
     header.querySelector(".tree-group-count").textContent = project.pages.length;
     header.addEventListener("click", () => groupLi.classList.toggle("open"));
-    groupLi.appendChild(header);
+    headerRow.appendChild(header);
+
+    const addPageBtn = document.createElement("button");
+    addPageBtn.type = "button";
+    addPageBtn.className = "tree-group-action";
+    addPageBtn.title = "새 페이지 추가";
+    addPageBtn.textContent = "+ 페이지";
+    addPageBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // 아코디언 토글(header 클릭)로 이벤트가 번지지 않게 함
+      openNewProjectPageModal(project);
+    });
+    headerRow.appendChild(addPageBtn);
+
+    groupLi.appendChild(headerRow);
 
     const itemsUl = document.createElement("ul");
     itemsUl.className = "tree-group-items";
@@ -349,13 +369,16 @@ async function createNewDoc() {
   }
 }
 
-// 새 문서/AI 가져오기 공통: 생성된 문서를 목록 갱신 후 즉시 에디터에 열고 미리보기 갱신
+// 새 문서/AI 가져오기 공통: 생성된 문서를 목록 갱신 후 즉시 에디터에 열고 미리보기 갱신.
+// state.currentFilename을 loadDocList() 호출 "전"에 먼저 새 파일로 갱신해야
+// renderTree/renderProjects가 트리를 그리는 시점부터 새 페이지를 active/열림 상태로
+// 정확히 인식한다(반대로 하면 트리가 옛 currentFilename 기준으로 그려진다).
 async function loadCreatedDocIntoEditor(data) {
-  await loadDocList();
   state.currentFilename = data.filename;
   el.editorFilename.textContent = data.filename;
   setEditorValue(data.content);
   markDirty(false);
+  await loadDocList();
   updateActiveTreeItem();
   schedulePreview();
 }
@@ -365,8 +388,11 @@ async function loadCreatedDocIntoEditor(data) {
 // 같은 프로젝트의 페이지들을 묶는 내부 키이므로, 파일명 slug 규칙과
 // 완전히 동일할 필요는 없다. 여기서는 충돌을 줄이기 위해 타임스탬프를 덧붙인다.
 // ============================================================
+const DEFAULT_FIRST_PAGE_TITLE = "개요";
+
 function openNewProjectModal() {
   el.newProjectTitle.value = "";
+  el.newProjectFirstPageTitle.value = "";
   openModal("newProjectModal");
   el.newProjectTitle.focus();
 }
@@ -390,6 +416,7 @@ async function createNewProject() {
     return;
   }
 
+  const firstPageTitle = el.newProjectFirstPageTitle.value.trim() || DEFAULT_FIRST_PAGE_TITLE;
   const projectId = makeProjectId(projectTitle);
 
   try {
@@ -397,7 +424,7 @@ async function createNewProject() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: "개요",
+        title: firstPageTitle,
         category: "기타",
         tags: [],
         status: "draft",
@@ -410,8 +437,73 @@ async function createNewProject() {
     closeModal("newProjectModal");
     toast("success", "새 프로젝트가 생성되었습니다", projectTitle);
     await loadCreatedDocIntoEditor(data);
+    expandProjectGroup(projectId);
   } catch (e) {
     toast("error", "프로젝트 생성 실패", e.message);
+  }
+}
+
+// ============================================================
+// New project page: 기존 프로젝트에 페이지를 추가한다.
+// ============================================================
+let pendingNewPageProject = null;
+
+function openNewProjectPageModal(project) {
+  pendingNewPageProject = project;
+  el.newProjectPageTitle.value = "";
+  el.newProjectPageTarget.textContent = `"${project.title}" 프로젝트에 새 페이지를 추가합니다.`;
+  openModal("newProjectPageModal");
+  el.newProjectPageTitle.focus();
+}
+
+// loadCreatedDocIntoEditor가 state.currentFilename을 먼저 갱신한 뒤 트리를 다시 그리므로
+// renderProjects가 이미 해당 그룹을 열림 상태로 렌더링하지만, 혹시 모를 타이밍 이슈에
+// 대비해 렌더링 후 한 번 더 명시적으로 펼쳐 확실히 보장한다.
+function expandProjectGroup(projectId) {
+  const groupEl = el.projectTree.querySelector(`.tree-group[data-project-id="${projectId}"]`);
+  if (groupEl) groupEl.classList.add("open");
+}
+
+async function createNewProjectPage() {
+  const project = pendingNewPageProject;
+  if (!project) return;
+
+  const pageTitle = el.newProjectPageTitle.value.trim();
+  if (!pageTitle) {
+    el.newProjectPageTitle.focus();
+    return;
+  }
+
+  // 프로젝트 내 마지막 페이지의 pageOrder(없으면 페이지 수) 기준 다음 순번을 계산한다.
+  const maxPageOrder = project.pages.reduce((max, doc) => {
+    const order = typeof doc.pageOrder === "number" ? doc.pageOrder : 0;
+    return Math.max(max, order);
+  }, 0);
+  const nextPageOrder = Math.max(maxPageOrder, project.pages.length) + 1;
+
+  try {
+    const data = await api("/api/docs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: pageTitle,
+        category: "기타",
+        tags: [],
+        status: "draft",
+        description: "",
+        project: project.id,
+        projectTitle: project.title,
+        pageOrder: nextPageOrder,
+      }),
+    });
+    closeModal("newProjectPageModal");
+    toast("success", "새 페이지가 추가되었습니다", data.filename);
+    await loadCreatedDocIntoEditor(data);
+    expandProjectGroup(project.id);
+  } catch (e) {
+    toast("error", "페이지 생성 실패", e.message);
+  } finally {
+    pendingNewPageProject = null;
   }
 }
 
@@ -641,6 +733,22 @@ function initEventBindings() {
 
   el.btnNewProject.addEventListener("click", openNewProjectModal);
   el.btnCreateNewProject.addEventListener("click", createNewProject);
+  el.btnCreateNewProjectPage.addEventListener("click", createNewProjectPage);
+
+  // 프로젝트명 입력 후 Enter → 첫 페이지명 입력란으로 이동 (Tab은 DOM 순서상 기본 동작으로 이미 이동됨)
+  el.newProjectTitle.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      el.newProjectFirstPageTitle.focus();
+    }
+  });
+  // 첫 페이지명 입력란에서 Enter → 바로 생성
+  el.newProjectFirstPageTitle.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      createNewProject();
+    }
+  });
 
   el.btnImportAi.addEventListener("click", openImportAiModal);
   el.btnCreateImport.addEventListener("click", createImportedDoc);

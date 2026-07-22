@@ -456,6 +456,36 @@ body {
   font-weight: 500;
 }
 
+/* 프로젝트 트리 전용: 헤더(토글 버튼)와 "+ 페이지" 액션 버튼을 나란히 배치 */
+.tree-group-header-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tree-group-header-row .tree-group-header {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.tree-group-action {
+  flex: 0 0 auto;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.tree-group-action:hover {
+  background: var(--bg-hover);
+}
+
 .tree-group-items {
   list-style: none;
   margin: 0;

@@ -223,17 +223,42 @@
       </div>
       <div class="modal-body">
         <p class="modal-desc">
-          프로젝트를 만들면 첫 페이지 "개요"가 자동으로 생성됩니다. 이후 페이지는
-          프로젝트를 펼쳐서 이어서 추가할 수 있습니다.
+          프로젝트를 만들면 입력한 이름으로 첫 페이지가 자동으로 생성됩니다. 이후
+          페이지는 프로젝트를 펼쳐서 이어서 추가할 수 있습니다.
         </p>
         <label class="field">
           <span class="field-label">프로젝트명 <em>*</em></span>
           <input type="text" id="newProjectTitle" class="field-input" placeholder="예: 통신사 구독 연동" />
         </label>
+        <label class="field">
+          <span class="field-label">첫 페이지명</span>
+          <input type="text" id="newProjectFirstPageTitle" class="field-input" placeholder="예: 개요, 목표, 시작하기" />
+        </label>
       </div>
       <div class="modal-footer">
         <button type="button" class="bbtn" data-close="newProjectModal">취소</button>
         <button type="button" id="btnCreateNewProject" class="bbtn bbtn-primary">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== New project page modal ===== -->
+  <div class="modal-overlay hidden" id="newProjectPageModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>새 페이지 추가</h2>
+        <button type="button" class="modal-close" data-close="newProjectPageModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="newProjectPageTarget"></p>
+        <label class="field">
+          <span class="field-label">페이지 제목 <em>*</em></span>
+          <input type="text" id="newProjectPageTitle" class="field-input" placeholder="예: 실행 계획" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="newProjectPageModal">취소</button>
+        <button type="button" id="btnCreateNewProjectPage" class="bbtn bbtn-primary">생성</button>
       </div>
     </div>
   </div>

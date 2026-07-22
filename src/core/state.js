@@ -50,7 +50,13 @@ export const el = {
 
   newProjectModal: document.getElementById("newProjectModal"),
   newProjectTitle: document.getElementById("newProjectTitle"),
+  newProjectFirstPageTitle: document.getElementById("newProjectFirstPageTitle"),
   btnCreateNewProject: document.getElementById("btnCreateNewProject"),
+
+  newProjectPageModal: document.getElementById("newProjectPageModal"),
+  newProjectPageTarget: document.getElementById("newProjectPageTarget"),
+  newProjectPageTitle: document.getElementById("newProjectPageTitle"),
+  btnCreateNewProjectPage: document.getElementById("btnCreateNewProjectPage"),
 
   importAiModal: document.getElementById("importAiModal"),
   importTitle: document.getElementById("importTitle"),
