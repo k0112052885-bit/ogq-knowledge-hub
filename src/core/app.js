@@ -37,6 +37,7 @@ async function loadDocList() {
     // "단일 문서" 영역은 기존 카테고리(개요/설계/운영/목표/기타) 그룹핑을 그대로 유지한다.
     renderTree(state.standaloneDocs);
     renderRecent(docs);
+    return docs;
   } catch (e) {
     toast("error", "문서 목록을 불러오지 못했습니다", e.message);
   }
@@ -260,6 +261,17 @@ function updateActiveTreeItem() {
   });
 }
 
+function findDocByFilename(filename) {
+  return state.docs.find((doc) => doc.filename === filename) || null;
+}
+
+function expandGroupForFilename(filename) {
+  const escaped = window.CSS?.escape ? window.CSS.escape(filename) : filename.replace(/"/g, '\\"');
+  const item = document.querySelector('.tree-item[data-filename="' + escaped + '"]');
+  const group = item?.closest(".tree-group");
+  if (group) group.classList.add("open");
+}
+
 function collapseAllGroups() {
   document.querySelectorAll(".tree-group").forEach((g) => g.classList.remove("open"));
 }
@@ -289,6 +301,114 @@ function filterTree(query) {
   });
 }
 
+// ============================================================
+// Deep links / Telegram-compatible links
+// ============================================================
+function normalizeFilenameCandidate(value) {
+  const decoded = String(value || "").trim();
+  if (!decoded) return "";
+  return decoded.endsWith(".md") ? decoded : decoded + ".md";
+}
+
+function sameLooseName(doc, value) {
+  const raw = String(value || "").trim();
+  if (!raw) return false;
+  const withExt = normalizeFilenameCandidate(raw);
+  const withoutExt = raw.replace(/\.md$/i, "");
+  return doc.filename === raw
+    || doc.filename === withExt
+    || doc.filename.replace(/\.md$/i, "") === withoutExt
+    || doc.title === raw;
+}
+
+function resolveLinkedDoc(docs, params = new URLSearchParams(window.location.search)) {
+  const legacyDoc = params.get("doc");
+  if (legacyDoc) {
+    return docs.find((doc) => sameLooseName(doc, legacyDoc)) || null;
+  }
+
+  const projectParam = params.get("project");
+  const pageParam = params.get("page");
+  if (!pageParam) return null;
+
+  const projectDocs = projectParam
+    ? docs.filter((doc) => doc.project === projectParam || doc.projectTitle === projectParam)
+    : docs;
+  return projectDocs.find((doc) => sameLooseName(doc, pageParam)) || null;
+}
+
+async function openInitialLinkedDoc() {
+  const doc = resolveLinkedDoc(state.docs);
+  if (!doc) return;
+  await openDoc(doc.filename, { force: true });
+  expandGroupForFilename(doc.filename);
+}
+
+// 현재 문서를 가리키는 딥링크 URL을 만든다.
+// 프로젝트 소속 문서는 project(id)를 항상 함께 포함해 page만으로 검색할 때
+// 발생할 수 있는 동명 페이지 간 모호성을 피한다.
+function buildDocLinkUrl(doc) {
+  const url = new URL(window.location.href);
+  url.pathname = url.pathname.replace(/\/admin\/?$/, "/admin");
+  url.search = "";
+
+  const params = new URLSearchParams();
+  if (doc.project) {
+    params.set("project", doc.project);
+    params.set("page", doc.title);
+  } else {
+    params.set("doc", doc.filename);
+  }
+  url.search = params.toString();
+  return url.toString();
+}
+
+function fallbackCopyText(text) {
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+function copyTextToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text).then(
+      () => true,
+      () => fallbackCopyText(text)
+    );
+  }
+  return Promise.resolve(fallbackCopyText(text));
+}
+
+async function copyCurrentDocLink() {
+  if (!state.currentFilename) {
+    toast("error", "복사할 문서가 없습니다", "먼저 문서를 열어주세요.");
+    return;
+  }
+  const doc = findDocByFilename(state.currentFilename);
+  if (!doc) {
+    toast("error", "문서 정보를 찾을 수 없습니다", "문서 목록을 새로고침한 뒤 다시 시도해주세요.");
+    return;
+  }
+
+  const link = buildDocLinkUrl(doc);
+  const ok = await copyTextToClipboard(link);
+  if (ok) {
+    toast("success", "링크가 복사되었습니다", link);
+  } else {
+    toast("error", "링크 복사 실패", "브라우저 클립보드 권한을 확인해주세요.");
+  }
+}
 // ============================================================
 // Save status
 // ============================================================
@@ -322,8 +442,9 @@ async function confirmDiscardIfDirty() {
   return window.confirm("저장하지 않은 변경사항이 있습니다. 계속 진행하면 변경사항을 잃습니다. 계속할까요?");
 }
 
-async function openDoc(filename) {
-  if (filename === state.currentFilename) return;
+async function openDoc(filename, options = {}) {
+  const force = options.force === true;
+  if (!force && filename === state.currentFilename) return;
   const proceed = await confirmDiscardIfDirty();
   if (!proceed) return;
 
@@ -334,6 +455,7 @@ async function openDoc(filename) {
     setEditorValue(data.content);
     markDirty(false);
     updateActiveTreeItem();
+    expandGroupForFilename(filename);
     schedulePreview();
     setStatus(`열림: ${filename}`);
   } catch (e) {
@@ -424,7 +546,9 @@ async function loadCreatedDocIntoEditor(data) {
   markDirty(false);
   await loadDocList();
   updateActiveTreeItem();
+  expandGroupForFilename(data.filename);
   schedulePreview();
+  focusEditor();
 }
 
 // ============================================================
@@ -968,6 +1092,7 @@ function initEventBindings() {
   });
 
   el.btnSave.addEventListener("click", () => saveCurrentDoc());
+  el.btnCopyDocLink.addEventListener("click", () => copyCurrentDocLink());
 
   window.addEventListener("beforeunload", (e) => {
     if (state.isDirty) {
@@ -996,7 +1121,7 @@ export function initApp() {
   el.toggleAutoSave.checked = state.settings.autoSave;
   el.toggleAutoBuild.checked = state.settings.autoBuild;
 
-  initEditor();
+  const editorReady = initEditor();
   initMarkdownToolbar(el);
   setupImagePasteAndDrop();
   setupImageLightbox();
@@ -1006,6 +1131,9 @@ export function initApp() {
   initGlobalShortcuts();
   initEventBindings();
 
-  loadDocList();
+  // 딥링크로 문서를 자동으로 열 때 setEditorValue가 값을 실제로 반영하려면
+  // 에디터(Monaco/fallback)가 생성된 이후여야 한다. 문서 목록 로딩과 에디터
+  // 초기화는 병렬로 진행하되, 초기 문서를 여는 시점은 두 작업이 모두 끝난 뒤로 맞춘다.
+  Promise.all([loadDocList(), editorReady]).then(() => openInitialLinkedDoc());
   renderPreview();
 }

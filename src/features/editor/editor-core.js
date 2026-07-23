@@ -4,48 +4,63 @@ import { on, emit } from "../../core/events.js";
 // ============================================================
 // Monaco editor (CDN, falls back to <textarea> offline)
 // ============================================================
+// initEditor()가 반환하는 Promise는 Monaco든 fallback textarea든 에디터가
+// 실제로 값을 받아들일 준비가 된 시점에 resolve된다. 딥링크로 열자마자
+// setEditorValue를 호출하는 흐름(openInitialLinkedDoc 등)이 이 시점보다
+// 먼저 실행되면 setEditorValue가 조용히 무시되므로(에디터 인스턴스가 아직
+// 없어서), 초기화 시점에는 반드시 이 Promise를 기다린 뒤 문서를 열어야 한다.
 export function initEditor() {
   if (typeof window.require === "undefined") {
     initFallbackEditor();
-    return;
+    return Promise.resolve();
   }
 
   window.require.config({
     paths: { vs: "https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs" },
   });
 
-  const timeout = setTimeout(initFallbackEditor, 4000);
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      initFallbackEditor();
+      resolve();
+    }, 4000);
 
-  try {
-    window.require(["vs/editor/editor.main"], () => {
-      clearTimeout(timeout);
-      if (state.monacoEditor || state.fallbackEditor) return;
+    try {
+      window.require(["vs/editor/editor.main"], () => {
+        clearTimeout(timeout);
+        if (state.monacoEditor || state.fallbackEditor) {
+          resolve();
+          return;
+        }
 
-      state.monacoEditor = window.monaco.editor.create(el.monacoContainer, {
-        value: "",
-        language: "markdown",
-        theme: state.settings.theme === "dark" ? "vs-dark" : "vs",
-        fontSize: state.settings.fontSize,
-        fontFamily:
-          "SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace",
-        wordWrap: "on",
-        minimap: { enabled: false },
-        automaticLayout: true,
-        scrollBeyondLastLine: false,
-        padding: { top: 16, bottom: 16 },
+        state.monacoEditor = window.monaco.editor.create(el.monacoContainer, {
+          value: "",
+          language: "markdown",
+          theme: state.settings.theme === "dark" ? "vs-dark" : "vs",
+          fontSize: state.settings.fontSize,
+          fontFamily:
+            "SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace",
+          wordWrap: "on",
+          minimap: { enabled: false },
+          automaticLayout: true,
+          scrollBeyondLastLine: false,
+          padding: { top: 16, bottom: 16 },
+        });
+        state.monacoReady = true;
+
+        state.monacoEditor.onDidChangeModelContent(onEditorContentChanged);
+        state.monacoEditor.addCommand(
+          window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.KeyS,
+          () => emit("editor:save-shortcut")
+        );
+        resolve();
       });
-      state.monacoReady = true;
-
-      state.monacoEditor.onDidChangeModelContent(onEditorContentChanged);
-      state.monacoEditor.addCommand(
-        window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.KeyS,
-        () => emit("editor:save-shortcut")
-      );
-    });
-  } catch (e) {
-    clearTimeout(timeout);
-    initFallbackEditor();
-  }
+    } catch (e) {
+      clearTimeout(timeout);
+      initFallbackEditor();
+      resolve();
+    }
+  });
 }
 
 function initFallbackEditor() {

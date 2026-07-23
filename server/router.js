@@ -108,6 +108,9 @@ function createRequestHandler(config, getServerInstance) {
         return;
       }
 
+      // 문서 딥링크(?doc=, ?project=&page=)는 항상 /admin 경로로만 진입한다.
+      // 사이트 루트("/")는 정적 사이트 전용으로 남겨, 쿼리 파라미터가 우연히 겹쳐도
+      // 정적 사이트 방문이 admin 화면으로 우회되지 않게 한다.
       if (pathname === "/admin" || pathname === "/admin/") {
         serveStatic(req, res, adminDir, "/index.html");
         return;

@@ -10,6 +10,7 @@ export const el = {
   collapseAllBtn: document.getElementById("btnCollapseAll"),
 
   editorFilename: document.getElementById("editorFilename"),
+  btnCopyDocLink: document.getElementById("btnCopyDocLink"),
   saveStatus: document.getElementById("saveStatus"),
   saveStatusText: document.getElementById("saveStatusText"),
   monacoContainer: document.getElementById("monacoContainer"),
