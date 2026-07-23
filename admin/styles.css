@@ -338,6 +338,32 @@ body {
   margin-bottom: var(--space-2);
 }
 
+.tree-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.tree-section-header .tree-section-title {
+  margin-bottom: 0;
+}
+
+.tree-section-action {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.tree-section-action:hover {
+  background: var(--bg-hover);
+}
+
 .recent-list,
 .doc-tree {
   list-style: none;
@@ -430,6 +456,46 @@ body {
   font-weight: 500;
 }
 
+/* 프로젝트 트리 전용: 헤더(토글 버튼)와 "+ 페이지" 액션 버튼을 나란히 배치 */
+.tree-group-header-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tree-group-header-row .tree-group-header {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.tree-group-action {
+  flex: 0 0 auto;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.tree-group-action:hover {
+  background: var(--bg-hover);
+}
+
+.tree-group-action-icon {
+  font-size: 12px;
+  padding: 2px 5px;
+}
+
+.tree-group-action-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
 .tree-group-items {
   list-style: none;
   margin: 0;
@@ -478,6 +544,33 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 프로젝트 트리 전용: 페이지 항목에 마우스를 올렸을 때만 이름변경/삭제 아이콘 노출 */
+.tree-item-action {
+  flex: 0 0 auto;
+  display: none;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.tree-item-with-actions:hover .tree-item-action {
+  display: inline-flex;
+}
+
+.tree-item-action:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.tree-item-action-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
 .tree-empty {
@@ -1387,6 +1480,26 @@ body {
   margin: 0;
 }
 
+/* 프로젝트 삭제 확인 모달: 함께 삭제될 페이지 제목 목록 */
+.modal-list {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.modal-list li {
+  padding: 4px var(--space-2);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-list li:last-child {
+  border-bottom: none;
+}
+
 .modal-desc code {
   background: var(--bg-input);
   border: 1px solid var(--border-default);
@@ -1475,6 +1588,287 @@ body {
   gap: var(--space-2);
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--border-subtle);
+}
+
+/* ============================================================
+   AI Diagram v2
+   ============================================================ */
+
+/* 카드 3개를 한 줄에 여유 있게 배치하기 위해 modal-lg(640px)보다 넓은 폭을 쓴다.
+   이 모달에만 적용되도록 전용 클래스로 오버라이드하며, 다른 modal-lg 사용처
+   (예: AI 문서 가져오기)에는 영향이 없다. */
+.ai-diagram-v2-modal {
+  width: 860px;
+}
+
+.ai-diagram-v2-header {
+  align-items: flex-start;
+}
+
+.ai-diagram-v2-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-diagram-v2-subtitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+/* ---------- 옵션 카드 (Diagram Type / Style / Variants) ---------- */
+.ai-diagram-v2-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.ai-diagram-v2-option-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface-2);
+}
+
+.ai-diagram-v2-option-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+
+.ai-diagram-v2-option-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.ai-diagram-v2-recommended-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--accent-strong);
+  background: var(--accent-border);
+  padding: 2px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.ai-diagram-v2-style-desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  min-height: 1.5em;
+}
+
+/* ---------- 생성 버튼 (스피너 포함) ---------- */
+.ai-diagram-v2-generate-btn {
+  position: relative;
+}
+
+.ai-diagram-v2-spinner {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: var(--text-on-accent);
+  animation: ai-diagram-v2-spin 0.7s linear infinite;
+}
+
+@keyframes ai-diagram-v2-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-diagram-v2-spinner {
+    animation: none;
+  }
+}
+
+.ai-diagram-v2-footer {
+  justify-content: space-between;
+  align-items: center;
+  border-top: none;
+  padding-top: 0;
+}
+
+.ai-diagram-v2-status {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+
+.ai-diagram-v2-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* ---------- 시안 카드 그리드 ---------- */
+.ai-diagram-v2-results {
+  padding: 0 var(--space-5) var(--space-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.ai-diagram-v2-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  padding: var(--space-5) 0;
+}
+
+.ai-diagram-v2-card {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--bg-code);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 transparent;
+  transition: border-color var(--transition-fast), background var(--transition-fast),
+    box-shadow var(--transition-fast), opacity var(--transition-med), transform var(--transition-fast);
+}
+
+.ai-diagram-v2-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hover: 살짝 떠오르는 느낌 + border/shadow 강화 (과한 애니메이션 없이 미세한 이동만) */
+.ai-diagram-v2-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.ai-diagram-v2-card.is-visible:hover {
+  transform: translateY(-3px);
+}
+
+/* 선택된 카드: 파란색 border + glow (hover보다 한 단계 더 강조) */
+.ai-diagram-v2-card.is-selected {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px var(--accent-border), 0 0 24px var(--accent-border);
+}
+
+.ai-diagram-v2-card.is-selected:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 3px var(--accent-border), 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 24px var(--accent-border);
+}
+
+.ai-diagram-v2-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* Preview 자체가 작아 보이지 않도록 충분한 높이/패딩을 확보하고
+   Mermaid 렌더링 결과를 기존 대비 약 15% 더 크게, 중앙 정렬 + padding 유지된
+   상태로 표시한다. 카드보다 다이어그램이 커지지 않도록 max-width/height로 자동 축소한다. */
+.ai-diagram-v2-card-preview {
+  min-height: 250px;
+  max-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-canvas);
+}
+
+.ai-diagram-v2-card-preview svg {
+  max-width: 115%;
+  max-height: 115%;
+  width: auto;
+  height: auto;
+}
+
+.ai-diagram-v2-card-insert-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 8px 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), opacity var(--transition-fast);
+}
+
+/* 선택 전: 비활성화 상태로 흐리게 표시 */
+.ai-diagram-v2-card-insert-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 카드가 선택되면 버튼이 Primary 스타일로 활성화된다 */
+.ai-diagram-v2-card.is-selected .ai-diagram-v2-card-insert-btn:not(:disabled) {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: var(--text-on-accent);
+  opacity: 1;
+}
+
+.ai-diagram-v2-card.is-selected .ai-diagram-v2-card-insert-btn:not(:disabled):hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.ai-diagram-v2-card-insert-spinner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: var(--text-on-accent);
+  animation: ai-diagram-v2-spin 0.7s linear infinite;
+}
+
+.ai-diagram-v2-card-insert-spinner.hidden {
+  display: none;
+}
+
+.ai-diagram-v2-card-insert-btn.is-loading {
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-diagram-v2-card-insert-spinner {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .ai-diagram-v2-modal {
+    width: 92vw;
+  }
+
+  .ai-diagram-v2-options {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ============================================================

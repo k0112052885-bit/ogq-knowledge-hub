@@ -51,8 +51,16 @@
           <ul id="recentList" class="recent-list"></ul>
         </div>
 
+        <div class="tree-section">
+          <div class="tree-section-header">
+            <span class="tree-section-title">프로젝트</span>
+            <button type="button" id="btnNewProject" class="tree-section-action" title="새 프로젝트">+ 새 프로젝트</button>
+          </div>
+          <ul id="projectTree" class="doc-tree"></ul>
+        </div>
+
         <div class="tree-section tree-section-grow">
-          <div class="tree-section-title">전체 문서</div>
+          <div class="tree-section-title">단일 문서</div>
           <ul id="docTree" class="doc-tree"></ul>
         </div>
       </aside>
@@ -69,6 +77,7 @@
             </span>
           </div>
           <div class="editor-header-actions">
+            <button type="button" id="btnCopyDocLink" class="icon-btn" title="이 문서 링크 복사" aria-label="이 문서 링크 복사">🔗</button>
             <label class="chip-toggle" title="입력을 멈추면 자동으로 저장합니다">
               <input type="checkbox" id="toggleAutoSave" />
               <span>자동 저장</span>
@@ -96,7 +105,7 @@
           <button type="button" class="toolbar-btn" data-md-action="codeblock" title="코드블록">{ }</button>
           <span class="toolbar-divider"></span>
           <button type="button" class="toolbar-btn" data-md-action="mermaid" title="Mermaid 다이어그램 삽입">⛓</button>
-          <button type="button" class="toolbar-btn toolbar-btn-ai" id="btnAiDiagram" title="선택한 텍스트를 AI로 Mermaid 다이어그램으로 변환">
+          <button type="button" class="toolbar-btn toolbar-btn-ai" id="btnAiDiagramV2" title="유형/스타일을 선택해 여러 시안으로 AI 다이어그램 생성">
             ✨ AI Diagram
           </button>
         </div>
@@ -206,6 +215,131 @@
     </div>
   </div>
 
+  <!-- ===== New project modal ===== -->
+  <div class="modal-overlay hidden" id="newProjectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>새 프로젝트 만들기</h2>
+        <button type="button" class="modal-close" data-close="newProjectModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          프로젝트를 만들면 첫 페이지가 자동으로 생성됩니다. 첫 페이지명을 입력하면
+          그 이름으로, 비워두면 프로젝트명과 동일한 이름으로 생성됩니다. 이후 페이지는
+          프로젝트를 펼쳐서 이어서 추가할 수 있습니다.
+        </p>
+        <label class="field">
+          <span class="field-label">프로젝트명 <em>*</em></span>
+          <input type="text" id="newProjectTitle" class="field-input" placeholder="예: 통신사 구독 연동" />
+        </label>
+        <label class="field">
+          <span class="field-label">첫 페이지명 <small>(선택)</small></span>
+          <input type="text" id="newProjectFirstPageTitle" class="field-input" placeholder="비워두면 프로젝트명과 동일하게 생성됩니다." />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="newProjectModal">취소</button>
+        <button type="button" id="btnCreateNewProject" class="bbtn bbtn-primary">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== New project page modal ===== -->
+  <div class="modal-overlay hidden" id="newProjectPageModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>새 페이지 추가</h2>
+        <button type="button" class="modal-close" data-close="newProjectPageModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="newProjectPageTarget"></p>
+        <label class="field">
+          <span class="field-label">페이지 제목 <em>*</em></span>
+          <input type="text" id="newProjectPageTitle" class="field-input" placeholder="예: 실행 계획" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="newProjectPageModal">취소</button>
+        <button type="button" id="btnCreateNewProjectPage" class="bbtn bbtn-primary">생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Rename page modal ===== -->
+  <div class="modal-overlay hidden" id="renamePageModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>페이지 이름 변경</h2>
+        <button type="button" class="modal-close" data-close="renamePageModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">페이지 제목 <em>*</em></span>
+          <input type="text" id="renamePageTitle" class="field-input" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="renamePageModal">취소</button>
+        <button type="button" id="btnConfirmRenamePage" class="bbtn bbtn-primary">변경</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Rename project modal ===== -->
+  <div class="modal-overlay hidden" id="renameProjectModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>프로젝트 이름 변경</h2>
+        <button type="button" class="modal-close" data-close="renameProjectModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span class="field-label">프로젝트명 <em>*</em></span>
+          <input type="text" id="renameProjectTitle" class="field-input" />
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="renameProjectModal">취소</button>
+        <button type="button" id="btnConfirmRenameProject" class="bbtn bbtn-primary">변경</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Delete page confirm modal ===== -->
+  <div class="modal-overlay hidden" id="deletePageConfirmModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>페이지를 삭제할까요?</h2>
+        <button type="button" class="modal-close" data-close="deletePageConfirmModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="deletePageConfirmMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="deletePageConfirmModal">취소</button>
+        <button type="button" id="btnConfirmDeletePage" class="bbtn bbtn-danger">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Delete project confirm modal ===== -->
+  <div class="modal-overlay hidden" id="deleteProjectConfirmModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>프로젝트를 삭제할까요?</h2>
+        <button type="button" class="modal-close" data-close="deleteProjectConfirmModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="deleteProjectConfirmMessage"></p>
+        <ul class="modal-list" id="deleteProjectConfirmPageList"></ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="deleteProjectConfirmModal">취소</button>
+        <button type="button" id="btnConfirmDeleteProject" class="bbtn bbtn-danger">모두 삭제</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== AI document import modal ===== -->
   <div class="modal-overlay hidden" id="importAiModal">
     <div class="modal modal-lg">
@@ -257,6 +391,76 @@
       <div class="modal-footer">
         <button type="button" class="bbtn" data-close="importAiModal">취소</button>
         <button type="button" id="btnCreateImport" class="bbtn bbtn-primary">문서 생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AI Diagram v2 modal ===== -->
+  <div class="modal-overlay hidden" id="aiDiagramV2Modal">
+    <div class="modal modal-lg ai-diagram-v2-modal">
+      <div class="modal-header ai-diagram-v2-header">
+        <div class="ai-diagram-v2-title-group">
+          <h2>✨ AI Diagram</h2>
+          <p class="ai-diagram-v2-subtitle">Professional Diagram Generator</p>
+        </div>
+        <button type="button" class="modal-close" data-close="aiDiagramV2Modal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          에디터에서 텍스트를 선택한 뒤 유형과 스타일을 골라 여러 개의 다이어그램 시안을
+          생성할 수 있습니다. 마음에 드는 시안을 고르면 문서에 삽입됩니다.
+        </p>
+        <div class="ai-diagram-v2-options">
+          <label class="ai-diagram-v2-option-card">
+            <span class="ai-diagram-v2-option-label">Diagram Type</span>
+            <select id="aiDiagramType" class="field-input">
+              <option value="unspecified">⚙ 자동</option>
+              <option value="process">📊 프로세스</option>
+              <option value="orgchart">🏢 조직도</option>
+              <option value="cycle">🔁 순환</option>
+              <option value="roadmap">🛣 로드맵</option>
+              <option value="timeline">📅 타임라인</option>
+              <option value="comparison">⚖ 비교</option>
+              <option value="pyramid">🔺 피라미드</option>
+            </select>
+          </label>
+          <label class="ai-diagram-v2-option-card">
+            <span class="ai-diagram-v2-option-label-row">
+              <span class="ai-diagram-v2-option-label">Style</span>
+              <span class="ai-diagram-v2-recommended-badge" id="aiDiagramStyleRecommendedBadge">⭐ Recommended</span>
+            </span>
+            <select id="aiDiagramStyle" class="field-input">
+              <option value="default">Docs Builder</option>
+              <option value="mckinsey">McKinsey</option>
+              <option value="bcg">BCG</option>
+              <option value="deloitte">Deloitte</option>
+              <option value="microsoft">Microsoft</option>
+              <option value="apple">Apple</option>
+            </select>
+            <p class="ai-diagram-v2-style-desc" id="aiDiagramStyleDesc">기본 다크 문서 스타일</p>
+          </label>
+          <label class="ai-diagram-v2-option-card">
+            <span class="ai-diagram-v2-option-label">Variants</span>
+            <select id="aiDiagramVariantCount" class="field-input">
+              <option value="1">1개</option>
+              <option value="2">2개</option>
+              <option value="3">3개</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer ai-diagram-v2-footer">
+        <span id="aiDiagramV2Status" class="ai-diagram-v2-status"></span>
+        <div class="ai-diagram-v2-actions">
+          <button type="button" class="bbtn" data-close="aiDiagramV2Modal">취소</button>
+          <button type="button" id="btnGenerateAiDiagramV2" class="bbtn bbtn-primary ai-diagram-v2-generate-btn">
+            <span class="ai-diagram-v2-spinner hidden" aria-hidden="true"></span>
+            <span class="ai-diagram-v2-generate-label">✨ 시안 생성</span>
+          </button>
+        </div>
+      </div>
+      <div id="aiDiagramV2Results" class="ai-diagram-v2-results">
+        <p class="ai-diagram-v2-empty">유형과 스타일을 선택한 뒤 "시안 생성"을 눌러주세요.</p>
       </div>
     </div>
   </div>
@@ -340,6 +544,6 @@
     </div>
   </div>
 
-  <script src="/admin/app.js"></script>
+  <script type="module" src="/admin/app.js"></script>
 </body>
 </html>
