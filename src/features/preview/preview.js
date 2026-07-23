@@ -44,12 +44,29 @@ export async function renderPreview() {
 
 let mermaidRenderSeq = 0;
 
-// 블록 단위로 개별 렌더링해서, 문서에 여러 다이어그램이 있을 때
-// 하나가 문법 오류여도 나머지는 정상 렌더링되고 실패한 블록에만 에러가 표시되게 한다.
-async function runMermaid() {
-  const blocks = Array.from(el.previewBody.querySelectorAll(".mermaid"));
-  if (!blocks.length || typeof window.mermaid === "undefined") return;
+// container(DOM 엘리먼트) 안에 Mermaid 코드 하나를 렌더링한다.
+// 실패해도 에러를 던지지 않고 container 안에 에러 UI를 표시하는 것으로 마무리한다
+// (호출부가 여러 블록/카드를 순회 중이어도 하나의 실패가 나머지에 영향을 주지 않도록).
+// AI Diagram v2의 다중 시안 카드 미리보기에서도 이 함수를 그대로 재사용할 수 있도록
+// el.previewBody 같은 특정 DOM에 의존하지 않고 container를 인자로 받는다.
+export async function renderMermaidBlock(container, code) {
+  if (typeof window.mermaid === "undefined") return;
 
+  const id = `mermaid-preview-${++mermaidRenderSeq}`;
+  try {
+    const { svg } = await window.mermaid.render(id, code);
+    container.innerHTML = svg;
+    container.classList.remove("mermaid-error");
+  } catch (e) {
+    container.classList.add("mermaid-error");
+    container.innerHTML = `<div class="mermaid-error-box">
+          <div class="mermaid-error-title">Mermaid 렌더링 실패</div>
+          <div class="mermaid-error-message">${escapeHtml(e.message || String(e))}</div>
+        </div>`;
+  }
+}
+
+function initializeMermaidTheme() {
   try {
     window.mermaid.initialize({
       startOnLoad: false,
@@ -59,21 +76,19 @@ async function runMermaid() {
   } catch (e) {
     // initialize 자체가 실패하는 경우는 드물지만, 실패해도 블록별 렌더링은 계속 시도한다.
   }
+}
+
+// 문서 미리보기(el.previewBody) 안의 모든 .mermaid 블록을 순회하며 렌더링한다.
+// 블록 단위로 개별 렌더링해서, 문서에 여러 다이어그램이 있을 때
+// 하나가 문법 오류여도 나머지는 정상 렌더링되고 실패한 블록에만 에러가 표시되게 한다.
+async function runMermaid() {
+  const blocks = Array.from(el.previewBody.querySelectorAll(".mermaid"));
+  if (!blocks.length || typeof window.mermaid === "undefined") return;
+
+  initializeMermaidTheme();
 
   for (const block of blocks) {
-    const code = block.textContent;
-    const id = `mermaid-preview-${++mermaidRenderSeq}`;
-    try {
-      const { svg } = await window.mermaid.render(id, code);
-      block.innerHTML = svg;
-      block.classList.remove("mermaid-error");
-    } catch (e) {
-      block.classList.add("mermaid-error");
-      block.innerHTML = `<div class="mermaid-error-box">
-          <div class="mermaid-error-title">Mermaid 렌더링 실패</div>
-          <div class="mermaid-error-message">${escapeHtml(e.message || String(e))}</div>
-        </div>`;
-    }
+    await renderMermaidBlock(block, block.textContent);
   }
 }
 

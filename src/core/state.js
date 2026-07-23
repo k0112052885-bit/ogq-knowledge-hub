@@ -32,6 +32,7 @@ export const el = {
   btnNewProject: document.getElementById("btnNewProject"),
   btnImportAi: document.getElementById("btnImportAi"),
   btnAiDiagram: document.getElementById("btnAiDiagram"),
+  btnAiDiagramV2: document.getElementById("btnAiDiagramV2"),
   btnSave: document.getElementById("btnSave"),
   btnBuild: document.getElementById("btnBuild"),
   btnGitPush: document.getElementById("btnGitPush"),
@@ -83,6 +84,14 @@ export const el = {
   importDescription: document.getElementById("importDescription"),
   importMarkdown: document.getElementById("importMarkdown"),
   btnCreateImport: document.getElementById("btnCreateImport"),
+
+  aiDiagramV2Modal: document.getElementById("aiDiagramV2Modal"),
+  aiDiagramType: document.getElementById("aiDiagramType"),
+  aiDiagramStyle: document.getElementById("aiDiagramStyle"),
+  aiDiagramVariantCount: document.getElementById("aiDiagramVariantCount"),
+  aiDiagramV2Status: document.getElementById("aiDiagramV2Status"),
+  aiDiagramV2Results: document.getElementById("aiDiagramV2Results"),
+  btnGenerateAiDiagramV2: document.getElementById("btnGenerateAiDiagramV2"),
 
   settingsModal: document.getElementById("settingsModal"),
   settingTheme: document.getElementById("settingTheme"),

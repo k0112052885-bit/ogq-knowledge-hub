@@ -107,6 +107,9 @@
           <button type="button" class="toolbar-btn toolbar-btn-ai" id="btnAiDiagram" title="선택한 텍스트를 AI로 Mermaid 다이어그램으로 변환">
             ✨ AI Diagram
           </button>
+          <button type="button" class="toolbar-btn toolbar-btn-ai" id="btnAiDiagramV2" title="유형/스타일을 선택해 여러 시안으로 AI 다이어그램 생성">
+            ✨ AI Diagram v2
+          </button>
         </div>
         <div id="monacoContainer" class="monaco-container">
           <div id="imageDropOverlay" class="image-drop-overlay hidden">
@@ -390,6 +393,66 @@
       <div class="modal-footer">
         <button type="button" class="bbtn" data-close="importAiModal">취소</button>
         <button type="button" id="btnCreateImport" class="bbtn bbtn-primary">문서 생성</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AI Diagram v2 modal ===== -->
+  <div class="modal-overlay hidden" id="aiDiagramV2Modal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>✨ AI Diagram v2</h2>
+        <button type="button" class="modal-close" data-close="aiDiagramV2Modal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          에디터에서 텍스트를 선택한 뒤 유형과 스타일을 골라 여러 개의 다이어그램 시안을
+          생성할 수 있습니다. 마음에 드는 시안을 고르면 문서에 삽입됩니다.
+        </p>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">다이어그램 유형</span>
+            <select id="aiDiagramType" class="field-input">
+              <option value="unspecified">자동</option>
+              <option value="process">프로세스</option>
+              <option value="orgchart">조직도</option>
+              <option value="cycle">순환 구조</option>
+              <option value="timeline">타임라인</option>
+              <option value="pyramid">피라미드</option>
+              <option value="comparison">비교 구조</option>
+              <option value="roadmap">로드맵</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">스타일</span>
+            <select id="aiDiagramStyle" class="field-input">
+              <option value="default">기본 (Docs Builder)</option>
+              <option value="mckinsey">McKinsey</option>
+              <option value="bcg">BCG</option>
+              <option value="deloitte">Deloitte</option>
+              <option value="microsoft">Microsoft</option>
+              <option value="apple">Apple</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">시안 개수</span>
+            <select id="aiDiagramVariantCount" class="field-input">
+              <option value="1">1개</option>
+              <option value="2">2개</option>
+              <option value="3">3개</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer ai-diagram-v2-footer">
+        <span id="aiDiagramV2Status" class="ai-diagram-v2-status"></span>
+        <div class="ai-diagram-v2-actions">
+          <button type="button" class="bbtn" data-close="aiDiagramV2Modal">취소</button>
+          <button type="button" id="btnGenerateAiDiagramV2" class="bbtn bbtn-primary">시안 생성</button>
+        </div>
+      </div>
+      <div id="aiDiagramV2Results" class="ai-diagram-v2-results">
+        <p class="ai-diagram-v2-empty">유형과 스타일을 선택한 뒤 "시안 생성"을 눌러주세요.</p>
       </div>
     </div>
   </div>

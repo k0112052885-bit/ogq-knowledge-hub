@@ -1,15 +1,22 @@
 const { sendJson, readRequestBody } = require("../utils/http.js");
+const { buildDiagramPrompt } = require("../ai-diagram/prompt-builder.js");
 
 const AI_DIAGRAM_MAX_INPUT_LENGTH = 4000;
+const DEFAULT_VARIANT_COUNT = 1;
+const MIN_VARIANT_COUNT = 1;
+const MAX_VARIANT_COUNT = 3;
 
-const AI_DIAGRAM_SYSTEM_PROMPT = [
-  "너는 텍스트를 Mermaid 다이어그램 코드로 변환하는 도구다.",
-  "사용자가 준 문장/구조 설명을 가장 적절한 Mermaid 다이어그램 종류(flowchart, sequenceDiagram, classDiagram 등)로 표현하라.",
-  "flowchart를 쓸 경우 방향은 LR을 기본으로 하되, 내용상 TD가 더 적합하면 TD를 써도 된다.",
-  "노드 라벨과 텍스트는 입력 언어(주로 한국어)를 그대로 유지하라.",
-  "응답은 오직 Mermaid 코드만 반환하라. 코드 펜스(```)나 설명 문장, 인사말을 절대 포함하지 마라.",
-  "첫 줄은 반드시 다이어그램 타입 키워드(flowchart, sequenceDiagram 등)로 시작해야 한다.",
-].join(" ");
+// variantCount가 없거나(undefined) 유효 범위(1~3) 밖의 값(문자열, 소수, 0, 4 이상 등)이면
+// 기존 단일 생성 동작과 동일하게 기본값(1)으로 안전하게 처리한다.
+function resolveVariantCount(value) {
+  if (typeof value !== "number" || !Number.isInteger(value)) {
+    return DEFAULT_VARIANT_COUNT;
+  }
+  if (value < MIN_VARIANT_COUNT || value > MAX_VARIANT_COUNT) {
+    return DEFAULT_VARIANT_COUNT;
+  }
+  return value;
+}
 
 // 모델이 코드펜스나 설명을 덧붙여 응답하는 경우를 방어적으로 정리해
 // 순수 Mermaid 코드만 남긴다.
@@ -24,7 +31,7 @@ function extractMermaidCode(raw) {
   return text;
 }
 
-async function callOpenAiForDiagram(text, apiKey, model) {
+async function callOpenAiForDiagram(text, apiKey, model, systemPrompt) {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -35,7 +42,7 @@ async function callOpenAiForDiagram(text, apiKey, model) {
       model,
       temperature: 0.2,
       messages: [
-        { role: "system", content: AI_DIAGRAM_SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         { role: "user", content: text },
       ],
     }),
@@ -89,14 +96,55 @@ async function handleAiDiagram(req, res, apiKey, model) {
     return;
   }
 
+  // diagramType/style을 둘 다 지정하지 않은 요청(v1 클라이언트, 기존 AI Diagram 버튼)은
+  // 스타일 지시문 없이 v1과 바이트 단위로 동일한 시스템 프롬프트를 사용해야 하므로
+  // includeStyleInstruction을 false로 둔다. 둘 중 하나라도 지정되면 v2 동작으로 간주해
+  // 스타일 지시문까지 포함한다.
+  const diagramType = typeof payload.diagramType === "string" ? payload.diagramType : undefined;
+  const style = typeof payload.style === "string" ? payload.style : undefined;
+  const isV2Request = diagramType !== undefined || style !== undefined;
+
+  const systemPrompt = buildDiagramPrompt({
+    diagramType,
+    style,
+    includeStyleInstruction: isV2Request,
+  });
+
+  const variantCount = resolveVariantCount(payload.variantCount);
+
   try {
-    const raw = await callOpenAiForDiagram(text, apiKey, model);
-    const code = extractMermaidCode(raw);
-    if (!code) {
-      sendJson(res, 502, { error: "AI가 빈 응답을 반환했습니다. 다시 시도해주세요." });
+    // variantCount(1~3)만큼 동일한 프롬프트로 OpenAI를 병렬 호출해 여러 시안을 만든다.
+    // 개별 호출이 실패하거나 빈 코드를 반환해도 다른 시안에는 영향이 없도록
+    // Promise.allSettled로 모은 뒤, 성공한 것만 골라 results에 담는다.
+    const settled = await Promise.allSettled(
+      Array.from({ length: variantCount }, () => callOpenAiForDiagram(text, apiKey, model, systemPrompt))
+    );
+
+    const results = settled
+      .filter((r) => r.status === "fulfilled")
+      .map((r) => extractMermaidCode(r.value))
+      .filter((code) => code)
+      .map((code) => ({ code }));
+
+    if (!results.length) {
+      const firstError = settled.find((r) => r.status === "rejected");
+      // v1과 동일한 두 가지 오류 메시지 포맷을 그대로 재현한다.
+      // - OpenAI 호출 자체가 실패(callOpenAiForDiagram이 throw)한 경우: "AI 다이어그램 생성 실패: {message}"
+      // - 호출은 성공했지만 코드 추출 결과가 빈 문자열인 경우: "AI가 빈 응답을 반환했습니다. 다시 시도해주세요."
+      const message = firstError
+        ? `AI 다이어그램 생성 실패: ${firstError.reason.message}`
+        : "AI가 빈 응답을 반환했습니다. 다시 시도해주세요.";
+      sendJson(res, 502, { error: message });
       return;
     }
-    sendJson(res, 200, { ok: true, code });
+
+    // 기존 단일 생성 응답 형식({ ok, code })은 항상 유지하고, variantCount가 1보다
+    // 클 때만 results 배열을 추가로 포함한다(하위 호환: code는 항상 results[0]과 동일).
+    const responsePayload = { ok: true, code: results[0].code };
+    if (variantCount > 1) {
+      responsePayload.results = results;
+    }
+    sendJson(res, 200, responsePayload);
   } catch (err) {
     sendJson(res, 502, { error: `AI 다이어그램 생성 실패: ${err.message}` });
   }

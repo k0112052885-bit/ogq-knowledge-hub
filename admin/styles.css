@@ -1590,6 +1590,70 @@ body {
   border-top: 1px solid var(--border-subtle);
 }
 
+/* ---------- AI Diagram v2 ---------- */
+.ai-diagram-v2-footer {
+  justify-content: space-between;
+  align-items: center;
+  border-top: none;
+  padding-top: 0;
+}
+
+.ai-diagram-v2-status {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+
+.ai-diagram-v2-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.ai-diagram-v2-results {
+  padding: 0 var(--space-5) var(--space-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.ai-diagram-v2-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  padding: var(--space-5) 0;
+}
+
+.ai-diagram-v2-card {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--bg-code);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 160px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.ai-diagram-v2-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-hover);
+}
+
+.ai-diagram-v2-card-preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.ai-diagram-v2-card-preview svg {
+  max-width: 100%;
+  height: auto;
+}
+
 /* ============================================================
    Responsive
    ============================================================ */
