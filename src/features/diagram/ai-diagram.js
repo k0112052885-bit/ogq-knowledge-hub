@@ -1,15 +1,20 @@
 import { el, state } from "../../core/state.js";
 import { api } from "../../core/api.js";
 import { toast, setStatus } from "../../core/toast.js";
-import { insertTextAtCursor, getSelectedEditorText } from "../editor/editor-core.js";
+import { insertTextAtCursor, getSelectedEditorText, isSelectionAtLineStart } from "../editor/editor-core.js";
 import { schedulePreview, renderMermaidBlock } from "../preview/preview.js";
 import { openModal, closeModal } from "../../core/modal.js";
 
 // 선택 영역을 Mermaid 코드 펜스로 감싼 텍스트로 치환한다.
 // insertTextAtCursor는 현재 selection 범위를 그대로 덮어쓰므로,
 // 선택했던 원본 문장은 사라지고 변환된 다이어그램으로 대체된다.
+// ```mermaid 코드펜스는 반드시 줄 맨 앞에서 시작해야 마크다운 파서가 코드블록으로
+// 인식한다. 선택 영역이 줄 중간(예: "## 제목"에서 "제목"만 선택)에서 시작하면 그 줄의
+// 앞부분("## ")이 코드펜스 앞에 그대로 남아 "## ```mermaid"처럼 깨지므로, 이 경우
+// 코드펜스 앞에 줄바꿈을 하나 추가해 항상 새 줄에서 시작하도록 보정한다.
 function replaceSelectionWithMermaid(code) {
-  const block = `\`\`\`mermaid\n${code.trim()}\n\`\`\`\n`;
+  const needsLeadingNewline = !isSelectionAtLineStart();
+  const block = `${needsLeadingNewline ? "\n" : ""}\`\`\`mermaid\n${code.trim()}\n\`\`\`\n`;
   insertTextAtCursor(block);
 }
 

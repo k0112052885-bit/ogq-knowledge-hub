@@ -149,6 +149,23 @@ export function getSelectedEditorText() {
   return "";
 }
 
+// 현재 선택 영역의 시작 지점이 그 줄의 맨 앞(컬럼 1 / 문서 시작이거나 직전 문자가
+// 줄바꿈)인지 확인한다. ```mermaid 같은 코드펜스는 반드시 줄 맨 앞에서 시작해야
+// 마크다운 파서가 코드블록으로 인식하므로, 이 값이 false이면 호출부가 삽입 전에
+// 줄바꿈을 보정해야 한다(예: "## 제목" 중 "제목"만 선택된 상태로 삽입하는 경우).
+export function isSelectionAtLineStart() {
+  if (state.monacoReady) {
+    const editor = state.monacoEditor;
+    return editor.getSelection().startColumn === 1;
+  }
+  if (state.fallbackEditor) {
+    const textarea = state.fallbackEditor;
+    const start = textarea.selectionStart;
+    return start === 0 || textarea.value[start - 1] === "\n";
+  }
+  return true;
+}
+
 // ============================================================
 // Editor change handling: dirty flag, preview, autosave
 // ============================================================
