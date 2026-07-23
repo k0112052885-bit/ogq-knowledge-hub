@@ -66,11 +66,33 @@ export async function renderMermaidBlock(container, code) {
   }
 }
 
-function initializeMermaidTheme() {
+// Mermaid 기본(dark) 테마의 노드 배경은 밝은 연보라 계열이라 Docs Builder의
+// 다크 차콜 UI와 어울리지 않는다. Docs Builder 다크모드에서는 themeVariables로
+// 노드/텍스트/테두리/연결선 색을 앱의 다크 톤(차콜 배경 + 블루 accent)에 맞게
+// 덮어써서, AI Diagram(문서 Preview·시안 카드 모두)이 앱과 이질감 없이 보이게 한다.
+// 라이트 모드는 Mermaid 기본(default) 테마를 그대로 사용해 이번 변경의 영향을 받지 않는다.
+const DOCS_BUILDER_DARK_MERMAID_THEME_VARIABLES = {
+  primaryColor: "#1b1f2a",
+  primaryTextColor: "#f3f4f6",
+  primaryBorderColor: "#6c7cff",
+  lineColor: "#6b7280",
+  secondaryColor: "#202532",
+  tertiaryColor: "#202532",
+  background: "#0d0f13",
+  mainBkg: "#1b1f2a",
+  nodeTextColor: "#f3f4f6",
+  edgeLabelBackground: "#191c22",
+  clusterBkg: "#191c22",
+  clusterBorder: "#6c7cff",
+};
+
+export function initializeMermaidTheme() {
   try {
+    const isDark = state.settings.theme === "dark";
     window.mermaid.initialize({
       startOnLoad: false,
-      theme: state.settings.theme === "dark" ? "dark" : "default",
+      theme: isDark ? "dark" : "default",
+      themeVariables: isDark ? DOCS_BUILDER_DARK_MERMAID_THEME_VARIABLES : undefined,
       securityLevel: "strict",
     });
   } catch (e) {

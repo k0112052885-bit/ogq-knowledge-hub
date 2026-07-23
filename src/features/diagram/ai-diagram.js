@@ -2,7 +2,7 @@ import { el, state } from "../../core/state.js";
 import { api } from "../../core/api.js";
 import { toast, setStatus } from "../../core/toast.js";
 import { insertTextAtCursor, getSelectedEditorText, isSelectionAtLineStart } from "../editor/editor-core.js";
-import { schedulePreview, renderMermaidBlock } from "../preview/preview.js";
+import { schedulePreview, renderMermaidBlock, initializeMermaidTheme } from "../preview/preview.js";
 import { openModal, closeModal } from "../../core/modal.js";
 
 // 선택 영역을 Mermaid 코드 펜스로 감싼 텍스트로 치환한다.
@@ -212,6 +212,12 @@ async function generateAiDiagramV2() {
 
     // variantCount가 1이면 서버 응답에 results가 없으므로(하위 호환), code 하나로 카드 하나만 만든다.
     const codes = Array.isArray(data.results) ? data.results.map((r) => r.code) : [data.code];
+
+    // 문서 Preview를 한 번도 렌더링하지 않은 상태(mermaid.initialize 미호출)에서 바로
+    // 이 모달을 열어 시안을 생성하면 Mermaid가 라이브러리 기본 팔레트로 렌더링되어
+    // 카드 미리보기가 Docs Builder 다크 테마와 어긋난다. 카드를 그리기 전에 항상
+    // 테마를 초기화해 문서 Preview와 동일한 색상으로 보이게 한다.
+    initializeMermaidTheme();
 
     el.aiDiagramV2Results.innerHTML = "";
     for (let i = 0; i < codes.length; i++) {
