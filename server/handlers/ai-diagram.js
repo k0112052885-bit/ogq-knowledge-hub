@@ -31,7 +31,7 @@ function extractMermaidCode(raw) {
   return text;
 }
 
-async function callOpenAiForDiagram(text, apiKey, model, systemPrompt) {
+async function callOpenAiForDiagram(text, apiKey, model, systemPrompt, temperature = 0.2) {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -40,7 +40,7 @@ async function callOpenAiForDiagram(text, apiKey, model, systemPrompt) {
     },
     body: JSON.stringify({
       model,
-      temperature: 0.2,
+      temperature,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: text },
@@ -104,20 +104,28 @@ async function handleAiDiagram(req, res, apiKey, model) {
   const style = typeof payload.style === "string" ? payload.style : undefined;
   const isV2Request = diagramType !== undefined || style !== undefined;
 
-  const systemPrompt = buildDiagramPrompt({
-    diagramType,
-    style,
-    includeStyleInstruction: isV2Request,
-  });
-
   const variantCount = resolveVariantCount(payload.variantCount);
 
   try {
-    // variantCount(1~3)만큼 동일한 프롬프트로 OpenAI를 병렬 호출해 여러 시안을 만든다.
+    // variantCount(1~3)만큼 OpenAI를 병렬 호출해 여러 시안을 만든다. variantCount가 1보다
+    // 클 때는 호출마다 buildDiagramPrompt에 variantIndex(0,1,2...)를 넘겨 서로 다른 표현
+    // 관점(레이아웃/구조) 지시문이 추가된 프롬프트를 쓰고, temperature도 살짝 높여 동일한
+    // 텍스트에 대해 매번 같은 Mermaid 코드가 나오지 않도록 한다. variantCount가 1이면
+    // (v1 단일 생성 포함) variantIndex를 넘기지 않아 기존과 완전히 동일한 프롬프트/temperature를
+    // 유지한다(하위 호환).
     // 개별 호출이 실패하거나 빈 코드를 반환해도 다른 시안에는 영향이 없도록
     // Promise.allSettled로 모은 뒤, 성공한 것만 골라 results에 담는다.
     const settled = await Promise.allSettled(
-      Array.from({ length: variantCount }, () => callOpenAiForDiagram(text, apiKey, model, systemPrompt))
+      Array.from({ length: variantCount }, (_, i) => {
+        const systemPrompt = buildDiagramPrompt({
+          diagramType,
+          style,
+          includeStyleInstruction: isV2Request,
+          variantIndex: variantCount > 1 ? i : undefined,
+        });
+        const temperature = variantCount > 1 ? 0.2 + i * 0.25 : 0.2;
+        return callOpenAiForDiagram(text, apiKey, model, systemPrompt, temperature);
+      })
     );
 
     const results = settled
