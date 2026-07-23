@@ -57,6 +57,27 @@ export async function generateAiDiagram() {
 // 기존 generateAiDiagram()/btnAiDiagram 클릭 흐름은 이 섹션과 완전히 분리되어 있어
 // 전혀 영향을 받지 않는다.
 // ============================================================
+
+// 서버 server/ai-diagram/styles.js의 라벨/설명과 짝을 맞춘 UI 표시용 설명 문구.
+// 스타일 선택 로직(요청 payload) 자체와는 무관한 순수 표시 텍스트다.
+const STYLE_DESCRIPTIONS = {
+  default: "기본 다크 문서 스타일",
+  mckinsey: "기업 전략 문서 스타일",
+  bcg: "컨설팅 보고서 스타일",
+  deloitte: "비즈니스 프로세스 스타일",
+  microsoft: "Flowchart 중심",
+  apple: "미니멀 프레젠테이션 스타일",
+};
+
+function updateStyleDescription() {
+  const style = el.aiDiagramStyle.value;
+  el.aiDiagramStyleDesc.textContent = STYLE_DESCRIPTIONS[style] || "";
+  // "Docs Builder"(default) 스타일을 선택했을 때만 추천 배지를 보여준다.
+  // 다른 스타일 선택 시에도 배지가 남아있으면 해당 스타일이 추천인 것처럼
+  // 오인될 수 있으므로 선택값에 맞춰 토글한다.
+  el.aiDiagramStyleRecommendedBadge.classList.toggle("hidden", style !== "default");
+}
+
 function openAiDiagramV2Modal() {
   if (!state.currentFilename) {
     toast("error", "다이어그램을 삽입할 문서가 없습니다", "먼저 문서를 열거나 새로 만들어주세요.");
@@ -70,35 +91,90 @@ function openAiDiagramV2Modal() {
 
   el.aiDiagramV2Status.textContent = "";
   el.aiDiagramV2Results.innerHTML = '<p class="ai-diagram-v2-empty">유형과 스타일을 선택한 뒤 "시안 생성"을 눌러주세요.</p>';
+  updateStyleDescription();
   openModal("aiDiagramV2Modal");
 }
 
 // 선택된 시안의 code를 기존 replaceSelectionWithMermaid로 그대로 삽입한다.
 // 삽입 이후 흐름(저장 상태 갱신, Preview 갱신)은 기존 단일 생성(generateAiDiagram)과
 // 완전히 동일한 함수(replaceSelectionWithMermaid, schedulePreview)를 그대로 재사용한다.
-function insertSelectedDiagramVariant(code) {
-  replaceSelectionWithMermaid(code);
-  closeModal("aiDiagramV2Modal");
-  toast("success", "다이어그램이 삽입되었습니다", "선택한 시안의 Mermaid 코드가 문서에 삽입되었습니다.");
-  schedulePreview();
+async function insertSelectedDiagramVariant(code, insertBtn) {
+  const labelEl = insertBtn.querySelector(".ai-diagram-v2-card-insert-label");
+  const spinnerEl = insertBtn.querySelector(".ai-diagram-v2-card-insert-spinner");
+  const originalLabel = labelEl.textContent;
+  insertBtn.disabled = true;
+  insertBtn.classList.add("is-loading");
+  spinnerEl.classList.remove("hidden");
+  labelEl.textContent = "삽입 중...";
+
+  try {
+    replaceSelectionWithMermaid(code);
+    // 삽입 자체는 동기 작업이라 즉시 끝나지만, 그대로 모달을 닫으면 로딩
+    // 스피너가 화면에 그려질 틈도 없이 사라진다. 사용자가 삽입 중 상태를
+    // 실제로 인지할 수 있도록 최소한의 표시 시간을 확보한다.
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    closeModal("aiDiagramV2Modal");
+    toast("success", "다이어그램이 삽입되었습니다", "선택한 시안의 Mermaid 코드가 문서에 삽입되었습니다.");
+    schedulePreview();
+  } finally {
+    insertBtn.classList.remove("is-loading");
+    spinnerEl.classList.add("hidden");
+    labelEl.textContent = originalLabel;
+  }
 }
 
 // 시안 카드 하나를 만들어 컨테이너에 추가하고, 그 안에 Mermaid 미리보기를 렌더링한다.
-// 카드를 클릭하면 이 카드의 code가 그대로 삽입된다. code는 카드 클릭 핸들러의
-// 클로저 안에만 보관되며(메모리 한정), 별도 저장소에 기록하지 않는다.
-async function renderDiagramVariantCard(container, code) {
+// 카드를 클릭하면 "선택" 상태만 표시되고(Primary 버튼 활성화), 실제 삽입은
+// 카드 안의 "선택한 시안 삽입" 버튼을 눌러야 확정되는 2단계 흐름이다.
+// code는 카드 클릭 핸들러의 클로저 안에만 보관되며(메모리 한정), 별도 저장소에 기록하지 않는다.
+async function renderDiagramVariantCard(container, code, index) {
   const card = document.createElement("div");
   card.className = "ai-diagram-v2-card";
-  card.title = "클릭하면 이 시안을 문서에 삽입합니다";
+  card.title = "클릭하면 이 시안을 선택합니다";
+
+  const titleEl = document.createElement("div");
+  titleEl.className = "ai-diagram-v2-card-title";
+  titleEl.textContent = `시안 ${index + 1}`;
+  card.appendChild(titleEl);
 
   const previewEl = document.createElement("div");
   previewEl.className = "ai-diagram-v2-card-preview mermaid";
   card.appendChild(previewEl);
+
+  const insertBtn = document.createElement("button");
+  insertBtn.type = "button";
+  insertBtn.className = "ai-diagram-v2-card-insert-btn bbtn-primary";
+  insertBtn.disabled = true;
+  insertBtn.innerHTML =
+    '<span class="ai-diagram-v2-card-insert-spinner hidden" aria-hidden="true"></span>' +
+    '<span class="ai-diagram-v2-card-insert-label">✨ 선택한 시안 삽입</span>';
+  card.appendChild(insertBtn);
+
   container.appendChild(card);
 
-  card.addEventListener("click", () => insertSelectedDiagramVariant(code));
+  function selectCard(e) {
+    e.stopPropagation();
+    // 다른 카드에 남아있을 수 있는 선택 표시를 정리하고 이 카드만 선택 상태로 표시한다.
+    container.querySelectorAll(".ai-diagram-v2-card.is-selected").forEach((otherCard) => {
+      otherCard.classList.remove("is-selected");
+      const otherBtn = otherCard.querySelector(".ai-diagram-v2-card-insert-btn");
+      if (otherBtn) otherBtn.disabled = true;
+    });
+    card.classList.add("is-selected");
+    insertBtn.disabled = false;
+  }
+
+  card.addEventListener("click", selectCard);
+  insertBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (insertBtn.disabled) return;
+    insertSelectedDiagramVariant(code, insertBtn);
+  });
 
   await renderMermaidBlock(previewEl, code);
+
+  // Mermaid 렌더링이 끝난 뒤 카드를 부드럽게 표시한다(과도한 연출 없이 fade-in만).
+  requestAnimationFrame(() => card.classList.add("is-visible"));
 }
 
 async function generateAiDiagramV2() {
@@ -113,8 +189,12 @@ async function generateAiDiagramV2() {
   const variantCount = Number(el.aiDiagramVariantCount.value) || 1;
 
   el.btnGenerateAiDiagramV2.disabled = true;
-  const originalLabel = el.btnGenerateAiDiagramV2.textContent;
-  el.btnGenerateAiDiagramV2.textContent = "생성 중...";
+  el.btnGenerateAiDiagramV2.classList.add("is-loading");
+  const generateLabelEl = el.btnGenerateAiDiagramV2.querySelector(".ai-diagram-v2-generate-label");
+  const spinnerEl = el.btnGenerateAiDiagramV2.querySelector(".ai-diagram-v2-spinner");
+  const originalLabel = generateLabelEl.textContent;
+  generateLabelEl.textContent = "Generating Diagram...";
+  spinnerEl.classList.remove("hidden");
   el.aiDiagramV2Status.textContent = "시안 생성 중...";
   el.aiDiagramV2Results.innerHTML = "";
 
@@ -129,22 +209,24 @@ async function generateAiDiagramV2() {
     const codes = Array.isArray(data.results) ? data.results.map((r) => r.code) : [data.code];
 
     el.aiDiagramV2Results.innerHTML = "";
-    for (const code of codes) {
-      await renderDiagramVariantCard(el.aiDiagramV2Results, code);
+    for (let i = 0; i < codes.length; i++) {
+      await renderDiagramVariantCard(el.aiDiagramV2Results, codes[i], i);
     }
-    el.aiDiagramV2Status.textContent = `${codes.length}개 시안 생성 완료`;
+    el.aiDiagramV2Status.textContent = `${codes.length}개의 시안을 생성했습니다. 마음에 드는 시안을 선택해주세요.`;
   } catch (e) {
     el.aiDiagramV2Status.textContent = "";
     el.aiDiagramV2Results.innerHTML = `<p class="ai-diagram-v2-empty">시안 생성 실패: ${e.message}</p>`;
     toast("error", "AI 다이어그램 생성 실패", e.message);
   } finally {
     el.btnGenerateAiDiagramV2.disabled = false;
-    el.btnGenerateAiDiagramV2.textContent = originalLabel;
+    el.btnGenerateAiDiagramV2.classList.remove("is-loading");
+    generateLabelEl.textContent = originalLabel;
+    spinnerEl.classList.add("hidden");
   }
 }
 
 export function initAiDiagram() {
-  el.btnAiDiagram.addEventListener("click", generateAiDiagram);
   el.btnAiDiagramV2.addEventListener("click", openAiDiagramV2Modal);
   el.btnGenerateAiDiagramV2.addEventListener("click", generateAiDiagramV2);
+  el.aiDiagramStyle.addEventListener("change", updateStyleDescription);
 }
