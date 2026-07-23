@@ -212,7 +212,14 @@ async function generateAiDiagramV2() {
     for (let i = 0; i < codes.length; i++) {
       await renderDiagramVariantCard(el.aiDiagramV2Results, codes[i], i);
     }
-    el.aiDiagramV2Status.textContent = `${codes.length}개의 시안을 생성했습니다. 마음에 드는 시안을 선택해주세요.`;
+
+    // 서버가 요청한 개수(data.requestedCount)보다 적은 시안만 성공시킨 경우
+    // (일부 OpenAI 호출이 rate limit 등으로 실패), 그 사실을 상태 문구로 알려준다.
+    if (data.requestedCount && data.requestedCount > codes.length) {
+      el.aiDiagramV2Status.textContent = `${data.requestedCount}개 중 ${codes.length}개의 시안만 생성되었습니다. 일부 요청이 실패했습니다.`;
+    } else {
+      el.aiDiagramV2Status.textContent = `${codes.length}개의 시안을 생성했습니다. 마음에 드는 시안을 선택해주세요.`;
+    }
   } catch (e) {
     el.aiDiagramV2Status.textContent = "";
     el.aiDiagramV2Results.innerHTML = `<p class="ai-diagram-v2-empty">시안 생성 실패: ${e.message}</p>`;

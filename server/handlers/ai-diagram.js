@@ -143,6 +143,13 @@ async function handleAiDiagram(req, res, apiKey, model) {
     const responsePayload = { ok: true, code: results[0].code };
     if (variantCount > 1) {
       responsePayload.results = results;
+      // 요청한 개수(variantCount)보다 실제 성공한 시안 수(results.length)가 적으면
+      // (OpenAI 개별 호출 중 일부만 rate limit/오류로 실패한 경우) 그 사실을 클라이언트가
+      // 알 수 있도록 requestedCount를 함께 내려준다. 응답 형식은 하위 호환을 위해
+      // 항상 존재하는 필드가 아니라 부족한 경우에만 추가되는 선택적 필드로 둔다.
+      if (results.length < variantCount) {
+        responsePayload.requestedCount = variantCount;
+      }
     }
     sendJson(res, 200, responsePayload);
   } catch (err) {
