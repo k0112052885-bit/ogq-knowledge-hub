@@ -71,28 +71,62 @@ export async function renderMermaidBlock(container, code) {
 // 노드/텍스트/테두리/연결선 색을 앱의 다크 톤(차콜 배경 + 블루 accent)에 맞게
 // 덮어써서, AI Diagram(문서 Preview·시안 카드 모두)이 앱과 이질감 없이 보이게 한다.
 // 라이트 모드는 Mermaid 기본(default) 테마를 그대로 사용해 이번 변경의 영향을 받지 않는다.
+//
+// 문서에 삽입된 Mermaid 코드는 순수 코드블록이라 어떤 AI Diagram Style로 생성됐는지
+// 메타데이터가 없다. 따라서 문서 Preview(runMermaid)는 저장 후 다시 열기/Build 결과와
+// 항상 동일하게 보이도록 이 Docs Builder 팔레트로 고정 렌더링한다 — 이 값 자체가
+// server/ai-diagram/styles.js의 STYLES.default.palette와 동일한 값이다.
 const DOCS_BUILDER_DARK_MERMAID_THEME_VARIABLES = {
-  primaryColor: "#1b1f2a",
-  primaryTextColor: "#f3f4f6",
-  primaryBorderColor: "#6c7cff",
-  lineColor: "#6b7280",
-  secondaryColor: "#202532",
-  tertiaryColor: "#202532",
-  background: "#0d0f13",
-  mainBkg: "#1b1f2a",
-  nodeTextColor: "#f3f4f6",
-  edgeLabelBackground: "#191c22",
-  clusterBkg: "#191c22",
-  clusterBorder: "#6c7cff",
+  primaryColor: "#171c26",
+  primaryTextColor: "#f4f7fb",
+  primaryBorderColor: "#4f7cff",
+  // Mermaid dark 테마는 .node rect의 실제 stroke 색으로 nodeBorder 변수를 우선 사용한다.
+  nodeBorder: "#4f7cff",
+  lineColor: "#536074",
+  secondaryColor: "#202a3a",
+  tertiaryColor: "#202a3a",
+  background: "#0b0e14",
+  mainBkg: "#171c26",
+  nodeTextColor: "#f4f7fb",
+  edgeLabelBackground: "#171c26",
+  clusterBkg: "#141924",
+  clusterBorder: "#4f7cff",
 };
 
-export function initializeMermaidTheme() {
+// AI Diagram 스타일별 palette(server/ai-diagram/styles.js의 palette와 동일한 색상 값)를
+// Mermaid의 themeVariables 키로 변환한다. palette가 없으면(선택 정보를 알 수 없는 경우)
+// Docs Builder 기본 팔레트로 fallback한다.
+function paletteToThemeVariables(palette) {
+  if (!palette) return DOCS_BUILDER_DARK_MERMAID_THEME_VARIABLES;
+  return {
+    primaryColor: palette.nodeBg,
+    primaryTextColor: palette.text,
+    primaryBorderColor: palette.border,
+    // Mermaid의 "dark" 테마는 .node rect의 실제 stroke 색으로 primaryBorderColor가 아니라
+    // nodeBorder 변수를 우선 사용한다. 이걸 빼먹으면 테두리가 palette와 무관하게 항상
+    // dark 테마 기본 하늘색(#81B1DB)으로 남아 스타일 간 차이가 눈에 보이지 않는다.
+    nodeBorder: palette.border,
+    lineColor: palette.line,
+    secondaryColor: palette.nodeAccentBg,
+    tertiaryColor: palette.nodeAccentBg,
+    background: palette.background,
+    mainBkg: palette.nodeBg,
+    nodeTextColor: palette.text,
+    edgeLabelBackground: palette.nodeBg,
+    clusterBkg: palette.background,
+    clusterBorder: palette.accent,
+  };
+}
+
+// palette를 넘기면(AI Diagram 카드 Preview) 해당 스타일의 색상으로, 넘기지 않으면
+// (문서 Preview) Docs Builder 고정 팔레트로 Mermaid 테마를 초기화한다.
+export function initializeMermaidTheme(palette) {
   try {
     const isDark = state.settings.theme === "dark";
     window.mermaid.initialize({
       startOnLoad: false,
       theme: isDark ? "dark" : "default",
-      themeVariables: isDark ? DOCS_BUILDER_DARK_MERMAID_THEME_VARIABLES : undefined,
+      themeVariables: isDark ? paletteToThemeVariables(palette) : undefined,
       securityLevel: "strict",
     });
   } catch (e) {

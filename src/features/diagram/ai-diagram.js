@@ -213,11 +213,12 @@ async function generateAiDiagramV2() {
     // variantCount가 1이면 서버 응답에 results가 없으므로(하위 호환), code 하나로 카드 하나만 만든다.
     const codes = Array.isArray(data.results) ? data.results.map((r) => r.code) : [data.code];
 
-    // 문서 Preview를 한 번도 렌더링하지 않은 상태(mermaid.initialize 미호출)에서 바로
-    // 이 모달을 열어 시안을 생성하면 Mermaid가 라이브러리 기본 팔레트로 렌더링되어
-    // 카드 미리보기가 Docs Builder 다크 테마와 어긋난다. 카드를 그리기 전에 항상
-    // 테마를 초기화해 문서 Preview와 동일한 색상으로 보이게 한다.
-    initializeMermaidTheme();
+    // 서버가 선택된 Style에 맞는 palette를 함께 내려주면(v2 요청) 카드 Preview가 그
+    // 스타일의 실제 색상(배경/노드/테두리/포인트)으로 렌더링되도록 themeVariables를
+    // 그 palette로 초기화한다. palette가 없으면(v1 등) Docs Builder 고정 팔레트로 fallback한다.
+    // 문서를 한 번도 렌더링하지 않은 상태(mermaid.initialize 미호출)에서 바로 이 모달을
+    // 열어도 카드를 그리기 전에 항상 테마를 초기화하므로 라이브러리 기본 팔레트가 남지 않는다.
+    initializeMermaidTheme(data.palette);
 
     el.aiDiagramV2Results.innerHTML = "";
     for (let i = 0; i < codes.length; i++) {
