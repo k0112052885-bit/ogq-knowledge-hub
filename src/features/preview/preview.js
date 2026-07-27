@@ -118,6 +118,22 @@ function paletteToThemeVariables(palette) {
   };
 }
 
+// Mermaid 기본 간격(nodeSpacing/rankSpacing 50 안팎, diagramPadding 8)은 라운드/stadium
+// 노드처럼 폭이 넓어진 노드와 결합하면 화살표가 노드에 바짝 붙거나 겹쳐 보이기 쉽다.
+// 렌더링 시점엔 이 코드가 어떤 diagramType으로 생성됐는지 알 수 없으므로(순수 코드블록이라
+// 메타데이터 없음) 모든 flowchart에 공통으로 여유 있는 간격을 적용한다 — 값 자체는 다른
+// 구조(조직도/순환/비교/로드맵)에도 해가 되지 않는 "더 넉넉한 여백"이라 안전하다.
+const FLOWCHART_LAYOUT_OPTIONS = {
+  nodeSpacing: 60,
+  rankSpacing: 75,
+  diagramPadding: 20,
+  useMaxWidth: true,
+  htmlLabels: true,
+  // 노드 내부 좌우 padding을 늘려, 라벨이 짧아도(예: 한 글자) 노드가 지나치게
+  // 작아지지 않고 텍스트 주변에 여유 공간이 생기도록 한다.
+  padding: 20,
+};
+
 // palette를 넘기면(AI Diagram 카드 Preview) 해당 스타일의 색상으로, 넘기지 않으면
 // (문서 Preview) Docs Builder 고정 팔레트로 Mermaid 테마를 초기화한다.
 export function initializeMermaidTheme(palette) {
@@ -127,6 +143,7 @@ export function initializeMermaidTheme(palette) {
       startOnLoad: false,
       theme: isDark ? "dark" : "default",
       themeVariables: isDark ? paletteToThemeVariables(palette) : undefined,
+      flowchart: FLOWCHART_LAYOUT_OPTIONS,
       securityLevel: "strict",
     });
   } catch (e) {

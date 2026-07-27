@@ -40,10 +40,26 @@ const VARIANT_PERSPECTIVES = [
   "이 시안(Variant 3)에서는 전체 내용을 그대로 나열하지 말고, 핵심 메시지만 압축한 프레젠테이션형 요약 구조로 표현하라. 가장 중요한 1~2개 노드는 강조 노드 형태(예: A([\"핵심 강조\"]) 같은 stadium/둥근 강조 도형)로 구분하고, Variant 1·2와는 전혀 다른 배치(예: 순환, 방사형, 비교형 중 앞에서 쓰지 않은 방식)를 사용하라. Variant 1, 2와 노드 구성이 비슷한 코드를 반복하지 마라.",
 ];
 
-function resolveVariantPerspective(variantIndex) {
-  if (typeof variantIndex !== "number" || variantIndex <= 0) {
+// process(프로세스) 타입 전용 variant 관점 지시문.
+// 일반 VARIANT_PERSPECTIVES의 "분기 구조를 추가하라"/"순환·방사형 배치"는
+// process 타입의 핵심 규칙("분기나 되돌아가는 화살표 없이 선형 흐름")과 정면으로
+// 충돌해, 모델이 두 지시를 동시에 만족시키려다 같은 노드에 화살표가 몰리거나
+// 레이아웃이 붕괴하는 원인이 되었다. process는 방향/그룹 구조만 바꾸고 "선형"이라는
+// 제약은 세 시안 모두에서 항상 유지하도록 별도로 명시한다.
+const PROCESS_VARIANT_PERSPECTIVES = [
+  "이 시안(Variant 1)은 flowchart LR을 사용해 각 단계를 왼쪽에서 오른쪽으로 한 줄로 배치하라. 분기, 병렬 경로, 되돌아가는 화살표 없이 각 노드는 정확히 다음 노드 하나로만 이어지는 완전한 선형 흐름으로 표현하라.",
+  "이 시안(Variant 2)은 Variant 1과 다르게 flowchart TD를 사용해 각 단계를 위에서 아래로 한 줄로 배치하라. 방향만 세로로 바꿀 뿐, Variant 1과 마찬가지로 분기·병렬 경로·되돌아가는 화살표 없이 각 노드가 정확히 다음 노드 하나로만 이어지는 완전한 선형 흐름을 유지하라.",
+  "이 시안(Variant 3)은 flowchart LR과 subgraph를 사용해 전체 단계를 2~3개의 phase(단계 그룹)로 묶어라. 각 phase는 subgraph로 감싸고, phase 내부와 phase 사이 모두 각 노드가 정확히 다음 노드 하나로만 이어지는 선형 흐름을 유지하라(분기, 병렬 경로, 되돌아가는 화살표 금지). 하나의 노드에서 두 개 이상의 화살표가 나가거나 들어오게 만들지 마라.",
+];
+
+function resolveVariantPerspective(variantIndex, diagramType) {
+  if (typeof variantIndex !== "number" || variantIndex < 0) {
     return null;
   }
+  if (diagramType === "process") {
+    return PROCESS_VARIANT_PERSPECTIVES[variantIndex] || PROCESS_VARIANT_PERSPECTIVES[PROCESS_VARIANT_PERSPECTIVES.length - 1];
+  }
+  if (variantIndex === 0) return null;
   return VARIANT_PERSPECTIVES[variantIndex] || VARIANT_PERSPECTIVES[VARIANT_PERSPECTIVES.length - 1];
 }
 
@@ -65,7 +81,7 @@ function buildDiagramPrompt({ diagramType, style, includeStyleInstruction = true
     parts.push(styleInfo.instruction);
   }
 
-  const perspective = resolveVariantPerspective(variantIndex);
+  const perspective = resolveVariantPerspective(variantIndex, diagramType);
   if (perspective) {
     parts.push(perspective);
   }
