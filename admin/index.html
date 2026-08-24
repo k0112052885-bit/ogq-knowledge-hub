@@ -108,6 +108,9 @@
           <button type="button" class="toolbar-btn toolbar-btn-ai" id="btnAiDiagramV2" title="유형/스타일을 선택해 여러 시안으로 AI 다이어그램 생성">
             ✨ AI Diagram
           </button>
+          <button type="button" class="toolbar-btn" id="btnImageLibrary" title="이전에 업로드한 이미지를 커서 위치에 삽입">
+            🖼 Image Library
+          </button>
         </div>
         <div id="monacoContainer" class="monaco-container">
           <div id="imageDropOverlay" class="image-drop-overlay hidden">
@@ -467,6 +470,27 @@
       </div>
       <div id="aiDiagramV2Results" class="ai-diagram-v2-results">
         <p class="ai-diagram-v2-empty">유형과 스타일을 선택한 뒤 "시안 생성"을 눌러주세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Image Library modal ===== -->
+  <div class="modal-overlay hidden" id="imageLibraryModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2>🖼 Image Library</h2>
+        <button type="button" class="modal-close" data-close="imageLibraryModal" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          이미 업로드한 이미지를 클릭하면 현재 커서 위치에 바로 삽입됩니다.
+        </p>
+        <div id="imageLibraryGrid" class="image-library-grid">
+          <p class="image-library-empty">불러오는 중...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="bbtn" data-close="imageLibraryModal">닫기</button>
       </div>
     </div>
   </div>

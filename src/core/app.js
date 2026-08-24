@@ -16,6 +16,7 @@ import {
 import { initMarkdownToolbar } from "../features/editor/markdown-toolbar.js";
 import { schedulePreview, renderPreview, setupImageLightbox } from "../features/preview/preview.js";
 import { setupImagePasteAndDrop } from "../features/image/image-upload.js";
+import { initImageLibrary } from "../features/image/image-library.js";
 import { initAiDiagram } from "../features/diagram/ai-diagram.js";
 import { initExport, runBuild } from "../features/export/export.js";
 import { initExportDoc } from "../features/export-doc/export-doc.js";
@@ -1127,6 +1128,7 @@ export function initApp() {
   setupImagePasteAndDrop();
   setupImageLightbox();
   initAiDiagram();
+  initImageLibrary();
   initExport();
   initExportDoc();
   initSettingsWiring();

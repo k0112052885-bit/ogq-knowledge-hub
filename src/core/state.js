@@ -98,6 +98,10 @@ export const el = {
   aiDiagramV2Results: document.getElementById("aiDiagramV2Results"),
   btnGenerateAiDiagramV2: document.getElementById("btnGenerateAiDiagramV2"),
 
+  btnImageLibrary: document.getElementById("btnImageLibrary"),
+  imageLibraryModal: document.getElementById("imageLibraryModal"),
+  imageLibraryGrid: document.getElementById("imageLibraryGrid"),
+
   settingsModal: document.getElementById("settingsModal"),
   settingTheme: document.getElementById("settingTheme"),
   settingAutoSave: document.getElementById("settingAutoSave"),

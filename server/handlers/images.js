@@ -4,6 +4,12 @@ const path = require("path");
 const { sendJson, readRequestBody } = require("../utils/http.js");
 const { asciiSlug } = require("../utils/slug.js");
 
+// Image Library가 재사용 가능한 이미지로 인식하는 확장자.
+// server.js가 /images/*를 그대로 정적 서빙하므로(라이브 Preview에서 방금 올린
+// 이미지를 바로 보기 위함), 목록 API도 같은 디렉터리(docs/images)를 소스로 삼는다 —
+// 새 저장소를 만들지 않고 이미 존재하는 업로드 대상 디렉터리를 그대로 재사용한다.
+const LISTABLE_IMAGE_EXT = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"]);
+
 let sharp = null;
 try {
   sharp = require("sharp");
@@ -159,4 +165,53 @@ async function handleUploadImage(req, res, imagesDir) {
   });
 }
 
-module.exports = { handleUploadImage };
+// GET /api/images — Image Library용 재사용 가능한 이미지 목록.
+// docs/images(=imagesDir, 업로드 API가 실제로 쓰는 바로 그 디렉터리)만 나열한다 —
+// 별도의 이미지 저장소를 새로 만들지 않고 기존 업로드 대상 위치를 그대로 소스로 쓴다.
+// 반환하는 값은 실제 파일시스템 경로가 아니라 파일명/미리보기 URL(/images/xxx)/
+// Markdown 삽입 경로(images/xxx)뿐이다 — 클라이언트가 서버의 디렉터리 구조를
+// 알 필요도, 임의 경로를 유추할 수 있어서도 안 된다.
+function handleListImages(req, res, imagesDir) {
+  fs.readdir(imagesDir, (err, entries) => {
+    if (err) {
+      // 아직 이미지를 한 번도 업로드하지 않아 폴더 자체가 없는 경우도 정상 상태이므로
+      // 빈 목록으로 응답한다(에러로 취급하지 않음).
+      if (err.code === "ENOENT") {
+        sendJson(res, 200, { images: [] });
+        return;
+      }
+      sendJson(res, 500, { error: "이미지 목록을 불러올 수 없습니다." });
+      return;
+    }
+
+    const images = entries
+      .filter((name) => LISTABLE_IMAGE_EXT.has(path.extname(name).toLowerCase()))
+      // 숨김파일(.DS_Store 등)이나 심볼릭 링크로 디렉터리 밖을 가리키는 항목은
+      // 제외한다 — path.basename(name) === name은 readdir 결과 자체가 항상
+      // 단순 파일명이므로 사실상 항상 참이지만, 방어적으로 한 번 더 검증한다.
+      .filter((name) => !name.startsWith(".") && path.basename(name) === name)
+      .map((filename) => {
+        let stat;
+        try {
+          stat = fs.statSync(path.join(imagesDir, filename));
+        } catch (e) {
+          return null;
+        }
+        if (!stat.isFile()) return null;
+        return {
+          filename,
+          url: `/images/${encodeURIComponent(filename)}`,
+          markdownPath: `images/${filename}`,
+          size: stat.size,
+          updated: stat.mtime.toISOString(),
+        };
+      })
+      .filter(Boolean)
+      // 최근 업로드가 위로 오도록 정렬 — 새로 올린 이미지를 바로 찾기 쉽게 한다.
+      .sort((a, b) => (a.updated < b.updated ? 1 : -1));
+
+    sendJson(res, 200, { images });
+  });
+}
+
+module.exports = { handleUploadImage, handleListImages };

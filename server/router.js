@@ -11,7 +11,7 @@ const {
   handleRenameProject,
   handleDeleteProject,
 } = require("./handlers/docs-rename-delete.js");
-const { handleUploadImage } = require("./handlers/images.js");
+const { handleUploadImage, handleListImages } = require("./handlers/images.js");
 const { handleAiDiagram } = require("./handlers/ai-diagram.js");
 const { handleExport } = require("./handlers/export.js");
 
@@ -74,6 +74,10 @@ function createRequestHandler(config, getServerInstance) {
 
       if (pathname === "/api/images" && req.method === "POST") {
         await handleUploadImage(req, res, imagesDir);
+        return;
+      }
+      if (pathname === "/api/images" && req.method === "GET") {
+        handleListImages(req, res, imagesDir);
         return;
       }
 

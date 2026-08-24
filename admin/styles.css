@@ -1894,6 +1894,76 @@ body {
 }
 
 /* ============================================================
+   Image Library
+   (.ai-diagram-v2-card와 동일한 카드/그리드 시각 언어를 재사용 — 새 디자인
+   시스템을 만들지 않고 이미 있는 "클릭 가능한 카드 그리드" 패턴을 그대로 따른다.)
+   ============================================================ */
+.image-library-grid {
+  padding: 0 var(--space-5) var(--space-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.image-library-empty,
+.image-library-error {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  padding: var(--space-6) 0;
+}
+
+.image-library-card {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-code);
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition-fast), background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.image-library-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+}
+
+.image-library-card-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-sm);
+  background: var(--bg-canvas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image-library-card-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.image-library-card-name {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
    Responsive
    ============================================================ */
 @media (max-width: 1180px) {

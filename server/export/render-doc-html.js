@@ -2,8 +2,26 @@ const fs = require("fs");
 const path = require("path");
 const { pathToFileURL } = require("url");
 
-const GENERATE_JS_PATH = path.join(__dirname, "..", "..", "generate.js");
-const ADMIN_STYLES_PATH = path.join(__dirname, "..", "..", "admin", "styles.css");
+const PROJECT_ROOT = path.join(__dirname, "..", "..");
+const GENERATE_JS_PATH = path.join(PROJECT_ROOT, "generate.js");
+const ADMIN_STYLES_PATH = path.join(PROJECT_ROOT, "admin", "styles.css");
+// 사이트 전역 정적 자산 디렉터리(admin/styles.css, generate.js와 마찬가지로 이
+// 모듈 파일 기준 상대경로로 프로젝트 루트를 찾아 참조한다 — server.js의 config
+// 객체에 새 필드를 추가하지 않고, 이미 존재하는 __dirname 기반 경로 계산 패턴을
+// 그대로 따른다).
+//
+// 배경: docs/03_decision_gate.md처럼 "assets/images/..."를 참조하는 문서가 이미
+// 존재한다. 이 경로는 문서별 업로드 이미지(docs/images/, Image Library의 표준
+// 경로)가 아니라 사이트 전역 정적 자산(assets/)을 가리키는 것으로, generate.js의
+// build()가 assets/ 전체를 dist/assets/로 복사하기 때문에 "빌드된 사이트"에서는
+// 정상적으로 열린다. 라이브 Preview에서도 우연히 열리는데, #previewBody에 주입된
+// <img src="assets/images/...">가 브라우저에 의해 페이지 URL(/admin) 기준 상대경로로
+// 해석되어 사이트 루트(/assets/images/...)로 요청되기 때문이다(dist/assets가 이미
+// 빌드되어 있어야 성공). 반면 PDF/HTML export는 docsDir만 기준으로 이미지를 찾으므로
+// 이 문서에서는 실패해왔다. 마크다운을 고치는 대신, export 쪽 이미지 탐색 범위를
+// "docs/images 우선, 없으면 assets/images도 확인"으로 넓혀 기존 문서를 그대로 둔 채
+// 이 레거시 경로도 안정적으로 렌더링되게 한다.
+const ASSETS_IMAGES_DIR = path.join(PROJECT_ROOT, "assets", "images");
 
 // src/features/preview/preview.js의 stripFrontMatterForPreview()와 반드시 동일한 동작을
 // 유지해야 한다. 에디터/문서 파일에는 Front Matter가 포함된 전체 내용이 들어있고,
@@ -89,6 +107,34 @@ const IMAGE_MIME_BY_EXT = {
   ".webp": "image/webp",
 };
 
+// 문서 안 상대경로 이미지 참조(예: "images/foo.png", "assets/images/foo.svg")를
+// 실제 파일 절대경로로 해석한다. 표준 위치(docsDir/images, 즉 Image Library·업로드
+// API가 쓰는 바로 그 디렉터리)를 우선 확인하고, 거기 없으면 사이트 전역 정적 자산
+// 위치(assets/images)도 확인한다 — 03_decision_gate.md처럼 이미 존재하는, 표준
+// 위치가 아닌 정당한 참조를 마크다운 수정 없이 지원하기 위함이다. 두 곳 다 경로
+// 탈출(../ 등으로 허용 디렉터리 밖을 가리키는 것)은 차단한다.
+function resolveDocImagePath(src, docsDir) {
+  const decodedSrc = decodeURIComponent(src);
+
+  const underDocs = path.resolve(docsDir, decodedSrc);
+  if (underDocs.startsWith(docsDir + path.sep) && fs.existsSync(underDocs)) {
+    return underDocs;
+  }
+
+  // "assets/images/xxx" 형태로 참조된 경우에만 자산 디렉터리에서 다시 찾는다.
+  // 임의 상대경로를 전부 assets/ 기준으로도 시도하면 의도치 않게 다른 파일을
+  // 집어올 위험이 있으므로, 실제로 관찰된 레거시 패턴(assets/images/...)만 다룬다.
+  const assetsMatch = decodedSrc.match(/^assets[\\/]images[\\/](.+)$/);
+  if (assetsMatch) {
+    const underAssets = path.resolve(ASSETS_IMAGES_DIR, assetsMatch[1]);
+    if (underAssets.startsWith(ASSETS_IMAGES_DIR + path.sep) && fs.existsSync(underAssets)) {
+      return underAssets;
+    }
+  }
+
+  return null;
+}
+
 // 렌더된 HTML 안의 <img src="images/foo.png">(문서 파일 기준 상대경로, docsDir/images를
 // 가리킴)를 실제 파일 내용을 읽어 data: URL로 바꿔치기한다. HTML Download 결과물은
 // 로컬 서버나 파일시스템 경로에 의존하지 않고 어디서나(다른 PC, 이메일 첨부 등) 열려야
@@ -98,10 +144,8 @@ function inlineImagesAsDataUrls(html, docsDir) {
   return html.replace(/(<img\b[^>]*\bsrc=")([^"]+)("[^>]*>)/g, (full, prefix, src, suffix) => {
     if (/^(https?:|data:)/i.test(src)) return full;
 
-    const decodedSrc = decodeURIComponent(src);
-    const resolved = path.resolve(docsDir, decodedSrc);
-    // docsDir 밖을 가리키는 경로는 내장하지 않고 원본 그대로 남긴다(경로 조작 방지).
-    if (!resolved.startsWith(docsDir + path.sep)) return full;
+    const resolved = resolveDocImagePath(src, docsDir);
+    if (!resolved) return full;
 
     let fileBuffer;
     try {
@@ -118,6 +162,21 @@ function inlineImagesAsDataUrls(html, docsDir) {
   });
 }
 
+// PDF Export 전용: <base href="file://docsDir/">만으로는 해석되지 않는 레거시 경로
+// (assets/images/...)를 실제 파일의 file:// 절대경로로 직접 바꿔치기한다. docsDir
+// 기준 표준 경로(images/...)는 <base>가 이미 올바르게 처리하므로 건드리지 않는다.
+function rewriteLegacyAssetImagePaths(html, docsDir) {
+  return html.replace(/(<img\b[^>]*\bsrc=")([^"]+)("[^>]*>)/g, (full, prefix, src, suffix) => {
+    if (/^(https?:|data:|file:)/i.test(src)) return full;
+    if (!/^assets[\\/]images[\\/]/.test(decodeURIComponent(src))) return full;
+
+    const resolved = resolveDocImagePath(src, docsDir);
+    if (!resolved) return full;
+
+    return `${prefix}${pathToFileURL(resolved).href}${suffix}`;
+  });
+}
+
 // PDF Export용 standalone HTML 문서를 만든다.
 // - markdown → HTML 변환은 generate.js의 renderMarkdownPreview()를 그대로 재사용한다
 //   (server/handlers/preview.js가 라이브 Preview에 쓰는 것과 동일한 함수 — 여기서
@@ -129,7 +188,8 @@ function inlineImagesAsDataUrls(html, docsDir) {
 // - 이미지는 <base href="file://docsDir/">로 해석되는 상대경로를 그대로 쓴다(PDF는 이
 //   서버 로컬 머신에서만 Puppeteer가 즉시 소비하고 버리는 임시 산출물이라 이식성이 필요 없다).
 function buildExportHtmlDocument(markdownContent, title, docsDir) {
-  const bodyHtml = renderMarkdownToHtml(markdownContent);
+  const rawBodyHtml = renderMarkdownToHtml(markdownContent);
+  const bodyHtml = rewriteLegacyAssetImagePaths(rawBodyHtml, docsDir);
   const css = fs.readFileSync(ADMIN_STYLES_PATH, "utf-8");
   const safeTitle = String(title || "Document").replace(/</g, "&lt;");
 
