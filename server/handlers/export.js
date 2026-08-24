@@ -14,6 +14,14 @@ const EXPORTERS = {
       return renderDocToPdf(markdownContent, title, docsDir);
     },
   },
+  html: {
+    contentType: "text/html; charset=utf-8",
+    extension: "html",
+    render: async (markdownContent, title, docsDir) => {
+      const { renderDocToHtml } = require("../export/html.js");
+      return renderDocToHtml(markdownContent, title, docsDir);
+    },
+  },
 };
 
 // POST /api/export/:format  { filename }
