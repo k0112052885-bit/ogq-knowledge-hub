@@ -18,6 +18,7 @@ import { schedulePreview, renderPreview, setupImageLightbox } from "../features/
 import { setupImagePasteAndDrop } from "../features/image/image-upload.js";
 import { initAiDiagram } from "../features/diagram/ai-diagram.js";
 import { initExport, runBuild } from "../features/export/export.js";
+import { initExportDoc } from "../features/export-doc/export-doc.js";
 import { groupIntoProjectsAndPages } from "./docs-grouping.js";
 
 // ============================================================
@@ -1127,6 +1128,7 @@ export function initApp() {
   setupImageLightbox();
   initAiDiagram();
   initExport();
+  initExportDoc();
   initSettingsWiring();
   initGlobalShortcuts();
   initEventBindings();

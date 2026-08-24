@@ -2,7 +2,8 @@ import { el, state } from "../../core/state.js";
 import { api } from "../../core/api.js";
 import { toast, setStatus } from "../../core/toast.js";
 import { insertTextAtCursor, getSelectedEditorText, isSelectionAtLineStart } from "../editor/editor-core.js";
-import { schedulePreview, renderMermaidBlock, initializeMermaidTheme } from "../preview/preview.js";
+import { schedulePreview } from "../preview/preview.js";
+import { renderMermaidBlock, initializeMermaidTheme } from "../preview/mermaid-render.js";
 import { openModal, closeModal } from "../../core/modal.js";
 
 // 선택 영역을 Mermaid 코드 펜스로 감싼 텍스트로 치환한다.

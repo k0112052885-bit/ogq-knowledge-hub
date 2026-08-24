@@ -13,6 +13,7 @@ const {
 } = require("./handlers/docs-rename-delete.js");
 const { handleUploadImage } = require("./handlers/images.js");
 const { handleAiDiagram } = require("./handlers/ai-diagram.js");
+const { handleExport } = require("./handlers/export.js");
 
 // 어디서도 호출되지 않는 헬퍼이지만(기존 server.js에도 동일하게 미사용 상태로 존재했음),
 // 동작 변경 없이 위치만 옮기기 위해 그대로 보존한다.
@@ -93,6 +94,14 @@ function createRequestHandler(config, getServerInstance) {
 
       if (pathname === "/api/preview" && req.method === "POST") {
         await handlePreview(req, res);
+        return;
+      }
+
+      // 범용 export 엔드포인트. 오늘은 pdf만 지원하지만, 형식(html/docx 등)이 늘어나도
+      // 라우팅은 그대로 두고 server/handlers/export.js의 EXPORTERS에만 추가하면 된다.
+      const exportMatch = pathname.match(/^\/api\/export\/([^/]+)$/);
+      if (exportMatch && req.method === "POST") {
+        await handleExport(req, res, decodeURIComponent(exportMatch[1]), docsDir);
         return;
       }
 
