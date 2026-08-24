@@ -166,8 +166,197 @@ function buildExportHtmlDocument(markdownContent, title, docsDir) {
        실제 PDF 폭과 렌더링 시점 레이아웃(줄바꿈 등)이 어긋나지 않는다. */
     width: 210mm;
     box-sizing: border-box;
-    padding: 14mm;
+    padding: 16mm 18mm;
     margin: 0 auto;
+  }
+
+  /* ============================================================
+     PDF 품질 개선 (admin/styles.css를 덮어쓰지 않고 export-page 범위에만 적용).
+     라이브 Preview/HTML Download는 그대로 두고, "실행 문서(executive document)"에
+     맞는 타이포그래피/여백/표/콜아웃/코드블록/이미지/Mermaid 마감만 PDF에 추가한다.
+     ============================================================ */
+
+  /* ---- 타이포그래피: 본문 가독성 + 계층 강화 ---- */
+  .export-page.markdown-body {
+    font-size: 13.5px;
+    line-height: 1.85;
+    /* 한글/영문이 섞인 본문에서 자간을 살짝 좁혀 라틴 알파벳 사이 여백과
+       한글 사이 여백의 리듬 차이를 줄인다 — 너무 좁히면 한글 가독성이 떨어지므로
+       미세 조정 수준으로 제한. */
+    letter-spacing: -0.1px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* H1은 문서 안에 실제로 등장하는 경우(예: 여러 절이 담긴 문서)를 위해 명시적으로
+     정의한다 — 기존 admin/styles.css에는 h1 규칙이 없어 브라우저 기본값(2em, 굵게)에
+     기대고 있었고, 그 결과 H2/H3와의 크기 차이가 인쇄물에서는 지나치게 크거나
+     불명확하게 보였다. H1 > H2 > H3 > 본문 순으로 명확한 단계를 만든다. */
+  .export-page h1 {
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: -0.2px;
+    margin: 0 0 14px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .export-page h2:first-child,
+  .export-page h1:first-child {
+    margin-top: 0;
+  }
+
+  .export-page h2 {
+    font-size: 18px;
+    font-weight: 700;
+    /* section → section 리듬: 새 절이 시작되기 전 여백을 절 내부 여백보다 넉넉히
+       주어 "이전 절이 끝났다"는 시각적 구분을 분명히 한다. */
+    margin-top: 34px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+  }
+
+  .export-page h3 {
+    font-size: 14.5px;
+    font-weight: 700;
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  /* heading → content: 제목 바로 다음 요소는 여백을 좁혀 "이 내용이 이 제목에
+     속한다"는 시각적 소속감을 준다(section 사이 여백보다 확연히 작게). */
+  .export-page h1 + *,
+  .export-page h2 + *,
+  .export-page h3 + * {
+    margin-top: 0;
+  }
+
+  /* paragraph → paragraph: 본문 문단 사이 간격을 살짝 넓혀 문단 하나하나가
+     또렷이 구분되면서도, 문서 전체 길이가 과도하게 늘어나지 않는 균형점을 잡는다. */
+  .export-page p {
+    margin: 10px 0 14px;
+  }
+
+  /* bold 강조: 기존엔 브라우저 기본 font-weight만으로 강조되어 본문과 명도 차이가
+     작았다. 굵기를 한 단계 더 올리고 색을 살짝 밝혀 스캔 시(훑어볼 때) 눈에 띄게 한다. */
+  .export-page strong,
+  .export-page b {
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  /* ---- 표: 이 문서 유형에서 가장 자주 쓰이는 구성요소이므로 가장 공들여 다듬는다 ---- */
+  .export-page table {
+    font-size: 12.5px;
+    margin: 6px 0 20px;
+    /* heading → table 리듬: 바로 위가 heading이면 여백을 좁혀 표가 그 절에
+       속한다는 소속감을 주고, table → following text는 아래 여백(margin-bottom)을
+       충분히 주어 다음 문단과 명확히 분리한다. */
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .export-page h1 + table,
+  .export-page h2 + table,
+  .export-page h3 + table,
+  .export-page h1 + p + table,
+  .export-page h2 + p + table,
+  .export-page h3 + p + table {
+    margin-top: 4px;
+  }
+
+  .export-page th,
+  .export-page td {
+    padding: 9px 12px;
+    line-height: 1.55;
+    /* 표 안 긴 한글/영문 텍스트가 셀 폭을 넘길 때 줄바꿈되도록 강제해
+       가로 스크롤/잘림 없이 A4 폭 안에서 항상 소화되게 한다. */
+    overflow-wrap: break-word;
+    word-break: keep-all;
+  }
+
+  .export-page th {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text-primary);
+    background: var(--bg-active);
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .export-page td {
+    border-color: var(--border-subtle);
+  }
+
+  .export-page tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  /* ---- 블록인용/콜아웃: 절제된 강조 ---- */
+  .export-page blockquote {
+    padding: 12px 18px;
+    margin: 14px 0 20px;
+    line-height: 1.75;
+  }
+
+  .export-page blockquote.callout {
+    padding: 13px 18px 15px;
+  }
+
+  .export-page .callout-title {
+    font-size: 11.5px;
+  }
+
+  /* ---- 코드블록 ---- */
+  .export-page pre {
+    padding: 14px 18px;
+    font-size: 12px;
+    line-height: 1.7;
+    margin: 8px 0 20px;
+    /* 코드가 표 폭을 넘기지 않도록 하되, 긴 한 줄(URL 등)은 줄바꿈해 PDF에서
+       가로로 잘리는 대신 다음 줄로 흘러가게 한다 — 화면 Preview는 스크롤이
+       가능하지만 PDF는 그럴 수 없으므로 export 전용으로 줄바꿈을 켠다. */
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ---- 이미지: 폭 초과 방지, 비율 유지, 중앙 정렬, 과도한 여백 방지 ---- */
+  .export-page figure.doc-image {
+    margin: 16px auto 20px;
+  }
+
+  .export-page figure.doc-image img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    max-height: 260mm;
+    width: auto;
+    height: auto;
+    box-shadow: none;
+  }
+
+  .export-page figure.doc-image figcaption {
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  /* ---- Mermaid: 중앙 정렬, 잘림/가로 오버플로우 방지, 큰 다이어그램은 폭에 맞춰 축소 ---- */
+  .export-page .mermaid {
+    margin: 16px 0 22px;
+    padding: 16px;
+    overflow: visible;
+  }
+
+  .export-page .mermaid svg {
+    max-width: 100%;
+    height: auto;
+    /* 라벨이 많은 큰 다이어그램이 SVG 자체 intrinsic 크기를 유지하려 하면서
+       A4 폭을 넘기는 경우가 있어, PDF에서는 항상 컨테이너 폭에 맞춰 축소되도록
+       block 표시 + 폭 100%를 강제한다(라이브 Preview는 스크롤로 대응 가능하므로
+       admin/styles.css의 기존 규칙은 건드리지 않는다). */
+    display: block;
+    width: 100%;
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
