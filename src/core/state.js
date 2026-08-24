@@ -38,6 +38,7 @@ export const el = {
   btnGitPush: document.getElementById("btnGitPush"),
   btnExportPdf: document.getElementById("btnExportPdf"),
   btnExportHtml: document.getElementById("btnExportHtml"),
+  btnSitePreview: document.getElementById("btnSitePreview"),
   btnShutdown: document.getElementById("btnShutdown"),
 
   toastContainer: document.getElementById("toastContainer"),

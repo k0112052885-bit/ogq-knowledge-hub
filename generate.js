@@ -232,12 +232,43 @@ function loadDocs() {
       status: data.status || "",
       order: typeof data.order === "number" ? data.order : 999,
       updated: normalizeDate(data.updated),
+      // admin의 프로젝트(다중 페이지 문서 묶음) 모델과 동일한 front matter 필드.
+      // 프로젝트 범위 빌드(projectId 지정)에서 문서를 필터링하는 기준이 된다.
+      project: typeof data.project === "string" && data.project.trim() ? data.project.trim() : null,
+      projectTitle:
+        typeof data.projectTitle === "string" && data.projectTitle.trim()
+          ? data.projectTitle.trim()
+          : null,
+      pageOrder: typeof data.pageOrder === "number" ? data.pageOrder : null,
       content,
     };
   });
 
   docs.sort((a, b) => a.order - b.order);
   return docs;
+}
+
+// projectId가 주어지면 해당 프로젝트에 속한 문서만 남긴다(admin/app.js의
+// groupIntoProjectsAndPages와 동일하게 project 필드로 판별). project 필드가 없는
+// 단일 문서(standalone)는 프로젝트 범위 빌드에 절대 포함하지 않는다 — 명시적으로
+// 그 프로젝트에 속한 문서만 노출해야 한다는 요구사항(프로젝트 격리)에 따른 것이다.
+// projectId가 없으면(전역 빌드) 문서 전체를 그대로 반환한다.
+function filterDocsByProject(docs, projectId) {
+  if (!projectId) return docs;
+  return docs.filter((doc) => doc.project === projectId);
+}
+
+// 프로젝트 범위 빌드에서는 outputName을 그대로 쓰되(문서 slug 기준 파일명 유지),
+// 사이트 루트(dist/index.html)는 docs/index.md가 아니라 그 프로젝트의 첫 페이지가
+// 맡는다 — index.md는 프로젝트에 속하지 않는 별개의 전역 랜딩 문서라 프로젝트
+// 범위 문서 집합에는 포함되지 않기 때문이다. pageOrder(없으면 order) 기준으로
+// 가장 앞선 문서를 그 프로젝트의 대표 페이지로 삼는다.
+function pickProjectIndexDoc(projectDocs) {
+  return [...projectDocs].sort((a, b) => {
+    const aKey = typeof a.pageOrder === "number" ? a.pageOrder : a.order;
+    const bKey = typeof b.pageOrder === "number" ? b.pageOrder : b.order;
+    return aKey - bKey;
+  })[0];
 }
 
 function groupByCategory(docs) {
@@ -476,7 +507,11 @@ function buildSidebarData(docs) {
   }));
 }
 
-function build() {
+// projectId를 지정하면(admin에서 열려 있는 문서가 속한 프로젝트) 그 프로젝트의
+// 문서만으로 dist/를 다시 만든다 — 이전 빌드가 다른 프로젝트/전역 빌드였더라도
+// fs.emptyDirSync가 매번 dist/ 전체를 비우고 새로 쓰므로, 이전 빌드의 문서 페이지가
+// 새 빌드 결과에 섞여 남는 일은 구조적으로 발생하지 않는다.
+function build(projectId) {
   fs.emptyDirSync(DIST_DIR);
   fs.copySync(ASSETS_DIR, path.join(DIST_DIR, "assets"));
 
@@ -485,9 +520,23 @@ function build() {
     console.log("복사됨: dist/images");
   }
 
-  const docs = loadDocs();
+  const allDocs = loadDocs();
+  const docs = filterDocsByProject(allDocs, projectId);
 
-  if (!docs.some((d) => d.slug === "index")) {
+  if (projectId && !docs.length) {
+    throw new Error("선택된 프로젝트에 속한 문서가 없습니다.");
+  }
+
+  let projectTitle = null;
+  if (projectId) {
+    // 사이트 루트(dist/index.html)를 이 프로젝트의 대표 페이지로 대체한다.
+    // renderSidebar/renderPager 등은 모두 doc.slug 기준으로 동작하므로, index.html은
+    // 대표 페이지와 동일한 내용을 outputName만 "index.html"로 바꿔 별도로 한 번 더 쓴다
+    // (대표 페이지 자신의 <slug>.html도 그대로 유지 — 사이드바 링크가 가리키는 대상은
+    // 계속 <slug>.html이어야 하므로 index.html은 진입점 역할만 한다).
+    const indexDoc = pickProjectIndexDoc(docs);
+    projectTitle = indexDoc.projectTitle || projectId;
+  } else if (!docs.some((d) => d.slug === "index")) {
     throw new Error("docs/index.md 파일이 필요합니다.");
   }
 
@@ -496,6 +545,13 @@ function build() {
     fs.writeFileSync(path.join(DIST_DIR, doc.outputName), html, "utf-8");
     console.log(`생성됨: dist/${doc.outputName}`);
   });
+
+  if (projectId) {
+    const indexDoc = pickProjectIndexDoc(docs);
+    const indexHtml = renderPage(indexDoc, docs);
+    fs.writeFileSync(path.join(DIST_DIR, "index.html"), indexHtml, "utf-8");
+    console.log(`생성됨: dist/index.html (프로젝트 대표 페이지: ${indexDoc.slug})`);
+  }
 
   const searchIndex = buildSearchIndex(docs);
   const searchIndexJs = `window.__SEARCH_INDEX__ = ${JSON.stringify(
@@ -522,6 +578,22 @@ function build() {
     "utf-8"
   );
   console.log("생성됨: dist/sidebar.json");
+
+  // admin의 "사이트 보기"가 지금 선택된 프로젝트와 dist/에 실제로 빌드되어 있는
+  // 프로젝트가 다를 때(예: A를 빌드해놓고 B 문서를 연 채로 사이트 보기를 누르는 경우)
+  // 이를 감지해 다른 프로젝트의 이전 빌드를 조용히 보여주지 않도록 하기 위한 메타데이터.
+  const buildMeta = {
+    projectId: projectId || null,
+    projectTitle,
+    builtAt: new Date().toISOString(),
+    docCount: docs.length,
+  };
+  fs.writeFileSync(
+    path.join(DIST_DIR, "build-meta.json"),
+    JSON.stringify(buildMeta, null, 2),
+    "utf-8"
+  );
+  console.log("생성됨: dist/build-meta.json");
 
   console.log(`\n빌드 완료: 총 ${docs.length}개 문서 생성됨 → dist/`);
 }

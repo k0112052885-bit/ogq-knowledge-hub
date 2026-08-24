@@ -83,7 +83,7 @@ function createRequestHandler(config, getServerInstance) {
       }
 
       if (pathname === "/api/build" && req.method === "POST") {
-        handleBuild(req, res);
+        await handleBuild(req, res);
         return;
       }
 
