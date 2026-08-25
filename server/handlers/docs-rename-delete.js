@@ -4,6 +4,7 @@ const path = require("path");
 const { sendJson, readRequestBody } = require("../utils/http.js");
 const { isSafeDocFilename, resolveDocPath: resolveDocPathIn } = require("../utils/fs-safety.js");
 const { replaceFrontMatterField } = require("../utils/yaml.js");
+const projectRegistry = require("../utils/project-registry.js");
 
 async function handleRenamePage(req, res, filename, docsDir) {
   if (!isSafeDocFilename(filename)) {
@@ -137,7 +138,12 @@ async function handleRenameProject(req, res, projectId, docsDir) {
     return;
   }
 
-  if (!filenames.length) {
+  // 페이지가 아직 없는 프로젝트(레지스트리에만 존재)도 이름 변경이 가능해야 한다.
+  // 문서가 하나라도 있으면 그 문서들의 projectTitle을 갱신하고, 레지스트리에도
+  // 같은 id로 등록되어 있다면(문서 생성 후에도 정리하지 않았을 수 있으므로) 함께 갱신한다.
+  const registryEntry = projectRegistry.renameProject(docsDir, projectId, projectTitle);
+
+  if (!filenames.length && !registryEntry) {
     sendJson(res, 404, { error: "해당 프로젝트를 찾을 수 없습니다." });
     return;
   }
@@ -177,7 +183,11 @@ async function handleDeleteProject(req, res, projectId, docsDir) {
     return;
   }
 
-  if (!filenames.length) {
+  // 레지스트리에만 존재하는(페이지가 아직 없는) 빈 프로젝트도 삭제할 수 있어야 한다.
+  const registryProjectsBefore = projectRegistry.readRegistry(docsDir);
+  const existedInRegistry = registryProjectsBefore.some((p) => p.id === projectId);
+
+  if (!filenames.length && !existedInRegistry) {
     sendJson(res, 404, { error: "해당 프로젝트를 찾을 수 없습니다." });
     return;
   }
@@ -195,7 +205,66 @@ async function handleDeleteProject(req, res, projectId, docsDir) {
     return;
   }
 
+  projectRegistry.removeProject(docsDir, projectId);
+
   sendJson(res, 200, { ok: true, projectId, deletedFiles: deleted });
+}
+
+// POST /api/projects — 문서 없이 프로젝트(빈 폴더 개념)만 만든다.
+// front matter가 존재할 문서가 아직 없으므로, 레지스트리(docs/.projects.json)에만 기록한다.
+async function handleCreateProject(req, res, docsDir) {
+  let body;
+  try {
+    body = await readRequestBody(req);
+  } catch (e) {
+    sendJson(res, 413, { error: e.message });
+    return;
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(body);
+  } catch (e) {
+    sendJson(res, 400, { error: "요청 본문이 올바른 JSON이 아닙니다." });
+    return;
+  }
+
+  const projectTitle = typeof payload.projectTitle === "string" ? payload.projectTitle.trim() : "";
+  if (!projectTitle) {
+    sendJson(res, 400, { error: "projectTitle은 필수입니다." });
+    return;
+  }
+  const projectId = typeof payload.projectId === "string" ? payload.projectId.trim() : "";
+  if (!projectId) {
+    sendJson(res, 400, { error: "projectId는 필수입니다." });
+    return;
+  }
+
+  try {
+    projectRegistry.addProject(docsDir, {
+      id: projectId,
+      title: projectTitle,
+      createdAt: new Date().toISOString(),
+    });
+  } catch (e) {
+    sendJson(res, 500, { error: "프로젝트 생성에 실패했습니다." });
+    return;
+  }
+
+  sendJson(res, 201, { ok: true, projectId, projectTitle });
+}
+
+// GET /api/projects — 아직 페이지가 없는(레지스트리에만 존재하는) 프로젝트 목록.
+// 페이지가 있는 프로젝트는 이미 GET /api/docs의 project/projectTitle 필드로
+// 파생되므로 여기서 중복 반환하지 않는다 — 클라이언트가 두 출처를 project id 기준으로
+// 병합한다.
+function handleListEmptyProjects(req, res, docsDir) {
+  try {
+    const projects = projectRegistry.readRegistry(docsDir);
+    sendJson(res, 200, projects);
+  } catch (e) {
+    sendJson(res, 500, { error: "프로젝트 목록을 불러올 수 없습니다." });
+  }
 }
 
 module.exports = {
@@ -204,4 +273,6 @@ module.exports = {
   findProjectPageFiles,
   handleRenameProject,
   handleDeleteProject,
+  handleCreateProject,
+  handleListEmptyProjects,
 };

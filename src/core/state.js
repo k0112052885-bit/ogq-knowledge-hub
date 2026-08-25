@@ -55,7 +55,6 @@ export const el = {
 
   newProjectModal: document.getElementById("newProjectModal"),
   newProjectTitle: document.getElementById("newProjectTitle"),
-  newProjectFirstPageTitle: document.getElementById("newProjectFirstPageTitle"),
   btnCreateNewProject: document.getElementById("btnCreateNewProject"),
 
   newProjectPageModal: document.getElementById("newProjectPageModal"),

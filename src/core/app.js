@@ -28,11 +28,23 @@ import { groupIntoProjectsAndPages } from "./docs-grouping.js";
 // ============================================================
 async function loadDocList() {
   try {
+    // 페이지가 하나도 없는 프로젝트는 문서 front matter를 스캔하는 GET /api/docs에
+    // 전혀 나타나지 않으므로(그런 프로젝트는 문서가 아니라 레지스트리에만 있음),
+    // GET /api/projects로 별도 조회해 항상 병합한다. 둘 중 하나가 실패해도 나머지
+    // 절반은 정상 표시되도록 개별로 처리한다(Promise.all로 묶으면 한쪽 실패가
+    // 전체를 막아 문서 목록조차 못 보여주는 상황이 생길 수 있음).
     const docs = await api("/api/docs");
     state.docs = docs;
 
+    let emptyProjects = [];
+    try {
+      emptyProjects = await api("/api/projects");
+    } catch (e) {
+      // 빈 프로젝트 목록을 못 불러와도 문서 기반 프로젝트/단일 문서 표시는 계속한다.
+    }
+
     // Phase 2: 문서 목록을 프로젝트(다중 페이지) / 단일 문서로 분리해 사이드바에 각각 렌더링한다.
-    const { projects, standalonePages } = groupIntoProjectsAndPages(docs);
+    const { projects, standalonePages } = groupIntoProjectsAndPages(docs, emptyProjects);
     state.projects = projects;
     state.standaloneDocs = standalonePages;
 
@@ -561,7 +573,6 @@ async function loadCreatedDocIntoEditor(data) {
 // ============================================================
 function openNewProjectModal() {
   el.newProjectTitle.value = "";
-  el.newProjectFirstPageTitle.value = "";
   openModal("newProjectModal");
   el.newProjectTitle.focus();
 }
@@ -578,6 +589,10 @@ function makeProjectId(title) {
   return base ? `${base}-${suffix}` : `project-${suffix}`;
 }
 
+// 프로젝트만 생성한다(문서는 함께 만들지 않음). 페이지는 이후 프로젝트 옆의
+// "+ 페이지" 버튼(createNewProjectPage)으로 별도 생성한다 — 예전에는 이 함수가
+// 첫 페이지 문서를 함께 생성했는데, "첫 페이지명"을 비워두면 프로젝트명 자체가
+// 문서 제목이 되어 프로젝트 생성만으로도 의도치 않은 문서가 만들어지는 문제가 있었다.
 async function createNewProject() {
   const projectTitle = el.newProjectTitle.value.trim();
   if (!projectTitle) {
@@ -585,28 +600,17 @@ async function createNewProject() {
     return;
   }
 
-  // 첫 페이지명을 비워두면 "개요" 같은 고정 기본값이 아니라 프로젝트명을 그대로 사용한다.
-  const firstPageTitle = el.newProjectFirstPageTitle.value.trim() || projectTitle;
   const projectId = makeProjectId(projectTitle);
 
   try {
-    const data = await api("/api/docs", {
+    await api("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: firstPageTitle,
-        category: "기타",
-        tags: [],
-        status: "draft",
-        description: "",
-        project: projectId,
-        projectTitle,
-        pageOrder: 1,
-      }),
+      body: JSON.stringify({ projectId, projectTitle }),
     });
     closeModal("newProjectModal");
     toast("success", "새 프로젝트가 생성되었습니다", projectTitle);
-    await loadCreatedDocIntoEditor(data);
+    await loadDocList();
     expandProjectGroup(projectId);
   } catch (e) {
     toast("error", "프로젝트 생성 실패", e.message);
@@ -1052,16 +1056,13 @@ function initEventBindings() {
   el.btnCreateNewProject.addEventListener("click", createNewProject);
   el.btnCreateNewProjectPage.addEventListener("click", createNewProjectPage);
 
-  // 프로젝트명 입력 후 Enter → 첫 페이지명 입력란으로 이동 (Tab은 DOM 순서상 기본 동작으로 이미 이동됨)
+  // 프로젝트명 입력 후 Enter → 바로 생성.
+  // e.isComposing으로 한글/일본어 등 IME 조합 중 Enter(조합 완료 확정 키)를 걸러낸다 —
+  // 이걸 걸러내지 않으면 조합이 채 끝나기 전에 keydown이 먼저 발생해, 예를 들어
+  // "테스트 프로젝트"를 입력하는 도중 마지막 음절이 조합되는 순간의 Enter가 필드 값을
+  // "트"처럼 완성되지 않은 상태로 제출해버리는 문제가 생긴다.
   el.newProjectTitle.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      el.newProjectFirstPageTitle.focus();
-    }
-  });
-  // 첫 페이지명 입력란에서 Enter → 바로 생성
-  el.newProjectFirstPageTitle.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.isComposing) {
       e.preventDefault();
       createNewProject();
     }

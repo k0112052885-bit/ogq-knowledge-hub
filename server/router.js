@@ -10,6 +10,8 @@ const {
   handleDeletePage,
   handleRenameProject,
   handleDeleteProject,
+  handleCreateProject,
+  handleListEmptyProjects,
 } = require("./handlers/docs-rename-delete.js");
 const { handleUploadImage, handleListImages } = require("./handlers/images.js");
 const { handleAiDiagram } = require("./handlers/ai-diagram.js");
@@ -69,6 +71,15 @@ function createRequestHandler(config, getServerInstance) {
       const projectMatch = pathname.match(/^\/api\/projects\/([^/]+)$/);
       if (projectMatch && req.method === "DELETE") {
         await handleDeleteProject(req, res, decodeURIComponent(projectMatch[1]), docsDir);
+        return;
+      }
+
+      if (pathname === "/api/projects" && req.method === "POST") {
+        await handleCreateProject(req, res, docsDir);
+        return;
+      }
+      if (pathname === "/api/projects" && req.method === "GET") {
+        handleListEmptyProjects(req, res, docsDir);
         return;
       }
 

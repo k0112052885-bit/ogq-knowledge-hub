@@ -8,9 +8,24 @@
 //
 // project 필드가 없는(=null) 문서는 전부 standalonePages로 들어간다.
 // project 필드가 있는 문서는 같은 project 값끼리 projects[].pages로 묶인다.
-export function groupIntoProjectsAndPages(docs) {
+//
+// emptyProjects(선택): GET /api/projects가 반환하는, 아직 페이지가 하나도 없는
+// 프로젝트 목록({ id, title })이다. "+ 새 프로젝트"가 문서를 만들지 않고 프로젝트만
+// 등록할 수 있게 되면서, docs만 스캔해서는 그런 프로젝트가 사이드바에 전혀 나타나지
+// 않는다 — 여기서 먼저 pages: []로 projectMap에 심어두고, docs 순회 결과가 있으면
+// 그 위에 페이지가 채워지는 방식으로 두 출처를 하나의 프로젝트 목록으로 합친다.
+export function groupIntoProjectsAndPages(docs, emptyProjects = []) {
   const projectMap = new Map();
   const standalonePages = [];
+
+  emptyProjects.forEach((project) => {
+    if (!project || !project.id) return;
+    projectMap.set(project.id, {
+      id: project.id,
+      title: project.title || project.id,
+      pages: [],
+    });
+  });
 
   docs.forEach((doc) => {
     if (!doc.project) {

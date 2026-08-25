@@ -451,6 +451,7 @@ body {
 
 .tree-group-arrow {
   display: inline-flex;
+  flex: 0 0 auto;
   font-size: 9px;
   color: var(--text-tertiary);
   transition: transform var(--transition-fast);
@@ -458,11 +459,27 @@ body {
   width: 10px;
 }
 
+/* 프로젝트/카테고리명이 길면(예: "테스트 프로젝트") flex 헤더 안에서 줄바꿈되어
+   마지막 글자가 다음 줄로 밀려나는 문제가 있었다 — 이 span 자체는 크기 제약이
+   전혀 없어 flex item의 기본 min-width: auto(내용 전체 폭 유지) 때문에 줄바꿈
+   대신 헤더 폭을 넘치게 되고, 다시 flex-shrink로 눌리면서 줄바꿈이 발생했다.
+   min-width: 0으로 축소를 허용하고 overflow/text-overflow로 말줄임 처리한다.
+   "+ 페이지"/편집/삭제 버튼(.tree-group-action)은 flex: 0 0 auto라 항상 자기
+   크기를 유지하므로 이 변경으로 침범받지 않는다. */
+.tree-group-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .tree-group.open .tree-group-arrow {
   transform: rotate(90deg);
 }
 
 .tree-group-count {
+  flex: 0 0 auto;
   margin-left: auto;
   font-size: 10.5px;
   color: var(--text-tertiary);

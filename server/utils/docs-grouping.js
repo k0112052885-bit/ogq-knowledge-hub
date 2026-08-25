@@ -10,9 +10,21 @@
 // 이 함수는 어떤 API 핸들러에서도 아직 호출되지 않는다 (Phase 2 구현 순서 2번).
 // 데이터 모델과 그룹핑 로직만 미리 준비해두는 단계이며, 기존 GET /api/docs
 // 응답이나 admin UI 동작에는 영향을 주지 않는다.
-function groupIntoProjectsAndPages(docs) {
+//
+// emptyProjects(선택): src/core/docs-grouping.js와 동일 — 아직 페이지가 없는 프로젝트를
+// { id, title } 형태로 미리 projectMap에 심어 문서 기반 그룹핑과 병합한다.
+function groupIntoProjectsAndPages(docs, emptyProjects = []) {
   const projectMap = new Map();
   const standalonePages = [];
+
+  emptyProjects.forEach((project) => {
+    if (!project || !project.id) return;
+    projectMap.set(project.id, {
+      id: project.id,
+      title: project.title || project.id,
+      pages: [],
+    });
+  });
 
   docs.forEach((doc) => {
     if (!doc.project) {
