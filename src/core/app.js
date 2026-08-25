@@ -13,6 +13,7 @@ import {
   setEditorValue,
   setEditorFontSize,
   focusEditor,
+  moveCursorPastFrontMatter,
 } from "../features/editor/editor-core.js";
 import { initMarkdownToolbar } from "../features/editor/markdown-toolbar.js";
 import { schedulePreview, renderPreview, setupImageLightbox } from "../features/preview/preview.js";
@@ -468,6 +469,7 @@ async function openDoc(filename, options = {}) {
     state.currentFilename = filename;
     el.editorFilename.textContent = filename;
     setEditorValue(data.content);
+    moveCursorPastFrontMatter(data.content);
     markDirty(false);
     updateActiveTreeItem();
     expandGroupForFilename(filename);
@@ -558,6 +560,7 @@ async function loadCreatedDocIntoEditor(data) {
   state.currentFilename = data.filename;
   el.editorFilename.textContent = data.filename;
   setEditorValue(data.content);
+  moveCursorPastFrontMatter(data.content);
   markDirty(false);
   await loadDocList();
   updateActiveTreeItem();

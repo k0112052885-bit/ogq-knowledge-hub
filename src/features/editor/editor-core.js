@@ -116,6 +116,35 @@ export function focusEditor() {
   else if (state.fallbackEditor) state.fallbackEditor.focus();
 }
 
+// 문서를 열면 Monaco/textarea 모두 커서가 기본적으로 1번째 줄 1번째 열에 놓이는데,
+// Front Matter가 있는 문서는 그 위치가 바로 "---" 여는 줄이다. AI Diagram/Mermaid
+// 삽입/이미지 삽입 등 커서 위치에 텍스트를 끼워 넣는 모든 툴바 동작(insertTextAtCursor)이
+// 이 위치를 그대로 쓰므로, 문서를 열자마자(본문을 한 번도 클릭하지 않고) 바로 그런
+// 동작을 실행하면 Front Matter 블록 한가운데에 내용이 삽입되어 title/project 등 YAML이
+// 깨진다. 문서를 여는 시점에 커서를 Front Matter 다음(실제 본문 시작 위치)으로 미리
+// 옮겨 두어, 별도 조작 없이 이 사고 자체가 발생하지 않게 한다.
+export function moveCursorPastFrontMatter(content) {
+  const withoutBom = content.replace(/^﻿/, "");
+  const leading = withoutBom.match(/^\s*/)[0];
+  const body = withoutBom.slice(leading.length);
+  if (!body.startsWith("---")) return; // Front Matter가 없으면 기본 위치(1,1) 그대로 둔다.
+
+  const match = body.match(/^---\r?\n[\s\S]*?\r?\n---[ \t]*\r?\n?/);
+  if (!match) return;
+
+  const frontMatterBlock = leading + match[0];
+  const line = frontMatterBlock.split(/\r?\n/).length; // 다음 줄(본문 시작 줄) 번호
+
+  if (state.monacoReady) {
+    const editor = state.monacoEditor;
+    editor.setPosition({ lineNumber: line, column: 1 });
+    editor.revealPosition({ lineNumber: line, column: 1 });
+  } else if (state.fallbackEditor) {
+    const pos = frontMatterBlock.length;
+    state.fallbackEditor.setSelectionRange(pos, pos);
+  }
+}
+
 export function insertTextAtCursor(text) {
   if (state.monacoReady) {
     const editor = state.monacoEditor;

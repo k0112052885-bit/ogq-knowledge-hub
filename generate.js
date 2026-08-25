@@ -511,20 +511,30 @@ function buildSidebarData(docs) {
 // 문서만으로 dist/를 다시 만든다 — 이전 빌드가 다른 프로젝트/전역 빌드였더라도
 // fs.emptyDirSync가 매번 dist/ 전체를 비우고 새로 쓰므로, 이전 빌드의 문서 페이지가
 // 새 빌드 결과에 섞여 남는 일은 구조적으로 발생하지 않는다.
+//
+// 검증(빈 프로젝트 / index.md 누락)은 반드시 fs.emptyDirSync보다 먼저 수행한다.
+// 순서가 반대였을 때는, 예를 들어 빈 프로젝트로 빌드를 시도하면 dist/를 먼저
+// 통째로 비운 뒤에야 에러를 던졌다 — 그 결과 빌드가 "실패"했는데도 직전까지
+// 정상적으로 서비스되던 dist/ 사이트 전체가 사라져 Site Preview가 완전히
+// 빈 화면이 되는 실질적인 데이터 손실이 발생했다. 검증을 먼저 통과시켜야만
+// 기존 dist/를 안전하게 비우고 새로 쓸 수 있다.
 function build(projectId) {
+  const allDocs = loadDocs();
+  const docs = filterDocsByProject(allDocs, projectId);
+
+  if (projectId && !docs.length) {
+    throw new Error("선택된 프로젝트에 속한 문서가 없습니다.");
+  }
+  if (!projectId && !docs.some((d) => d.slug === "index")) {
+    throw new Error("docs/index.md 파일이 필요합니다.");
+  }
+
   fs.emptyDirSync(DIST_DIR);
   fs.copySync(ASSETS_DIR, path.join(DIST_DIR, "assets"));
 
   if (fs.existsSync(DOCS_IMAGES_DIR)) {
     fs.copySync(DOCS_IMAGES_DIR, path.join(DIST_DIR, "images"));
     console.log("복사됨: dist/images");
-  }
-
-  const allDocs = loadDocs();
-  const docs = filterDocsByProject(allDocs, projectId);
-
-  if (projectId && !docs.length) {
-    throw new Error("선택된 프로젝트에 속한 문서가 없습니다.");
   }
 
   let projectTitle = null;
@@ -536,8 +546,6 @@ function build(projectId) {
     // 계속 <slug>.html이어야 하므로 index.html은 진입점 역할만 한다).
     const indexDoc = pickProjectIndexDoc(docs);
     projectTitle = indexDoc.projectTitle || projectId;
-  } else if (!docs.some((d) => d.slug === "index")) {
-    throw new Error("docs/index.md 파일이 필요합니다.");
   }
 
   docs.forEach((doc) => {
