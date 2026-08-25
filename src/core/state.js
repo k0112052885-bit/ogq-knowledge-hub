@@ -1,5 +1,6 @@
 // DOM refs
 export const el = {
+  appVersionBadge: document.getElementById("appVersionBadge"),
   docTree: document.getElementById("docTree"),
   projectTree: document.getElementById("projectTree"),
   recentList: document.getElementById("recentList"),

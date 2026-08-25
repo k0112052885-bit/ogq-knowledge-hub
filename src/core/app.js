@@ -1,4 +1,5 @@
 import { el, state, saveSettings } from "./state.js";
+import { APP_VERSION } from "./version.js";
 import { api } from "./api.js";
 import { toast, setStatus } from "./toast.js";
 import { escapeHtml, statusLabel } from "./dom-utils.js";
@@ -1116,6 +1117,8 @@ function wireEditorEvents() {
 // Init
 // ============================================================
 export function initApp() {
+  el.appVersionBadge.textContent = APP_VERSION;
+
   wireEditorEvents();
   initModalWiring();
   initTheme();
