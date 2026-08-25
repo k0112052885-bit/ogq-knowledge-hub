@@ -36,6 +36,7 @@ export const el = {
   btnAiDiagramV2: document.getElementById("btnAiDiagramV2"),
   btnSave: document.getElementById("btnSave"),
   btnBuild: document.getElementById("btnBuild"),
+  btnFullBuild: document.getElementById("btnFullBuild"),
   btnGitPush: document.getElementById("btnGitPush"),
   btnExportPdf: document.getElementById("btnExportPdf"),
   btnExportHtml: document.getElementById("btnExportHtml"),

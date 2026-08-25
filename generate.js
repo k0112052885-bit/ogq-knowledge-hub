@@ -518,27 +518,100 @@ function buildSidebarData(docs) {
 // 정상적으로 서비스되던 dist/ 사이트 전체가 사라져 Site Preview가 완전히
 // 빈 화면이 되는 실질적인 데이터 손실이 발생했다. 검증을 먼저 통과시켜야만
 // 기존 dist/를 안전하게 비우고 새로 쓸 수 있다.
-function build(projectId) {
-  const allDocs = loadDocs();
-  const docs = filterDocsByProject(allDocs, projectId);
+// 문서 본문(raw markdown, front matter 제외 content)에서 로컬 이미지 참조를 추출한다.
+// 지원 패턴은 렌더링 파이프라인이 이미 인식하는 두 가지 표준/레거시 경로뿐이다:
+//   ![alt](images/foo.png)         -> docs/images/foo.png  (표준, Image Library 업로드 경로)
+//   ![alt](assets/images/foo.svg)  -> assets/images/foo.svg (레거시, server/export/render-doc-html.js와 동일 규칙)
+// http(s)/data: URL이나 다른 경로 패턴은 로컬 파일 복사 대상이 아니므로 무시한다.
+const LOCAL_IMAGE_REF_RE = /!\[[^\]]*\]\(\s*((?:images|assets\/images)\/[^\s)"']+)\s*(?:"[^"]*")?\)/g;
 
-  if (projectId && !docs.length) {
+function extractLocalImageRefs(content) {
+  const refs = new Set();
+  let match;
+  LOCAL_IMAGE_REF_RE.lastIndex = 0;
+  while ((match = LOCAL_IMAGE_REF_RE.exec(content))) {
+    refs.add(decodeURIComponent(match[1]));
+  }
+  return refs;
+}
+
+// 선택된 프로젝트 문서들이 실제로 참조하는 이미지 파일만 dist/images, dist/assets/images로
+// 복사한다(다른 프로젝트/무관한 문서의 이미지는 복사하지 않음). 각 참조는 원본 디렉터리를
+// 벗어나지 않는지(경로 탈출 방지) 확인한 뒤, 존재하는 파일만 복사한다 — 존재하지 않거나
+// 허용 범위를 벗어난 참조는 조용히 건너뛴다(깨진 이미지로 남을 뿐, 빌드 자체를 막지 않음).
+function copyReferencedImages(docs, distDir) {
+  const refs = new Set();
+  docs.forEach((doc) => {
+    extractLocalImageRefs(doc.content).forEach((ref) => refs.add(ref));
+  });
+
+  let imagesCopied = 0;
+  let assetsCopied = 0;
+
+  refs.forEach((ref) => {
+    if (ref.startsWith("images/")) {
+      const relPath = ref.slice("images/".length);
+      const src = path.resolve(DOCS_IMAGES_DIR, relPath);
+      if (!src.startsWith(DOCS_IMAGES_DIR + path.sep) || !fs.existsSync(src)) return;
+      const dest = path.join(distDir, "images", relPath);
+      fs.ensureDirSync(path.dirname(dest));
+      fs.copySync(src, dest);
+      imagesCopied++;
+    } else if (ref.startsWith("assets/images/")) {
+      const relPath = ref.slice("assets/images/".length);
+      const assetsImagesDir = path.join(ASSETS_DIR, "images");
+      const src = path.resolve(assetsImagesDir, relPath);
+      if (!src.startsWith(assetsImagesDir + path.sep) || !fs.existsSync(src)) return;
+      const dest = path.join(distDir, "assets", "images", relPath);
+      fs.ensureDirSync(path.dirname(dest));
+      fs.copySync(src, dest);
+      assetsCopied++;
+    }
+  });
+
+  console.log(`복사됨: dist/images (${imagesCopied}개), dist/assets/images (${assetsCopied}개) — 프로젝트 참조 이미지만`);
+}
+
+// scope: "project"(선택된 프로젝트 하나만) 또는 "full"(전체 프로젝트 + 단일 문서).
+// projectId는 scope === "project"일 때만 유효하며 필수다.
+function build(scope, projectId) {
+  const isProjectScope = scope === "project";
+  const allDocs = loadDocs();
+  const docs = isProjectScope ? filterDocsByProject(allDocs, projectId) : allDocs;
+
+  if (isProjectScope && !projectId) {
+    throw new Error("프로젝트에 속한 페이지를 선택한 후 Build 해주세요.");
+  }
+  if (isProjectScope && !docs.length) {
     throw new Error("선택된 프로젝트에 속한 문서가 없습니다.");
   }
-  if (!projectId && !docs.some((d) => d.slug === "index")) {
+  if (!isProjectScope && !docs.some((d) => d.slug === "index")) {
     throw new Error("docs/index.md 파일이 필요합니다.");
   }
 
   fs.emptyDirSync(DIST_DIR);
   fs.copySync(ASSETS_DIR, path.join(DIST_DIR, "assets"));
 
-  if (fs.existsSync(DOCS_IMAGES_DIR)) {
+  if (isProjectScope) {
+    // 프로젝트 범위 빌드: 이 프로젝트 문서가 실제로 참조하는 이미지만 선택적으로 복사한다.
+    // fs.copySync(ASSETS_DIR, ...)가 위에서 이미 assets/ 전체(스타일시트, 스크립트 등
+    // 사이트 공통 자산)를 복사했으므로, 여기서는 문서가 참조하는 이미지 파일만 추가로
+    // 다루면 된다 — assets/images 안의 무관한 이미지까지 전부 복사되는 것은 막는다.
+    // 다만 위 fs.copySync(ASSETS_DIR)가 assets/images 전체도 함께 복사해버리므로,
+    // 프로젝트 범위에서는 그 디렉터리를 비우고 참조된 파일만 다시 채운다.
+    const distAssetsImagesDir = path.join(DIST_DIR, "assets", "images");
+    if (fs.existsSync(distAssetsImagesDir)) {
+      fs.emptyDirSync(distAssetsImagesDir);
+    }
+    copyReferencedImages(docs, DIST_DIR);
+  } else if (fs.existsSync(DOCS_IMAGES_DIR)) {
+    // 전체 빌드는 기존과 동일하게 docs/images 전체를 복사한다.
     fs.copySync(DOCS_IMAGES_DIR, path.join(DIST_DIR, "images"));
-    console.log("복사됨: dist/images");
+    console.log("복사됨: dist/images (전체)");
   }
 
   let projectTitle = null;
-  if (projectId) {
+  if (isProjectScope) {
     // 사이트 루트(dist/index.html)를 이 프로젝트의 대표 페이지로 대체한다.
     // renderSidebar/renderPager 등은 모두 doc.slug 기준으로 동작하므로, index.html은
     // 대표 페이지와 동일한 내용을 outputName만 "index.html"로 바꿔 별도로 한 번 더 쓴다
@@ -554,7 +627,7 @@ function build(projectId) {
     console.log(`생성됨: dist/${doc.outputName}`);
   });
 
-  if (projectId) {
+  if (isProjectScope) {
     const indexDoc = pickProjectIndexDoc(docs);
     const indexHtml = renderPage(indexDoc, docs);
     fs.writeFileSync(path.join(DIST_DIR, "index.html"), indexHtml, "utf-8");
@@ -591,7 +664,8 @@ function build(projectId) {
   // 프로젝트가 다를 때(예: A를 빌드해놓고 B 문서를 연 채로 사이트 보기를 누르는 경우)
   // 이를 감지해 다른 프로젝트의 이전 빌드를 조용히 보여주지 않도록 하기 위한 메타데이터.
   const buildMeta = {
-    projectId: projectId || null,
+    scope: isProjectScope ? "project" : "full",
+    projectId: isProjectScope ? projectId : null,
     projectTitle,
     builtAt: new Date().toISOString(),
     docCount: docs.length,
@@ -612,7 +686,8 @@ function renderMarkdownPreview(content) {
 }
 
 if (require.main === module) {
-  build();
+  // CLI 직접 실행(npm run build 등)은 항상 전체 빌드다.
+  build("full", null);
 }
 
 module.exports = { build, renderMarkdownPreview, normalizeDate };
