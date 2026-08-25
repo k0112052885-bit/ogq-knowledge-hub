@@ -25,11 +25,33 @@ function handleListDocs(req, res, docsDir) {
       return;
     }
 
+    // 문서 하나의 front matter가 깨져 있어도(예: YAML 블록 안에 실수로 삽입된
+    // 텍스트) gray-matter의 parse 실패가 이 콜백 전체를 무너뜨려서는 안 된다 —
+    // fs.readdir의 비동기 콜백 안에서 예외가 던져지면 감싸는 try/catch가 없어
+    // Node 프로세스 자체가 죽고(uncaught exception), 그 결과 서버가 응답 불가
+    // 상태가 되어 이 문서와 무관한 모든 문서의 목록 조회/Live Preview 등 전체
+    // 기능이 함께 멈춘다. 파일 하나의 파싱 실패는 그 문서만 건너뛰고 나머지는
+    // 정상적으로 반환한다 — 한 문서의 손상이 전체 서비스를 막지 않아야 한다.
     const docs = files
       .filter((f) => f.endsWith(".md"))
       .map((filename) => {
-        const raw = fs.readFileSync(path.join(docsDir, filename), "utf-8");
-        const { data } = matter(raw);
+        let data;
+        try {
+          const raw = fs.readFileSync(path.join(docsDir, filename), "utf-8");
+          data = matter(raw).data;
+        } catch (e) {
+          return {
+            filename,
+            title: `${filename.replace(/\.md$/, "")} (front matter 오류)`,
+            category: "기타",
+            status: "",
+            updated: "",
+            order: 999,
+            project: null,
+            projectTitle: null,
+            pageOrder: null,
+          };
+        }
         return {
           filename,
           title: data.title || filename.replace(/\.md$/, ""),

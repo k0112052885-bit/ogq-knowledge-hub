@@ -90,8 +90,16 @@ function findProjectPageFiles(matter, docsDir, projectId) {
   const files = fs.readdirSync(docsDir).filter((f) => f.endsWith(".md"));
   const matches = [];
   for (const filename of files) {
-    const raw = fs.readFileSync(path.join(docsDir, filename), "utf-8");
-    const { data } = matter(raw);
+    // 파일 하나의 front matter가 깨져 있어도 그 문서만 건너뛰고 나머지 파일은
+    // 계속 검사한다 — handleListDocs와 동일한 이유(손상된 문서 하나가 관련 없는
+    // 다른 프로젝트의 rename/delete까지 막아서는 안 됨).
+    let data;
+    try {
+      const raw = fs.readFileSync(path.join(docsDir, filename), "utf-8");
+      data = matter(raw).data;
+    } catch (e) {
+      continue;
+    }
     if (typeof data.project === "string" && data.project.trim() === projectId) {
       matches.push(filename);
     }
