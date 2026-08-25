@@ -16,13 +16,16 @@ export async function runBuild(silent) {
   const projectContext = getCurrentProjectContext();
   if (!projectContext) {
     // 자동 Build(저장 시 autoBuild 옵션)로 호출된 경우엔 토스트를 띄우지 않는다 —
-    // 단일 문서를 저장할 때마다 "Build 대상이 없습니다" 에러가 반복해서 뜨면 오히려
-    // 방해가 된다. 사용자가 버튼을 직접 눌렀을 때(silent가 아닐 때)만 명확히 안내한다.
+    // 단일 문서를 저장할 때마다 이 안내가 반복해서 뜨면 오히려 방해가 된다.
+    // 사용자가 버튼을 직접 눌렀을 때(silent가 아닐 때)만 명확히 안내한다.
+    // "Build 대상이 없습니다"는 무엇을 해야 하는지 알려주지 않아 모호했으므로,
+    // 지금 선택된 문서가 단일 문서라 Build가 불가능하다는 이유와 바로 취할 수 있는
+    // 두 가지 행동(프로젝트 페이지 선택 / 전체 Build 사용)을 명시한다.
     if (!silent) {
       toast(
         "error",
-        "Build 대상이 없습니다",
-        "프로젝트에 속한 페이지를 선택한 후 Build 해주세요. 전체 문서를 빌드하려면 \"전체 Build\"를 사용하세요."
+        "단일 문서는 Build할 수 없습니다",
+        "프로젝트에 속한 페이지를 선택하거나 전체 Build를 사용해주세요."
       );
     }
     return;

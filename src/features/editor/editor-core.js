@@ -182,6 +182,48 @@ export function getSelectedEditorText() {
 // 줄바꿈)인지 확인한다. ```mermaid 같은 코드펜스는 반드시 줄 맨 앞에서 시작해야
 // 마크다운 파서가 코드블록으로 인식하므로, 이 값이 false이면 호출부가 삽입 전에
 // 줄바꿈을 보정해야 한다(예: "## 제목" 중 "제목"만 선택된 상태로 삽입하는 경우).
+// 에디터의 현재 스크롤 위치를 0~1 비율로 반환한다. Monaco는 라인 단위 가상 스크롤을
+// 쓰므로 scrollTop을 그대로 쓰지 않고 scrollTop/scrollHeight 비율로 계산해 fallback
+// textarea(순수 DOM 스크롤)와 같은 형태의 값을 돌려준다 — 두 에디터 백엔드가 다른
+// 스크롤 모델을 쓰더라도 호출부(scroll-sync)는 이 비율 하나만 알면 된다.
+export function getEditorScrollRatio() {
+  if (state.monacoReady) {
+    const editor = state.monacoEditor;
+    const scrollHeight = editor.getScrollHeight();
+    const layoutHeight = editor.getLayoutInfo().height;
+    const maxScroll = Math.max(scrollHeight - layoutHeight, 1);
+    return Math.min(1, Math.max(0, editor.getScrollTop() / maxScroll));
+  }
+  if (state.fallbackEditor) {
+    const el = state.fallbackEditor;
+    const maxScroll = Math.max(el.scrollHeight - el.clientHeight, 1);
+    return Math.min(1, Math.max(0, el.scrollTop / maxScroll));
+  }
+  return 0;
+}
+
+// 에디터 스크롤 변화를 구독한다. Monaco는 onDidScrollChange 이벤트로, fallback
+// textarea는 DOM scroll 이벤트로 알려주는데 구조가 서로 달라 호출부가 매번 분기하지
+// 않도록 여기서 하나의 콜백 등록 창구로 통일한다. 에디터가 아직 준비되지 않은
+// 시점(문서를 열기 전)에 호출될 수 있으므로, 준비될 때까지 폴링 후 등록한다.
+export function onEditorScroll(callback) {
+  const tryRegister = () => {
+    if (state.monacoReady) {
+      state.monacoEditor.onDidScrollChange(callback);
+      return true;
+    }
+    if (state.fallbackEditor) {
+      state.fallbackEditor.addEventListener("scroll", callback, { passive: true });
+      return true;
+    }
+    return false;
+  };
+  if (tryRegister()) return;
+  const timer = setInterval(() => {
+    if (tryRegister()) clearInterval(timer);
+  }, 100);
+}
+
 export function isSelectionAtLineStart() {
   if (state.monacoReady) {
     const editor = state.monacoEditor;

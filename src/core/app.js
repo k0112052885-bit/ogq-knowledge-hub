@@ -17,6 +17,7 @@ import {
 } from "../features/editor/editor-core.js";
 import { initMarkdownToolbar } from "../features/editor/markdown-toolbar.js";
 import { schedulePreview, renderPreview, setupImageLightbox } from "../features/preview/preview.js";
+import { initPreviewScrollSync, resetPreviewScroll } from "../features/preview/scroll-sync.js";
 import { setupImagePasteAndDrop } from "../features/image/image-upload.js";
 import { initImageLibrary } from "../features/image/image-library.js";
 import { initAiDiagram } from "../features/diagram/ai-diagram.js";
@@ -473,6 +474,7 @@ async function openDoc(filename, options = {}) {
     markDirty(false);
     updateActiveTreeItem();
     expandGroupForFilename(filename);
+    resetPreviewScroll();
     schedulePreview();
     setStatus(`열림: ${filename}`);
   } catch (e) {
@@ -562,6 +564,7 @@ async function loadCreatedDocIntoEditor(data) {
   setEditorValue(data.content);
   moveCursorPastFrontMatter(data.content);
   markDirty(false);
+  resetPreviewScroll();
   await loadDocList();
   updateActiveTreeItem();
   expandGroupForFilename(data.filename);
@@ -1136,6 +1139,7 @@ export function initApp() {
   setupImageLightbox();
   initAiDiagram();
   initImageLibrary();
+  initPreviewScrollSync();
   initExport();
   initExportDoc();
   initSettingsWiring();
