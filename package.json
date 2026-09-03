@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node generate.js",
     "dev": "node server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "refresh-revenue": "node revenue-refresh.js"
   },
   "license": "UNLICENSED",
   "dependencies": {
