@@ -1,0 +1,22 @@
+[
+  {
+    "week": 35,
+    "currentActions": [
+      { "title": "샘플 액션 C", "status": "대기" },
+      { "title": "샘플 액션 D", "status": "진행중" }
+    ],
+    "previousActionEffects": [
+      { "actionTitle": "샘플 이전 액션 X", "effectSummary": "샘플 효과 요약 X" }
+    ]
+  },
+  {
+    "week": 36,
+    "currentActions": [
+      { "title": "샘플 액션 A", "status": "진행중" },
+      { "title": "샘플 액션 B", "status": "완료" }
+    ],
+    "previousActionEffects": [
+      { "actionTitle": "샘플 이전 액션", "effectSummary": "샘플 효과 요약" }
+    ]
+  }
+]

@@ -23,11 +23,23 @@ function computeWeeklyProgress(cumulativeRevenue, targetRevenue, now) {
   return { weekNumber, revenueProgressPercent, timeProgressPercent, differencePoints };
 }
 
+function selectWeeklyActions(records, weekNumber) {
+  if (!Array.isArray(records)) return null;
+  for (const rec of records) {
+    if (rec && rec.week === weekNumber) return rec;
+  }
+  return null;
+}
+
 function handleRevenueSummary(req, res, rootDir) {
   const data = JSON.parse(require("fs").readFileSync(require("path").join(rootDir, "revenue-target.json"), "utf8"));
   const summary = computeRevenueSummary(data);
   const weekly = computeWeeklyProgress(data.cumulativeRevenue, data.targetRevenue, new Date());
-  require("./../utils/http.js").sendJson(res, 200, Object.assign({}, summary, weekly));
+  const actionRecords = JSON.parse(
+    require("fs").readFileSync(require("path").join(rootDir, "weekly-actions.json"), "utf8")
+  );
+  const weeklyActions = selectWeeklyActions(actionRecords, weekly.weekNumber);
+  require("./../utils/http.js").sendJson(res, 200, Object.assign({}, summary, weekly, { weeklyActions }));
 }
 
-module.exports = { computeRevenueSummary, computeWeeklyProgress, handleRevenueSummary };
+module.exports = { computeRevenueSummary, computeWeeklyProgress, selectWeeklyActions, handleRevenueSummary };
