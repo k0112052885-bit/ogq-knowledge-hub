@@ -16,6 +16,7 @@ const {
 const { handleUploadImage, handleListImages } = require("./handlers/images.js");
 const { handleAiDiagram } = require("./handlers/ai-diagram.js");
 const { handleExport } = require("./handlers/export.js");
+const { handleRevenueSummary } = require("./handlers/revenue-summary.js");
 
 // 어디서도 호출되지 않는 헬퍼이지만(기존 server.js에도 동일하게 미사용 상태로 존재했음),
 // 동작 변경 없이 위치만 옮기기 위해 그대로 보존한다.
@@ -94,6 +95,11 @@ function createRequestHandler(config, getServerInstance) {
 
       if (pathname === "/api/ai-diagram" && req.method === "POST") {
         await handleAiDiagram(req, res, openaiApiKey, openaiModel);
+        return;
+      }
+
+      if (pathname === "/api/revenue-summary" && req.method === "GET") {
+        handleRevenueSummary(req, res, rootDir);
         return;
       }
 

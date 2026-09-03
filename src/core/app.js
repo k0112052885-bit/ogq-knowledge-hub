@@ -23,6 +23,7 @@ import { initImageLibrary } from "../features/image/image-library.js";
 import { initAiDiagram } from "../features/diagram/ai-diagram.js";
 import { initExport, runBuild } from "../features/export/export.js";
 import { initExportDoc } from "../features/export-doc/export-doc.js";
+import { initRevenueSummary } from "../features/revenue-summary.js";
 import { groupIntoProjectsAndPages } from "./docs-grouping.js";
 
 // ============================================================
@@ -1142,6 +1143,7 @@ export function initApp() {
   initPreviewScrollSync();
   initExport();
   initExportDoc();
+  initRevenueSummary();
   initSettingsWiring();
   initGlobalShortcuts();
   initEventBindings();

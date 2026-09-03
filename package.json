@@ -5,7 +5,8 @@
   "main": "generate.js",
   "scripts": {
     "build": "node generate.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "node --test"
   },
   "license": "UNLICENSED",
   "dependencies": {
