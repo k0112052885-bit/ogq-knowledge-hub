@@ -9,9 +9,25 @@ function computeRevenueSummary(data) {
   };
 }
 
-function handleRevenueSummary(req, res, rootDir) {
-  const data = JSON.parse(require("fs").readFileSync(require("path").join(rootDir, "revenue-target.json"), "utf8"));
-  require("./../utils/http.js").sendJson(res, 200, computeRevenueSummary(data));
+function computeWeeklyProgress(cumulativeRevenue, targetRevenue, now) {
+  const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+  const dayOfYear =
+    Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - start) / 86400000) + 1;
+  const weekNumber = Math.ceil(dayOfYear / 7);
+  const year = now.getUTCFullYear();
+  const totalDays = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 366 : 365;
+  const elapsedDays = dayOfYear;
+  const revenueProgressPercent = (cumulativeRevenue / targetRevenue) * 100;
+  const timeProgressPercent = (elapsedDays / totalDays) * 100;
+  const differencePoints = revenueProgressPercent - timeProgressPercent;
+  return { weekNumber, revenueProgressPercent, timeProgressPercent, differencePoints };
 }
 
-module.exports = { computeRevenueSummary, handleRevenueSummary };
+function handleRevenueSummary(req, res, rootDir) {
+  const data = JSON.parse(require("fs").readFileSync(require("path").join(rootDir, "revenue-target.json"), "utf8"));
+  const summary = computeRevenueSummary(data);
+  const weekly = computeWeeklyProgress(data.cumulativeRevenue, data.targetRevenue, new Date());
+  require("./../utils/http.js").sendJson(res, 200, Object.assign({}, summary, weekly));
+}
+
+module.exports = { computeRevenueSummary, computeWeeklyProgress, handleRevenueSummary };
