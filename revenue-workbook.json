@@ -1,0 +1,13 @@
+{
+  "cumulativeRevenue": 2226623307.181818,
+  "cumulativeRevenueVerification": 2226623307,
+  "weeklyRevenue": 46981817.82,
+  "annualTarget": 5000000000,
+  "reportWeek": 35,
+  "weekStart": "2026-08-28",
+  "weekEnd": "2026-09-03",
+  "weekAnchor": {
+    "anchorWeek": 29,
+    "anchorStartDate": "2026-07-17"
+  }
+}
