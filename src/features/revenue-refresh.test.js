@@ -674,3 +674,71 @@ test('bonus: excelSerialToISO', () => {
   assert.strictEqual(excelSerialToISO(isoToSerial('2026-07-17')), '2026-07-17');
   assert.strictEqual(excelSerialToISO(isoToSerial('2026-09-03')), '2026-09-03');
 });
+
+async function runDriveOperator({ previous, confirmation }) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rr-drive-operator-'));
+  const cwd = process.cwd();
+  const originalWrite = process.stdout.write;
+  const output = [];
+  let confirmationCount = 0;
+  try {
+    fs.writeFileSync(path.join(dir, 'revenue-workbook.json'), JSON.stringify(previous, null, 2) + '\n');
+    process.chdir(dir);
+    process.stdout.write = (chunk) => { output.push(String(chunk)); return true; };
+    const { driveMain } = require('../../revenue-refresh.js');
+    const code = await driveMain(['node', 'revenue-refresh.js'], {
+      execFileSync(command, args) {
+        assert.strictEqual(command, 'rclone');
+        if (args[0] === 'config') return '[ogqdrive]\ntype = drive\nscope = drive.readonly\ntoken = XXX\n';
+        assert.deepStrictEqual(args.slice(0, 4), ['backend', 'copyid', 'ogqdrive:', '1AWrYRCwFI0e9yz8vJzOnw-92Pjvx-G7O']);
+        fs.writeFileSync(args[4], buildXlsx());
+        return '';
+      },
+      async confirm() { confirmationCount++; return confirmation; },
+    });
+    return {
+      code,
+      output: output.join(''),
+      confirmationCount,
+      snapshot: fs.readFileSync(path.join(dir, 'revenue-workbook.json'), 'utf8'),
+    };
+  } finally {
+    process.stdout.write = originalWrite;
+    process.chdir(cwd);
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test('Drive operator: unchanged workbook reports 변경 없음 without confirmation or apply', async () => {
+  const fixture = buildXlsx();
+  const extracted = extractSnapshot(fixture, VALID_NAME);
+  const previous = {
+    cumulativeRevenue: extracted.cumulativeRevenue,
+    cumulativeRevenueVerification: extracted.cumulativeRevenueVerification,
+    weeklyRevenue: extracted.weeklyRevenue,
+    annualTarget: extracted.annualTarget,
+    reportWeek: extracted.reportWeek,
+    weekStart: extracted.weekStart,
+    weekEnd: extracted.weekEnd,
+    weekAnchor: extracted.weekAnchor,
+  };
+  const before = JSON.stringify(previous, null, 2) + '\n';
+  const result = await runDriveOperator({ previous, confirmation: 'APPLY' });
+  assert.strictEqual(result.code, 0);
+  assert.match(result.output, /VALIDATION: PASS/);
+  assert.match(result.output, /변경 없음/);
+  assert.strictEqual(result.confirmationCount, 0);
+  assert.strictEqual(result.snapshot, before);
+});
+
+test('Drive operator: valid changed workbook requires exact APPLY confirmation', async () => {
+  const previous = extractSnapshot(buildXlsx(), VALID_NAME);
+  previous.cumulativeRevenue -= 1;
+  const before = JSON.stringify(previous, null, 2) + '\n';
+  const result = await runDriveOperator({ previous, confirmation: 'no' });
+  assert.strictEqual(result.code, 0);
+  assert.match(result.output, /delta 1/);
+  assert.match(result.output, /적용 취소/);
+  assert.strictEqual(result.confirmationCount, 1);
+  assert.strictEqual(result.snapshot, before);
+});

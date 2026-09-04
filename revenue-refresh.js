@@ -12,7 +12,10 @@
  */
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const readline = require('readline/promises');
+const { execFileSync } = require('child_process');
 
 const {
   loadWorkbook,
@@ -22,6 +25,9 @@ const {
 } = require('./revenue-refresh-core.js');
 
 const SNAPSHOT_PATH = './revenue-workbook.json';
+const DRIVE_REMOTE = 'ogqdrive:';
+const DRIVE_FILE_ID = '1AWrYRCwFI0e9yz8vJzOnw-92Pjvx-G7O';
+const TRUSTED_FILENAME = 'OGQ_매출현황_authoritative.xlsm';
 
 function fmt(v) {
   if (v === null || v === undefined) return 'n/a';
@@ -110,8 +116,76 @@ function main(argv) {
   return 0;
 }
 
-if (require.main === module) {
-  process.exit(main(process.argv));
+function readSnapshot() {
+  try {
+    return JSON.parse(fs.readFileSync(SNAPSHOT_PATH, 'utf8'));
+  } catch (_) {
+    return null;
+  }
 }
 
-module.exports = { main };
+function sameSnapshot(a, b) {
+  const canonical = (value) => Array.isArray(value)
+    ? value.map(canonical)
+    : value && typeof value === 'object'
+      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]))
+      : value;
+  return a !== null && JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+}
+
+async function driveMain(argv, dependencies = {}) {
+  const run = dependencies.execFileSync || execFileSync;
+  const ask = dependencies.confirm || (async (question) => {
+    const prompt = readline.createInterface({ input: process.stdin, output: process.stdout });
+    try { return await prompt.question(question); } finally { prompt.close(); }
+  });
+  const tempRoot = (dependencies.mkdtempSync || fs.mkdtempSync)(path.join(os.tmpdir(), 'ogq-revenue-refresh-'));
+  const workbookPath = path.join(tempRoot, TRUSTED_FILENAME);
+
+  try {
+    const redacted = run('rclone', ['config', 'redacted', DRIVE_REMOTE], { encoding: 'utf8' });
+    if (!/^scope = drive\.readonly$/m.test(redacted)) {
+      process.stderr.write('ERROR: ogqdrive scope is not drive.readonly.\n');
+      return 2;
+    }
+    run('rclone', ['backend', 'copyid', DRIVE_REMOTE, DRIVE_FILE_ID, workbookPath], { stdio: 'inherit' });
+    if (!fs.existsSync(workbookPath) || fs.statSync(workbookPath).size <= 0) {
+      process.stderr.write('ERROR: Drive workbook fetch produced no readable content.\n');
+      return 2;
+    }
+
+    const before = readSnapshot();
+    const buffer = fs.readFileSync(workbookPath);
+    const next = extractSnapshot(buffer, TRUSTED_FILENAME);
+    const previewCode = main(['node', 'revenue-refresh.js', workbookPath]);
+    process.stdout.write('attainment percent: ' + (next.cumulativeRevenue / next.annualTarget * 100) + '%\n');
+    if (previewCode !== 0) return previewCode;
+    if (sameSnapshot(before, next)) {
+      process.stdout.write('변경 없음\n');
+      return 0;
+    }
+
+    const answer = (await ask('변경을 revenue-workbook.json에 적용하려면 APPLY를 입력하세요: ')).trim();
+    if (answer !== 'APPLY') {
+      process.stdout.write('적용 취소. revenue-workbook.json은 변경되지 않았습니다.\n');
+      return 0;
+    }
+    return main(['node', 'revenue-refresh.js', workbookPath, '--apply']);
+  } finally {
+    (dependencies.rmSync || fs.rmSync)(tempRoot, { recursive: true, force: true });
+  }
+}
+
+async function operatorMain(argv) {
+  const args = argv.slice(2);
+  return args.length === 0 ? driveMain(argv) : main(argv);
+}
+
+if (require.main === module) {
+  operatorMain(process.argv).then((code) => { process.exitCode = code; }).catch((error) => {
+    process.stderr.write('ERROR: ' + error.message + '\n');
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { main, driveMain, operatorMain, sameSnapshot };
