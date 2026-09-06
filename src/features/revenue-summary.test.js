@@ -8,11 +8,63 @@ const {
   selectWeeklyActions,
   businessWeek,
 } = require("../../server/handlers/revenue-summary.js");
+const { normalizeWeeklyActions, section } = require("../../weekly-actions-refresh.js");
 
 const weeklyActionsPath = path.join(__dirname, "..", "..", "weekly-actions.json");
 const workbookPath = path.join(__dirname, "..", "..", "revenue-workbook.json");
 
 const ANCHOR = { anchorWeek: 29, anchorStartDate: "2026-07-17" };
+
+function weeklyWorkbook(overrides = {}) {
+  const report = (progress, completed) => `■ 진행\n${progress}\n\n■ 완료\n${completed}\n\n■ 예정\n\n■ 이슈\n`;
+  const sheet = { B1: "팀" };
+  const teams = ["Sales & Gov", "운영", "개발", "신규 서비스", "IP커머스/사업화"];
+  teams.forEach((team, index) => { sheet[`B${index + 4}`] = team; });
+  for (const [column, week, start, end] of [["C", 35, 46258, 46264], ["D", 36, 46265, 46271]]) {
+    sheet[`${column}1`] = `${week}주차`;
+    sheet[`${column}2`] = String(start);
+    sheet[`${column}3`] = String(end);
+    teams.forEach((team, index) => { sheet[`${column}${index + 4}`] = report(`· ${team} 현재 업무`, `· ${team} 완료 결과`); });
+  }
+  Object.assign(sheet, overrides);
+  return { sheets: { "2026 주간보고": sheet } };
+}
+
+test("weekly report: extracts current actions and previous completed effects by source end-date business week", () => {
+  const result = normalizeWeeklyActions(weeklyWorkbook(), new Date("2026-09-06T00:00:00Z"), ANCHOR);
+  assert.strictEqual(result.selectedCurrentWeek, 36);
+  assert.strictEqual(result.selectedPreviousWeek, 35);
+  const current = result.records.find((record) => record.week === 36);
+  assert.strictEqual(current.sourceStartDate, "2026-08-31");
+  assert.strictEqual(current.sourceEndDate, "2026-09-06");
+  assert.strictEqual(current.currentActions.length, 5);
+  assert.strictEqual(current.previousActionEffects.length, 5);
+});
+
+test("weekly report: rejects a displayed week that conflicts with businessWeek(end-date)", () => {
+  assert.throws(() => normalizeWeeklyActions(weeklyWorkbook({ D1: "35주차" }), new Date("2026-09-06T00:00:00Z"), ANCHOR), /WEEKLY_WEEK_MISMATCH/);
+});
+
+test("weekly report: malformed source date is rejected", () => {
+  assert.throws(() => normalizeWeeklyActions(weeklyWorkbook({ D3: "not-a-date" }), new Date("2026-09-06T00:00:00Z"), ANCHOR), /WEEKLY_DATE/);
+});
+
+test("weekly report: missing required action section is rejected", () => {
+  assert.throws(() => normalizeWeeklyActions(weeklyWorkbook({ D4: "■ 완료\n· result\n■ 예정\n■ 이슈" }), new Date("2026-09-06T00:00:00Z"), ANCHOR), /missing 진행/);
+});
+
+test("weekly report: no substantive current record returns a safe empty state", () => {
+  const empty = "■ 진행\n\n■ 완료\n\n■ 예정\n- 차주 예정 업무(주요 사항만)\n\n■ 이슈\n- 문의 / 협업 요청 등 (없으면 제외)";
+  const overrides = {};
+  for (let row = 4; row <= 8; row += 1) overrides[`D${row}`] = empty;
+  const result = normalizeWeeklyActions(weeklyWorkbook(overrides), new Date("2026-09-06T00:00:00Z"), ANCHOR);
+  assert.strictEqual(result.selectedCurrentWeek, null);
+  assert.deepStrictEqual(result.records, []);
+});
+
+test("weekly report: section parser preserves source text without generated summaries", () => {
+  assert.strictEqual(section("■ 진행\n· 실제 액션\n■ 완료\n· 실제 결과", "진행"), "· 실제 액션");
+});
 
 test("target is 5,000,000,000", () => {
   const d = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "revenue-target.json"), "utf8"));

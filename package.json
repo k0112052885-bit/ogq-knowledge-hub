@@ -7,7 +7,8 @@
     "build": "node generate.js",
     "dev": "node server.js",
     "test": "node --test",
-    "refresh-revenue": "node revenue-refresh.js"
+    "refresh-revenue": "node revenue-refresh.js",
+    "refresh-weekly-actions": "node weekly-actions-refresh.js"
   },
   "license": "UNLICENSED",
   "dependencies": {

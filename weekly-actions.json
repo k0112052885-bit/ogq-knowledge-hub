@@ -1,22 +1,2361 @@
 [
   {
-    "week": 35,
+    "week": 29,
+    "sourceWeek": 29,
+    "sourceStartDate": "2026-07-13",
+    "sourceEndDate": "2026-07-19",
     "currentActions": [
-      { "title": "샘플 액션 C", "status": "대기" },
-      { "title": "샘플 액션 D", "status": "진행중" }
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT 부가서비스 개발 준비 관련 파트너포털 가입 진행 중",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 삼성전자 선물하기 문자발송 세금계산서 발행 완료 및 입금일정 확인 요청",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · KT, SKT 2분기 채팅+ 정산 세금계산서 수신 확인 및 정산금 지급기안",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · KT 협업미팅 참석 / 특수부가통신사업 등록관련 전면 재검토",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 마케팅패키지(MP)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 고려기프트 입점 건 세금계산서 발행 및 입금확인 / 콘텐츠 및 배너,피처드 오픈 07.16",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 서울시복지재단, 아소비교육 등 입금 및 오픈 예정 건 상태 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 국가 R&D · 정부지원사업",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 생성형 AI, 저작권, 콘텐츠/IP 기반 정부지원사업 후보 모니터링 지속",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 사업개발(BD) / 파트너십",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 카페 티키타 카페 스케치본 확인 및 수정 방향 회신",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 카페 계약 제5조 제3항 수정안 검토 및 조정 문구 제안 최종본 확정",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 블로그 모두의 회고 프로젝트 계약서 수정본 검토 및 최종본 전달 요청",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 블로그 작가에게 공지/DA 공개 내용 공유 및 24종 스케치 채색 작업 진행 요청",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 카페/블로그 크리에이터 용역계약서 최종본 정리",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [팀 빌딩] · CS 운영 프로세스 개선(기타 문의 유형 정리, 4일 이상 미처리 CS 감소 업무 지시, 프로세스 통일 등)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [팀 빌딩] · 콘텐츠 심사 프로세스 개선 (정책 정리, 반려 사유 변경 등)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [팀 빌딩] · 피처드 운영 프로세스 개선 (정책 및 담당자 재지정 등)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [팀 빌딩] · 신입 사원 온보딩 (마케팅 인턴 - SNS 운영 기획)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [팀 빌딩] · 정산 시트 제작 및 운영 (운영팀 관리 모든 정산 서비스에 대한 통합 시트 신설)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [팀 빌딩] · 각종 업무에 대한 인수인계 미팅 (남은 예상 업무: NOM, 밴드 실무, 그라폴리오 정산)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 1. OCS · PRO 크리에이터 선정 업무 인수인계 > 16일(목) 중으로 3분기 PRO 크리에이터 선정 안내 예정",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 1. OCS · '빠른 심사' 신규 기능에 대한 운영 정책 마련 및 공지 작성",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 2. SOM · 7월 16일(목) 오후 6시 공모전 이모티콘 출시 (데스해머쵸로키)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 2. SOM · SOOP측 SOM 방문자 수, 월간 페이지 뷰, 월간 활성 사용자 수 공유 : 대체로 감소 중인 것으로 확인되어 추후 액션 필요",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 2. SOM · 하반기 계획에 대한 윤곽이 나오면 양사 공유 예정 (한정판 이모티콘 등)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 3. COM · 댓글 신고 신규 기능에 대한 운영 정책 마련 및 운영 공유",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 4. NOM · 이그사 챌린지 이모티콘 구매 인증 이벤트 상품 증정 회신자 확인 > 차주 상품 예약 발송 예정",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 관리자 채팅플러스 정산 조회",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 쿠폰 시스템 상용 배포 - 마켓은 기능 숨김",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 데이터 파이프라인 구축 - 사용자 이벤트 원본 저장 로직 개선",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 마켓 성능 개선",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 댓글 모듈 고도화 - 신고 기능 구현",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [플랫폼] 개별 스티커 검색 고도화 - 구매 스티커 기반 사용여부 체크",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [운영] 통계 시트 자동화 — 일 단위 데이터 적재·조회 자동화 개발 (운영팀 요청)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [공통] 서비스 구조 분석 및 개발 온보딩 문서 작성",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [팀업무] 팀 업무 관리 체계 정비",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [채팅플러스] KT 부가서비스 연동 관련 개발팀 회신 대기중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [리레이] 첫 캐릭터 ‘하루’ 중심의 집중형 진입 구조 구현",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 하루만 우선 공개하고 나머지 캐릭터는 잠금 처리",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 친밀도 스탯 기반 관계 진척 게이지 설계 및 구현 준비",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 엔딩 이후 자유대화형 후일담 콘텐츠 구조 구체화",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · '하루'에서 검증한 분기·연출 구조를 전체 캐릭터로 확장하기 위한 기준 정리",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 유아렐4 이모티콘 진행 중 · gif 러프 2종 완료, 1종 진행중 / gif 선작업 / 1종 액팅 완료",
+        "status": "진행중"
+      }
+    ],
+    "previousActionEffects": []
+  },
+  {
+    "week": 30,
+    "sourceWeek": 30,
+    "sourceStartDate": "2026-07-20",
+    "sourceEndDate": "2026-07-26",
+    "currentActions": [
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · KT 채팅+ 부가서비스 출시 계획 및 API 연동·정책  미팅참석",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · KT 부가서비스 월정액, 가입/해지, 과금, 계정 연결 방식 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT OGQ마켓 부속합의서 검토 및 원계약 대비 리스크 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 마케팅패키지(MP)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · OGQ 스티커 제작가이드 리뉴얼",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · MP 입점관리 현황 및 매출/미수/미발행 파이프라인 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · KT나스미디어 진주시청 입점 견적서 발행",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 사업개발(BD) / 파트너십",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 블로그 모두의 회고 24종 채색본 및 추가 시안 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 블로그 최종 피드백 크리에이터에게 전달, 수정본 재확인 진행",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 카페 티키타 카페 스케치 수정 요청사항 전달 및 수정본 재전달",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 카페/블로그 크리에이터 계약서 등기 발송",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 해피빈 블로그 스티커 제작 문의 대응 및 제작 가능 범위 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 넥슨 블루 아카이브/넥슨피크 이모티콘 리소스 활용 문의 대응 및 미팅 일정 조율",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [SOM] · 샌드박스 이모티콘 정지형 제작 역제안",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [SOM] · 이그사 x OGQ 움티 제작 챌린지 제안 사항 기획 중",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [SOM] · 공모전 제안 협의 중 (하데스, 이세돌, 끠끼)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [NOM] · 이그사 챌린지 스티커 구매 이벤트 결제 완료 (상품 31일 발송 예정)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [OCS] · 3분기 프로 크리에이터 선정 및 안내 완료",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · [기타] · 세부 업무별 3, 4분기 목표 수립 (CS, SNS/마케팅, 심사, 정산, 피처드 등)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [플랫폼] 사용처 기반 추천 기능 구현",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 데이터 파이프라인 구축 - 사용자 분석 로직 개선 / 수집 이벤트 추가",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 타임어택 세일 시스템 구축",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 부가서비스 - 마켓 내 권한 관리 기능 구현",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 이벤트 빌더 구현 - 이벤트 페이지 및 이미지 생성 자동화",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [운영] 통계 시트 자동화",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 로그인 버그 수정",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 선물함 버그 수정",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [리레이] 신규 서비스 개발을 위한 GitHub 및 AWS 환경 셋업",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [폰테마샵] 기존 서비스 구조 확인",
+        "status": "진행중"
+      }
     ],
     "previousActionEffects": [
-      { "actionTitle": "샘플 이전 액션 X", "effectSummary": "샘플 효과 요약 X" }
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "채팅+ OGQ마켓"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "KT 2분기 정산 세금계산서 수신 확인 완료"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "삼성 세금계산서 첨부 전달 및 BQMS 후속 처리"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "SKT 파트너포털 가입 진행 중"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "마케팅패키지(MP)"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "고려기프트 쓰레기 아니고 트레시즈 입점 건 세금계산서 2026-07-14 발행 및 입금확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "MP 원장 기준 누적 발행매출 31,900,000원, 금월 발행매출 11,900,000원, 미수금 3,000,000원"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "국가 R&D · 정부지원사업"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "생성형 AI, 저작권, 콘텐츠/IP 기반 정부지원사업 후보 모니터링 지속"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "정부지원사업 후보는 콘텐츠/IP, 생성형 AI 저작권 연계 가능성 중심으로 관리 방향 유지"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "사업개발(BD) / 파트너십"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 카페 메인 이미지는 4번 스티커 기준으로 진행하는 방향 확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 카페 계약서 네이버 법무 검토 완료본 및 최종본 정리"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 블로그 24종 스케치 방향에 대한 네이버 이견 없음 확인 후 채색 단계로 전환"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 블로그/카페 크리에이터 용역계약서 최종본 정리 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "CS, 콘텐츠 심사, 피처드 담당자 지정 및 업무 정책 구축 완료"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 관리자 채팅플러스 정산 조회"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 쿠폰 시스템 상용 배포 - 마켓은 기능 숨김"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[플랫폼] 개별 스티커 검색 고도화 - 구매 스티커 기반 사용여부 체크"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[공통] 서비스 구조 분석 및 개발 온보딩 문서 작성"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[팀업무] 팀 업무 관리 체계 정비 — 개발팀 업무 GitHub 태스크 전환, 저장소 이슈·PR 연계 관리"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 활성 사용자 집계 무료 구매 누락 보정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 스티커 사용량 데이터 집계 오류 수정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[OGQ 네이버 블로그] 기본 세팅 및 게시판별 운영 문서"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[채팅플러스] 댓글 릴리즈 1차 QA 및 PRD v1.8 수정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[리레이] 10개 캐릭터, 총 222편 규모의 육성 서사 본체 완성 및 머지"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "첫 만남·친구·연애 단계 확장 및 단계별 결말 5종 구성"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "‘하루’ 대본을 34개에서 82개 beat로 확장하고 실제 분기 9개 적용"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "선택 결과를 체감할 수 있도록 스팅어, 엔딩 도감, 이별 예고 기능 적용"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "10개 캐릭터 대상 페르소나 QA 진행"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "선택 반복으로 재미가 떨어지는 원인을 확인하고 개선안 검증"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "대화 UI를 오토메 게임과 웹툰 문법에 맞춰 2차 재설계"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "상황지문·대사 분리, 선택지 개선, 모션 및 표정 반응 적용"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "Cartesia 기반 캐릭터 대사 음성 낭독 기능 베타 적용"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "씬 연출용 영화 콘티와 캐릭터 표정 아트 발주 기준 문서화"
+      }
+    ]
+  },
+  {
+    "week": 31,
+    "sourceWeek": 31,
+    "sourceStartDate": "2026-07-27",
+    "sourceEndDate": "2026-08-02",
+    "currentActions": [
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT OGQ마켓 부가서비스 부속합의서 1차 검토/검토의견 회신",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT 부속합의서 정산 구조, 환불 비용, 운영업무 위탁, 고객응대/데이터 기준, 해지 시정기간 확인사항 정리",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · RCS Biz Center 이미지 템플릿의 기존 양식 ID 지원 종료 건 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 마케팅패키지(MP)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 아소비교육 아몽이/몽글이 콘텐츠 오픈",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · KT나스미디어 진주시청 입점 일정 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 부산광역시교육청 입점F/U",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 사업개발(BD) / 파트너십",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 넥슨 블루 아카이브 협업 미팅 사전자료 준비",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 넥슨 판교 오피스 블루 아카이브 협업 미팅 진행",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 넥슨 피크 포인트, 공식 포럼/디스코드 활용, 정산 담당/방식 후속 확인 · 네이버 블로그 모두의 회고 스티커 최종본 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 블로그 1차 지급 일정 고려한 업로드 기준 확인 요청 · 네이버 카페 티키타 카페 메인 이미지 전달 및 네이버 피드백 작가 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (OCS) 프로 크리에이터 관리",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · ㄴ 추후 관리에 대한 기획 논의 중 · (OCS) 브랜드 / 스트리머 크리에이터 리스트업",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · ㄴ 내부 확인 이후 해당 크리에이터들 재영업 안내 후 수수료율 재정비 · (SOM) 스트리머 이모티콘",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · ㄴ 뜨뜨뜨뜨 제안 진행 · (마케팅) SNS/블로그 운영안 협의",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · ㄴ 우먼스톡 SNS / 단체 계정 블로그 -> 형기님 활성화 · (SOM) 샌드박스 IP 제작 건 소통 중",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 데이터 파이프라인 구축 (장기업무)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 타임어택 세일 시스템 구축",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [운영] 통계 시트 자동화",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [리레이] 프로젝트 (진행률 50%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [폰테마샵] 재오픈 프로젝트 (진행률 20%)",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 멍청새 · GIF 변환 진행중",
+        "status": "진행중"
+      }
+    ],
+    "previousActionEffects": [
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "채팅+ OGQ마켓"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "KT 채팅+ 부가서비스 출시 계획 및 API 연동·정책  미팅참석"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "KT 부가서비스 월정액 2,700원(VAT 별도), 9월 출시 목표, API 필요사항 확인 · SKT 부속합의서 원계약과 상충되는 부분 재확인 후 검토 방향 정리"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "KT 부가서비스 월정액 2,700원(VAT 별도), 9월 출시 목표, API 필요사항 확인 · 마케팅패키지(MP)"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "KT 부가서비스 월정액 2,700원(VAT 별도), 9월 출시 목표, API 필요사항 확인 · MP 누적 발행매출 31,900,000원, 금월 발행매출 11,900,000원,"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 고려기프트 입점 건 완료 및 아소비교육 7/27 오픈 확정"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 서울시복지재단 미수금 31일 입금예정"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 진주시청 9/4 오픈 예정 건 관리"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 사업개발(BD) / 파트너십"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 네이버 카페/블로그 크리에이터 계약서 등기 발송"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 네이버 블로그 24종 채색본 검수 단계 진입 및 최종 수정 방향 정리"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 네이버 카페 수정본 재검토, 메인 이미지 채색 우선 진행 방향 확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 네이버 해피빈 대상 정지형 약 5,000,000원, 애니메이션형 약 8,000,000원 제작비용 안내"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "미수금 3,000,000원, 미발행 파이프라인 3,000,000원 · 넥슨 신규 협업 논의 범위 확인"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "담당자 R&R 분배 완료"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[팀업무] 팀 업무분장"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 관리자 기능 고도화"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[SOOP] 무료/유료 콘텐츠 전환 관리자 기능 추가"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[SOOP] 해외결제 도입 검토"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[채팅플러스] 부가서비스 통신사 진입 및 이용안내 화면 기획"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[채팅플러스] KT 부가서비스 연동 관련 미팅"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[채팅플러스] 구독 관련 기획 수정안 v4.2 반영"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[채팅플러스] SKT 부가서비스 개인정보 제3자 제공 관련"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "개인정보처리방침 작성 및 담당자 전달 · [리레이] 신규 개발 구현"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "개인정보처리방침 작성 및 담당자 전달 · 메인 LLM Gemini 전환"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "개인정보처리방침 작성 및 담당자 전달 · 자유 대화 방식 및 신규 ‘회차’ 기능 구현"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "개인정보처리방침 작성 및 담당자 전달 · 실기기 UX 안정화 및 시연용 APK 제작"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "라이엇 키캡 키링 드랍 · 본사 피드백 대기가 길어짐에 따라 제작 일정 부족으로 인하여 협업 종료"
+      }
+    ]
+  },
+  {
+    "week": 32,
+    "sourceWeek": 32,
+    "sourceStartDate": "2026-08-03",
+    "sourceEndDate": "2026-08-09",
+    "currentActions": [
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 7월 매출검증",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ 선물하기 봉투꾸미기 기능 QA 및 개선사항 개발팀 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · KT 지자체 PoC 테스트용 공통 랜딩 URL 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · KT 구독 부가서비스 개발 일정 재협의 요청 및 2026-08-07 미팅 확정",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ 원스토어 구매내역 이관관련 미지원 단말 고객 집계 가능여부 확인요청",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 특수부가통신사업자/전송자격인증 등록 요건 및 대행 가능성 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 진주시청 세금계산서 발행 및 오픈 일정 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 부산광역시교육청 이모티콘 등록 일정 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 대구달서경찰서 공익콘텐츠 관련 내부 검토 후 요청사항 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · K일페 지원 관련 UCI 비용집행 F/U 진행",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 블로그 모두의 회고 스티커 비공개 업로드",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 카페 티키타 메인 이미지 최종 수정 시안 2종 전달 및 최종 방향 확정",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 카페 잔여 23개 스티커 동일 톤 작업 및 분할 검수 방식 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 대전콘텐츠페어 앵콜스 부스 참여 가능성 및 운영조건 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 삼아 복지몰 오픈 재추진 관련 기존 협의 이력 및 미팅 필요사항 파악",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 모든 서비스의 개인정보 처리방침, 서비스 이용약관 개정 필요 사항 체크 중",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · FAQ 고도화 작업 진행 중 (추후 가이드 페이지 / 젠데스크 고객센터 리뉴얼 예정)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · SOM 이벤트 진행 협의 중 (9월 중순 이벤트 진행 협의/8월 기획안 공유)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · 이세계아이돌 이모티콘 협업 소통 (패러블 측에서 별도 작가와 이모티콘 작업 진행 중이며, 금액 지급 관련하여 작가와 OGQ 계약 진행 예정)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · ㄴ 하반기 제작 완료 건 순차 출시 목표 / 작가들 지급액 인당 150만원 / 예상 매출 1인당 1500만원 이상 (*6명) · 이그사와 협업 기획안 작성(차주 중으로 제안 예정)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · ㄴ SOOP OGQ이모티콘 움티 제작 챌린지 / 이그사 회원 OGQ 가입/콘텐츠 등록 시 크레딧 제공 프로모션 · SOOP측 소통 진행",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 데이터 파이프라인 구축 (장기업무) - 구매 이벤트 식별자 체계 개편",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 크리에이터톡 기능 추가",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 관리자 무료 이모티콘 검색·필터 추가",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 이미지 업로드 오류 수정",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [리레이] 프로젝트 (진행률 70%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [폰테마샵] 재오픈 프로젝트 (진행률 30%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 광고 계정 40여개 확인중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [채팅플러스]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · intent.package 목록을 서버에서 관리 (원진님)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 우먼스톡 계정 확인중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 카카오톡 · 카카오 이모티콘 제작 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 삼성 테마 · 신규 캐릭터 테마 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 멍청새 · GIF 이모티콘 채색 진행중",
+        "status": "진행중"
+      }
+    ],
+    "previousActionEffects": [
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "채팅+ OGQ마켓"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "부속합의서 체결 구조는 진행 가능하되, 운영 기준 확인 후 진행하는 방향으로 1차 회신"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "마케팅패키지(MP)"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "아소비교육 입점 건 오픈 완료 상태 확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "진주시청 세금계산서 2026.08.07 발행예정, 2026.09.04일 오픈 목표 일정 확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "부산광역시교육청 입점확정"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "사업개발(BD) / 파트너십"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "블루 아카이브 계약 연장은 기존 조건 기준으로 진행하는 데 이견 없음 회신 완료"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "넥슨 정산 방식은 기존 세금계산서 발행 방식 유지 방향으로 확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 블로그 최종본 납품 단계 진입, 업로드/지급 일정 확인 단계로 전환"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 카페 메인 이미지 검수 단계 진입, 채색 가독성 및 캐릭터 느낌 보완 피드백 전달"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(OCS) FAQ 최신화 1차 작업 완료 > 고도화 예정"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "2026년 하반기 운영팀 목표 구축 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(OCS) 매출 보고 체계 매뉴얼화 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(OCS) 크리에이터 정산 업무 정리"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 넥슨(블루아카이브) 수동 정산 프로세스 재구축 완료 · (OCS) 잔여 크레딧 환불 안내 문구 잘못 안내 이슈 > 처리 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 넥슨(블루아카이브) 수동 정산 프로세스 재구축 완료 · (GRA) 그라폴리오 운영업무 인수인계 (현정님)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 넥슨(블루아카이브) 수동 정산 프로세스 재구축 완료 · (SOM) 메인 피처드 영역 자동화를 위한 카테고리 데이터 전달"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 넥슨(블루아카이브) 수동 정산 프로세스 재구축 완료 · (NOM) AI 콘텐츠 재분류 시 미반영 문의 접수 > 처리완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 넥슨(블루아카이브) 수동 정산 프로세스 재구축 완료 · (기타) 백그라운드 탈퇴 요청 문의 접수 > 처리 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 넥슨(블루아카이브) 수동 정산 프로세스 재구축 완료 · (기타) NOVA 베타테스터 모집 공지/배너 등록 (NOM/OCS/GRA)"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[플랫폼] 사용처 기반 추천 기능 구현"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 사용자 별 개인화 추천 1차 - 사용처 기반 추천 기능 연동"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 쿠폰 시스템 피드백 처리"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[채팅플러스] 이벤트 빌더 배포"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[채팅플러스] 지자체 마케팅 패키지 기능 구현"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[채팅플러스] 개별 스티커 검색 적용 - 댓글 내 구매 스티커 기반 사용여부 체크 도입"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[SOOP] 스티커 연동 버그 수정 - 크리에이터 데이터 데이터 중복 전달"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[YNA] 성능 이슈 검토 및 개선"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[정산] YNA 정산 자동화 기능 구현 및 배포"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[채팅플러스]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "다날측 재 문의 삼성 결제관련"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "SKT 삼성 데이터 집계 관련 문의 답변"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "구독 기획서 v4.3 수정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[리레이]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "철호 님 신규 프로젝트 보고"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "VN 대사 UI 개편 — 지문/대사 분리, 낭독 후 자동 진행"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "음성 대화 본편 적용 (STT·나레이터 낭독)"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "3D 파일럿 종결 — 본편 2D 확정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "레포 회사 계정 이전 + README 재작성"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[폰테마샵]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "서비스 전체 구조 및 생존 여부 파악 · 서버 10대 정상 가동 확인, 앱·스토어 등록만 중단 상태"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "이용량 67% 감소 원인 규명 · 작년 10월 카카오톡 업데이트로 테마 미노출 → 이용자 절반 이탈"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "안드로이드 앱 빌드 복구 · 카카오 로그인 SDK 최신 방식 전환, 릴리스 APK 생성"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "보안 기초 조치 · AWS 접속 기록 활성화, 앱 제작 도구 변조 대비, 미사용 키 정리"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · 한화 이글스 x 팩엔폴드 슬리므 매트 디자인 시안 5종 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · DRX 과거 파댕이 협업건 관련 파일 요청 대응"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · 스토어 굿즈 발주용 도안 (파댕이,가오리,버즈) 제작 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "삼성 · 배경화면 제작 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "삼성 · 테마 제작 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "채팅+구독 · 플랜 선택, 결제, 구독 관리/변경/해지, 반응형 UI/UX 디자인 및 플로우"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "채팅+구독 · 신규 컴포넌트 제작 및 디자인 시스템 적용"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "채팅+구독 · 랜딩페이지 문구 수정 및 MCP 연결 세부 디자인 작업"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "채팅+구독 · PRD 검토 및 디자인 시스템 관련 내부 협업 진행"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "협업 · 밴드 소통 관련 업무 인계 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "협업 · 샌드박스 bj 스티커 제작건 대응"
+      }
+    ]
+  },
+  {
+    "week": 33,
+    "sourceWeek": 33,
+    "sourceStartDate": "2026-08-10",
+    "sourceEndDate": "2026-08-16",
+    "currentActions": [
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 7월 월매출 정산 보고",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT OGQ마켓 부가서비스 부속합의서 1차 법무검토본 확인 및 후속 질의",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT 추석 시즌 마케팅 문자 발송 활용 이벤트 방향 검토",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 이모티콘 구매, 선물하기 전환 중심 메시지 구성안 검토 · 진주시청 스티커 오픈 예약 설정 상태 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 이모티콘 구매, 선물하기 전환 중심 메시지 구성안 검토 · 부산광역시교육청 입점 진행 일정 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 이모티콘 구매, 선물하기 전환 중심 메시지 구성안 검토 · 대구달서경찰서 공익 목적 콘텐츠 무료입점 검토",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · (조건 세부확인 후 재검토) · 네이버 블로그 모두의 회고 스티커 비공개 오픈 및 링크 공유",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · (조건 세부확인 후 재검토) · 네이버 카페 24종 전체 채색 수정본 네이버 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · (조건 세부확인 후 재검토) · 삼아인터내셔날 복지몰 SSO·계정 연동, 크레딧 적용 가능성, 정산 프로세스 외부/내부 미팅 진행",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · (조건 세부확인 후 재검토) · 삼아 복지몰 어드민/로그인 정보 확인 및 개발팀 후속 미팅 준비",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 이세계 아이돌 이모티콘 제작 및 세부 사항 협의 중 (GIF 변환 건 조정 중 - 제작 작가에게 움티 제안 방향)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 유명 이모티콘 작가 리스트업 및 영업 전략 수립 진행 중 (대표 IP로 OGQ 콘텐츠 유료 판매 시 수수료율 70%(3개월), 피처드 제공(콘텐츠당 1회)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~09.30) SOOP OGQ이모티콘 3분기 이벤트(움직이는 이모티콘 구매/선물 이벤트) 기획 협의 완료되어 디자인 제작 요청 기획안 작성 중",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~08/28) 스트리머 움직이는 이모티콘 공모전 1건 진행중 (스트리머 끠끼)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 카테고리 등록 콘텐츠 수 0 표기 수정(50%)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 크리에이터톡 기능 추가(50%)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 데이터파이프라인 구축 및 개인화 추천(20%) - 일시중지",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [리레이]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 프로젝트 (진행률 80%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [폰테마샵]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 재오픈 프로젝트 (진행률 40%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 원스토어 신규 버전 심사 및 QA (2022년 이후 첫 업데이트)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · Google AdMob 정책 제한건, 제한 해제 신청함 (구글 재심사중) -> 반려",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 카카오톡 · 카카오 이모티콘 제작 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 삼성 테마 · 테마 구버전 업데이트 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 삼성 테마 · 배경화면 제작중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 멍청새 · GIF 이모티콘 채색 진행중",
+        "status": "진행중"
+      }
+    ],
+    "previousActionEffects": [
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "채팅+ OGQ마켓 7월 매출검증 총 결제금액 3,221,500원, 환불금액 231,500원, 순매출 2,990,000원"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "선물하기 봉투꾸미기 화면 포커싱 및 설정영역 개선사항 적용 확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "KT PoC 테스트용 스테이징 공통 랜딩 URL 공유 완료"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "KT 내부 예산 이슈로 금년 내 개발 착수 어려움 확인 및 재협의 미팅 일정 확정"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "SKT 부속합의서 확인사항 일부 회신 수신, 정산 구조는 이견 없음 확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "특수부가통신사업자 등록은 인증/심사 요건 강화 및 대행 견적 검토 필요 확인"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "은정님 담당 업무 업무 분장 및 인수인계 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "정산 통합 관리 시트 리뉴얼 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "매출 보고, 파트너사 정산 1주차 업무 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(CS 대응 완료) · OGQ Pay 서비스 해지 불가 이슈 > 해결/응대 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(CS 대응 완료) · NOM 승인 콘텐츠 미노출 이슈 > 해결/응대 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(CS 대응 완료) · 대량 메일 발송 시 네이버 휴면 계정, 메일 차단 건 > 해결/응대 완료"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[채팅플러스] 보안이슈 처리"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[채팅플러스] 부가서비스 - 기획서 검토"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[채팅플러스] 선물하기 편지 선택 화면 개편"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 데이터 파이프라인 구축 (장기업무) - 활성 사용자 집계 로직 개선"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 타임어택 세일 시스템 구축"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] UI/UX 개선 - 로그인 후 직전 행동 유지"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[채팅플러스] 지자체 마케팅 패키지 고도화 - 통계 대시보드 적용"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[정산] 2026년 8월 정산"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[정산] YNA 정산 자동화 기능 이슈 수정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 크레딧 지급,회수 기능 구현"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 크레딧 기능 Nova 연결"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 서비스 해지 이슈 수정 - 크레딧 소멸 전 해지 불가 및 해지 오류 수정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[정산] 크레딧 기능 고도화 - 마켓별,획득수단별 집계 분리"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[운영] 통계 시트 자동화"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[채팅플러스]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "OGQ 웹 Open Redirect 취약점 수정 테스트"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[리레이]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "QA 진행 후 결함 16건 수정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[폰테마샵]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "기존 테마 전량 재빌드 (AOS 27.7만개 / iOS 44.9만개)"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "원스토어 다운로드 경로 복구 (카톡 공유 링크 무한루프 문제 해결)"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · 업무 인계"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · 힝토 경단인형 스토어 상세페이지 제작 및 예약구매 등록"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "멍청새 · 콘텐츠용 일러스트 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "채팅+ 구독/부가서비스 · 디자인 정돈 및 파일 전달: 피그마 전체 화면 정리/전달,"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "채팅+ 구독/부가서비스 · Frame 및 Auto Layout 레이어 구조·네이밍 최적화"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "화면 케이스 확정 및 데이터 반영 · PRD 대비 금액 데이터 불일치 항목 기획자 확인 후 수정 반영"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "화면 케이스 확정 및 데이터 반영 · 통신사 부가서비스 단독 반영 / 자체구독 통합 반영 화면 케이스 확정"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "화면 케이스 확정 및 데이터 반영 · 주요 플로우 프로토 타입 제작 및 리뷰"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "가이드 문서화 · 구독 관리 카드 컴포넌트 매핑 가이드 정리"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "가이드 문서화 · AI 프로토타이핑용 디자인 시스템 가이드(DESIGN.md) 제작"
+      }
+    ]
+  },
+  {
+    "week": 34,
+    "sourceWeek": 34,
+    "sourceStartDate": "2026-08-17",
+    "sourceEndDate": "2026-08-23",
+    "currentActions": [
+      {
+        "title": "Sales & Gov · SKT 부가서비스 미팅진행, 부속합의서 빠른 날인 목표 기준 후속 검토",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT/KT 부가서비스(공통) 이용권 결제 개시, 환불 가능 기준, 사용 이력 판단, 정산 기준 내부 정리 (w.형기님) · SKT 추석 시즌 문자 발송 연계 (w.은택님)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 무료 다운로드, 유료 이모티콘 구매 전환 중심 · KT PoC 진주시청 KT나스미디어를 통한 담당자 확인 요청",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 무료 다운로드, 유료 이모티콘 구매 전환 중심 · 네이버페이 간편결제 지급보증보험 갱신",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 무료 다운로드, 유료 이모티콘 구매 전환 중심 · 온더플래닛(국가기후위기대응위원회) 공공기관 스티커 문의 대응(12개월 입점)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 무료 다운로드, 유료 이모티콘 구매 전환 중심 · 대구달서경찰서 공익 목적 캠페인 무료입점 문의 조건 회신내용 검토 (검토 중)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 무료 다운로드, 유료 이모티콘 구매 전환 중심 · 네이버블로그 모두의회고 프로젝트 납품 완료 / 세금계산서 발행(500만원 VAT별도)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 무료 다운로드, 유료 이모티콘 구매 전환 중심 · 네이버 카페 티키타카 스티커 24종 최종 파일 전달, 콘텐츠 등록, 1차 지급 처리 단계확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓 유입, 무료 다운로드, 유료 이모티콘 구매 전환 중심 · 삼아인터내셔날 복지몰 계정 연동, 정산 프로세스 관련 외부/내부 미팅 진행(w.주환, 형기, 민정)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 카카오톡 유명 작가 입점 영업 진행 중 (36명 중 11명 회신, 2명 확정(포시러브, 편살))",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~08/31) 2026년 상반기 플레이북 제작 진행 중",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~08/28) 스트리머 움직이는 이모티콘 공모전 1건 진행 중 (스트리머 끠끼)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~09/18) SKT 추석 시즌 문자 발송 연계 프로모션 운영 지원 (w.윤호님)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~09/30) SOOP 3분기 프로모션 준비 중 (w.IP/커머스팀)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 이세계 아이돌 이모티콘 제작 및 세부 사항 협의 중",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 서비스 개선 사항 협의 및 개선 진행 (w.개발팀)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 댓글 고도화 - 개별 스티커 검색 기능 적용 - 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 안드로이드 결제 intent 패키지 허용목록 공개 API 개발 - 리뷰중",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 스티커 사용 데이터 연동 (구독 정산용) - 테스트 대기",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [리레이]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 프로젝트 (진행률 85%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 실기기 QA를 통해 대사·배경 불일치 및 엔딩 이후 진행 불가 등 주요 결함 수정중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · Docker 기반 서버 배포 사전 검증 완료, AWS 운영 배포 준비 중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [폰테마샵]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 재오픈 프로젝트 (진행률 60%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 광고 정책 위반(앱 외부 광고·탐색 방해) 미해결 상태 확인, 광고 동작 수정예정",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 기존 테마 파일 재생성 및 최신 Android 호환성 개선 작업 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [채팅+ OGQ마켓]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · KT 부가서비스 관련 실시간 연동 대신 쿠폰 일련번호로 사용자 인증·혜택을 제공하는 방식이 대안으로 논의중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · (KT 개발팀 답변 대기중) · SKT 부가서비스 관련 약관 작성예정",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 오지큐 스토어 상세페이지 에셋 업데이트 진행 · 최상단 배너 교체",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 오지큐 스토어 상세페이지 에셋 업데이트 진행 · 크리에이터 카드 영역 디자인 교체",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 삼성 테마 · 테마 구버전 업데이트 진행중(2019년도 ↓)",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 삼성 테마 · 배경화면 제작중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · LG TV · 서플라이어 심사 진행",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · SOOP · 한가위 이벤트 상세 페이지 제작 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · OCS · 나이스평가정보 갱신 진행중(9월 15일자)",
+        "status": "진행중"
+      }
+    ],
+    "previousActionEffects": [
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "채팅+ 7월 매출보고 완료(매출 2,990,000원)"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "진주시청 스티커 심사 완료 및 2026-09-04 오픈 예약 설정 완료"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 블로그 모두의 회고는 비공개 오픈 상태와 마켓 비노출 조건 확인 후 링크 공유 완료"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 카페는 네이버 1차 피드백 반영 후 24종 전체 채색본을 네이버에 전달"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(08/12 완료) SOOP x T1 유료 이모티콘 출시 관련 - 당사에서는 수수료율 70% 지원 협의 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(08/12 완료) 유아렐콘4 8/18(화) 출시 협의/세팅 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(08/12 완료) OGQ 개인정보 처리방침, 이용약관(OCS, GRA, Pay, 통합계정) 개정 사항 정리 완료 > 복지몰 협의 이후 추진 필요"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(08/11 완료) 7월 OCS 크리에이터 정산(25일 지급), 커머스 제조사/사업자 크리에이터 정산(14일 지급) 기안 상신 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(08/12 완료) 크리에이터 기존 계약 종료 확정 건에 대한 수수료율/크리에이터 등급 재조정 완료 (50%-일반)"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] AI 활용여부 OCS 어드민 수동 변경값 적용 불가 이슈 수정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 패키징 이슈 수정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 로그인 복귀 후 구매 액션 자동 재개 UX"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 크레딧 재원 분류"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 해지 전 크레딧 잔액 확인 / 마켓별 잔액 조회"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 크레딧 통계 기간 조회 종료일 누락 수정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 크레딧 소멸 - 탈퇴 시 환불 포기"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[OCS] 크레딧 소멸 - 탈퇴 시 환불 포기"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[OCS] 메일 발송 실패 가시성 확보 배포 및 반송률 관리 기능 적용"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[OCS] 퍼블리시티권 스티커 화이트리스트 마켓 관리(차주 배포)"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[OCS] OCS /external 외부 주소 무검증 이동 보안 수정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[GRAF] 판매자 인증정보 조회 500 오류 수정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[협업] 운영팀 요구사항 정리 및 태스크화"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[리레이]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "배경 및 대사 품질 개선(규칙,장면,등)"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "장애 대응 안정성 개선 (일시적 DB 오류 발생 시 불필요한 로그아웃 방지)"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "화면 인텍션 결함 15건 수정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "아트 리소스 제작 및 교체"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "UI 재설계 및 접근성 개선"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[폰테마샵]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "원스토어 광고 보고 무료 받기 무반응 오류 수정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "원스토어 정책 대응을 위해 기존 Google 결제 기능 제거 (원래 결제 안되어 있었음)"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "원스토어 테마 다운로드 방식 개선 (카카오톡 공유 방식 대신 앱 내 직접 다운로드 방식 적용)"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "원스토어 최신 Android 기기의 16KB 메모리 페이지 환경 호환성 (앱 설치 보안 경고) 개선"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · 틴케이스 발주 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "콘텐츠 · 카카오 이모티콘 1set 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "콘텐츠 · 삼성 배경화면, 테마 업데이트 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "멍청새 · 콘텐츠 제작 및 릴스 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "신규 담당 서비스 화면 및 디자인 시스템 구조 파악 · 그라폴리오 피그마 파일(v1.2,v2.0,v3.0 순) 파악 진행"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "본부 협업 · 유아렐 4 배너 5종 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "케일페 · GRA, NOM 홍보 배너 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "케일페 · 틴케이스 발주 완료"
+      }
+    ]
+  },
+  {
+    "week": 35,
+    "sourceWeek": 35,
+    "sourceStartDate": "2026-08-24",
+    "sourceEndDate": "2026-08-30",
+    "currentActions": [
+      {
+        "title": "Sales & Gov · SKT 부속합의서 정산 기준 관련 SKT 25% / OGQ 75% 비율 반영 및 월 정산 기준액 2,000원 병기 방식으로 법무검토 요청",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT OGQ마켓 부가서비스 정책 기준 가입 대상, 이용권 발급, 과금, 해지/환불, CS, 개인정보 처리 항목 정리/전달(w.형기님)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT 추석 시즌 문자/MMS 연계 프로모션 구성안 통신사 공유",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 삼성 채팅+ 고객센터 입력필드 가림 이슈 수정 배포 확인 및 삼성 측 재검증 요청",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 삼성 채팅+ 사용이력 수집 테스트를 위한 One UI 8.5/9.0 단말 필요 조건 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 온더플래닛(국가기후위기대응위원회)네이버 OGQ마켓 무료 배포 입점 계약서 진행 문의 대응",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 네이버 OGQ마켓 제휴/파트너십 페이지 내 콘텐츠형 광고 및 디스플레이 광고",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 소개서 사이트 업로드용 작성, 광고 소개서는 노출 위치와 금액 정보를 사용자 관점으로 재구성 · 네이버 카페 티키타카 스티커 제작 완료 후 세금계산서 발행 및 지급일정 확인 요청",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 소개서 사이트 업로드용 작성, 광고 소개서는 노출 위치와 금액 정보를 사용자 관점으로 재구성 · 네이버 카페 카핏피 작가 / 네이버 블로그 모두의 회고 깡지라네 작가 대상 제작비 지급 안내",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 소개서 사이트 업로드용 작성, 광고 소개서는 노출 위치와 금액 정보를 사용자 관점으로 재구성 · 삼아인터내셔날 복지몰 정산/계약 구조 관련 회신 확인 및 내부 회계 검토 방향 정리",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · OGQ 총매출로 인식하고 제휴수수료를 별도 거래로 분리 인식한다는 양사 이해 확인 · 삼아인터내셔날 복지몰 회원생성 및 자동로그인 API 문서 수령",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 카카오톡 유명 작가 입점 영업 진행 중 (36명 중 10명 확정, 미팅 예정 2명)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~09/18) SKT 추석맞이 프로모션 관련 운영 대응 - 크리에이터 3명 안내 예정(편살,마성,포시러브) (w.윤호님)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 이그사 협업 미팅 완료, 대콘페 관련 추가 협의 중 (SOOP 움티 제작 챌린지, 크레딧 등 4분기 진행)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~08/28) 끠끼 공모전 출시 세팅 완료 (08/28 오후 5시 출시 예정)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~08/31) 밴드 6월 판매금 미정산 이슈 대응 (크리에이터 안내, 공지 예정)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~09/30) SOOP 3분기 프로모션 준비 중 (이미지 제작 완료 > SOOP 측 전달)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 이세계 아이돌 이모티콘 협의 중 + 크리에이터 계약서 초안 작성 중",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (CS 관련) · (08/25) 밴드 크리에이터 선정 미안내 이슈 건 대응 진행 중",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (CS 관련) · (~08/28) 밴드 크리에이터 미노출 이슈 건 대응 진행 중",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 댓글 고도화 - 개별 스티커 검색 기능 적용 - 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 안드로이드 결제 intent 패키지 허용목록 공개 API 개발 - 리뷰중",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 스티커 사용 데이터 연동 (구독 정산용) - 테스트 대기",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [리레이]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 프로젝트 (진행률 95%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 소개 페이지 lirae.love 공개 후 실제 앱 화면·모바일 UI·접근성 중심으로 품질 개선중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · Play Console 내부 테스트 배포 준비중, 콘텐츠 등급·데이터 보안 선언 2건 제출 필요",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · gemini-2.5 flash, or lite 종료예정 (10월20일) -> 3.5 변경 모델 교체 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [폰테마샵]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 재오픈 프로젝트 (진행률 70%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 애플 로그인 사용자 약 25만 명 이관 진행중, 사용자 식별자 발급 완료 후",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · OGQ 애플 키(.p8) 확보 대기중 · iOS 1.1.42 빌드 완료, OGQ 법인 계정으로 App Store 제출 준비중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 커머스 · 오지큐 스토어 최신 업로드 상세 페이지 업데이트중(5건)",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 삼성 테마 · 테마 구버전 업데이트 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 삼성 테마 · 배경화면 제작중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · LG TV · 배경화면 제작중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 이모티콘 · 카카오 이모티콘 STOP 제작중",
+        "status": "진행중"
+      }
+    ],
+    "previousActionEffects": [
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버페이 간편결제 지급보증보험 갱신"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "SKT 추석 시즌 문자 발송 연계 (w.은택님)"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "무료 이모티콘 3종 후보를 공손토끼에요, 수줍게 안부 묻는 령순이, 예쁜말바라기 1차 확정 SKT 공유 · 네이버 카페 24종 최종 납품 및 콘텐츠 등록 완료"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "무료 이모티콘 3종 후보를 공손토끼에요, 수줍게 안부 묻는 령순이, 예쁜말바라기 1차 확정 SKT 공유 · 네이버 블로그 모두의 회고 프로젝트 최종 납품 및 콘텐츠 등록완료, 세금계산서 발행(500만원 VAT별도)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(08/18) 유아렐콘4 출시 완료 (2일차 약 61만원 매출)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(08/18) 밴드 9월 콘텐츠 선정 및 전달 완료 (선정된 크리에이터 28명 안내 완료)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "(08/18) SOOP측에 정산금액 오지급 이슈 대응 완료(CFO팀에서 SOOP측에 과지급)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 남은 차액(1,071,358원)에 대해 8~9월 나눠서 차감하는 방식으로 협의 완료 · (08/18) 퍼블리시티권 매칭 이모티콘의 전체 마켓 판매 이슈 > 개발팀 데이터 확인 후 수동 대응 완료 (36건)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 남은 차액(1,071,358원)에 대해 8~9월 나눠서 차감하는 방식으로 협의 완료 · (08/19) OCS 운영 정책서 제작 완료"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 남은 차액(1,071,358원)에 대해 8~9월 나눠서 차감하는 방식으로 협의 완료 · (08/20) 이그사 26년 하반기 협업 제안 완료 (움티 제작 챌린지 / 크레딧 연계 / 대콘페)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "ㄴ 남은 차액(1,071,358원)에 대해 8~9월 나눠서 차감하는 방식으로 협의 완료 · (08/20) 개인 크리에이터 커머스 정산 완료 / 커머스 정산업무 인수인계 완료 (w.수진님)"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[공통] 구글 검색 색인 차단 처리"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 관리자 카테고리별 등록 콘텐츠 수 표기"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 피처드 자동화 - 테스트 대기"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 굿즈 보관함·장바구니 썸네일 깨짐 수정"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 푸터 SNS 링크 정비"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 크리에이터톡 자체 삭제 기능 추가"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] 비공개 판매 콘텐츠 처리"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[네오마] UI/UX 개편 논의 사항 (프론트)"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 크레딧 매출 지표 - 사용일 기준 집계"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[페이] 사용자별 크레딧 사용처 집계"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[GRAF] 푸터 SNS 아이콘"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[OCS] OCS 푸터 정렬·SNS 아이콘 + 크리에이터 스튜디오 메뉴 구조 개편"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[OCS] 퍼블리시티권 스티커 SOOP 전용 강제 + 이슈 콘텐츠 확인"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[OCS/정산] 마켓 표시명 정리"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[정산] 정산 데이터 생성 UX 개선"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[검색] 개별 스티커 검색 판매상태 동기화 결함 수정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[리레이]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "배경 및 대사 품질 개선(규칙,장면,등)"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "이용권 상품을 폐지하고 ‘기억 조각’ 단일 결제 구조로 개편"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "본편 장면 아트 64종 제작 및 품질 보완, 주요 아트 교체"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "엔딩 14종 도달 여부 및 전체 플레이 흐름 QA 완료"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "대사와 배경이 서로 맞지 않던 주요 로직 오류 수정"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "엔딩 이후 빈 화면으로 종료되던 흐름을 엔딩 도감·다음 회차로 연결하도록 개선"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "Play Store 정책 대응을 위한 계정 삭제 웹 경로 구축"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[폰테마샵]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "갤럭시 스토어 재오픈 완료"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "어드민 페이지 및 관리자 계정 복구"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "서버 장애로 중단됐던 출석·찜·라이브배경·이벤트배너 기능 복구"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "앱 크래시, 16KB 메모리 페이지 호환, 민감정보 로그 등 주요 오류 개선"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "Play 개발자 계정 6개(앱 1,597개 +) 신원확인 미완료로 전량 삭제 , 원인 조사 완료"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "iOS 개발자 계정 1개(앱 6개 +) 원인 조사 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · 발주 진행(쥐돌이, 파댕이)"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · CS 대응"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · 정산 인수인계"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · MYO 보증 보험"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "콘텐츠 · 카카오 이모티콘 심사 등록"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "콘텐츠 · 삼성 배경화면, 테마 업데이트 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "멍청새 · 콘텐츠 제작 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "케일페 · 틴케이스 제작 완료 / 케일페"
+      }
     ]
   },
   {
     "week": 36,
+    "sourceWeek": 36,
+    "sourceStartDate": "2026-08-31",
+    "sourceEndDate": "2026-09-06",
     "currentActions": [
-      { "title": "샘플 액션 A", "status": "진행중" },
-      { "title": "샘플 액션 B", "status": "완료" }
+      {
+        "title": "Sales & Gov · 채팅+ OGQ마켓",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 8월 월매출 정산 보고 기안",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT OGQ마켓 부가서비스 부속합의서 법무검토 완료 후 날인 방식 확인(SKT)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT 추석 시즌 문자/MMS 연계 프로모션 리소스 및 URL 준비",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · SKT 3분기 운영비 조기 지급 관련 절차 확인",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 특수부가통신사업자 등록/전송자격인증 관련 KCUP 사전 문의 발송",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 마케팅패키지(MP)",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 평창군청 관광 캐릭터 네이버 OGQ마켓 입점 문의 대응",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 서울용산경찰서/서울디지텍고 스티커 입점 문의 대응",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 진주시청 스티커 9/4 오픈 전 예약 및 노출 상태 확인 준비",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 사업개발(BD) / 파트너십",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 복지몰 크레딧 적용 관련 내부 회계 검토(CFO,민정님) 및 다날PG 확인문의 진행",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 다날에 기존 CPID, 크레딧 충전 경로, 복지몰 폐쇄몰 구조 설명",
+        "status": "진행중"
+      },
+      {
+        "title": "Sales & Gov · 대전콘텐츠페어 및 이그사 대상 회사소개서 및 문의사항 전달",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 카카오톡 유명 작가 입점 영업 진행 중 (36명 중 10명 확정, 차주 출시 1명 - 편살)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~09/18) SKT 추석맞이 프로모션 운영 대응(w.윤호님)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 이그사 대콘페 관련 소통 중 (입점을 위한 회사 소개서 전달까지 진행)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~하반기) 이세계 아이돌 이모티콘 소통 중",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~09/30) SOOP 3분기 프로모션 준비 중 (이미지 제작 완료 > SOOP 측 전달)",
+        "status": "진행중"
+      },
+      {
+        "title": "운영 · (~09/30) 크리에이터 상세 가이드 페이지 제작 중(노션 기반)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 댓글 고도화 - 개별 스티커 검색 기능 적용 - 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [네오마] 네이버 상품등록 중복 요청 이슈",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [채팅플러스] 안드로이드 결제 intent 패키지 허용목록 공개 API 개발",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [OCS]어드민 AI 심사 고도화 — 이미지 타입 (1/2)",
+        "status": "진행중"
+      },
+      {
+        "title": "개발 · [페이] 사용자별 크레딧 사용처 조회",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [리레이]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 프로젝트 (개발 진행률 100%, 출시 준비 진행중)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · Google Play 비공개 테스트 트랙 진행중, 내부 테스트에서 테스터 범위 확대 준비",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 네이버 로그인,구글 로그인 연동완료",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 스토어 등록정보(아이콘·스크린샷) 및 앱 콘텐츠 선언 마무리중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 통합 어드민 개발 및 리레이 편입",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · [폰테마샵]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · 재오픈 프로젝트 (진행률 80%)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · AWS 배포 키 OIDC 전환 및 나머지 저장소 적용중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · (OIDC: GitHub 인증 기반 AWS 임시 권한 배포) · 앱 화면·커뮤니티·보안 수정 후 릴리스 준비중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · (OIDC: GitHub 인증 기반 AWS 임시 권한 배포) · 구형 테마 자동 재빌드 기능 개발중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · (OIDC: GitHub 인증 기반 AWS 임시 권한 배포) · 애플 조직 전환 및 로그인 키 발급 회신 대기중",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · (OIDC: GitHub 인증 기반 AWS 임시 권한 배포) · [영업·확장]",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · (OIDC: GitHub 인증 기반 AWS 임시 권한 배포) · DepositPhotos AI 학습데이터 유통: MNDA 체결 완료 상태 (MNDA: 상호비밀계약서)",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · (OIDC: GitHub 인증 기반 AWS 임시 권한 배포) · DepositPhotos측 프로덕션 API 가이드 및 정식계약 회신 대기",
+        "status": "진행중"
+      },
+      {
+        "title": "신규 서비스 · (OIDC: GitHub 인증 기반 AWS 임시 권한 배포) · Aside(AI 브라우저) 대상 OGQ 이모티콘·스티커 제휴 제안 발송 후 회신 대기",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 커머스 · 숲토어 쥐돌이쥐돌이 모찌쿠션 위탁 판매 계약 연장 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 26년 12월까지 연장 희망 →   재고 파악중 · 신규 굿즈 디자인 진행중",
+        "status": "진행중"
+      },
+      {
+        "title": "IP커머스/사업화 · 삼성 테마 · 테마 구버전 업데이트 진행중",
+        "status": "진행중"
+      }
     ],
     "previousActionEffects": [
-      { "actionTitle": "샘플 이전 액션", "effectSummary": "샘플 효과 요약" }
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "채팅+ OGQ마켓 내고객센터 입력필드 가림 이슈는 수정 배포(w.주환님)"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 OGQ마켓 내 제휴/파트너십 내 콘텐츠형 광고 및 디스플레이 광고 소개서 작성 및 업로드"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "네이버 카페 제작 정산세금계산서 발행(500만원 VAT별도)"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "카핏피/깡지라네 작가에게 제작비 지급 안내"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "삼아 복지몰은 판매금액 OGQ 총매출 인식 및 제휴수수료 별도 거래 분리 인식에 대한 양사 이해 확인"
+      },
+      {
+        "actionTitle": "Sales & Gov",
+        "effectSummary": "삼아 측 회원생성/자동로그인 API 문서 수령완료(내부 개발 담당자 검토/직접 소통 구조로 이관)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "플레이북 제작 완료 (2026년 상반기)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "네이버페이 1인 1계정 관련 당사 개발 대응 확인 답변 완료 (A계정 선물받음 -> B계정 이관 불가)"
+      },
+      {
+        "actionTitle": "운영",
+        "effectSummary": "SOOP 상위 매출 크리에이터 콘텐츠 데이터 전달 완료"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[플랫폼] 개별스티커 개선 3건 — 레플리카 증설·읽기 분산 검증"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[플랫폼] 개별스티커 저장소 구조 변경"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[채팅플러스] 삼성 스티커 사용 데이터 API 문서 정리 및 전달"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[OCS] 심사 UX 개선 - 퍼블리시티권 스티커 SOOP 전용 강제"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[팀업무] 인수인계"
+      },
+      {
+        "actionTitle": "개발",
+        "effectSummary": "[팀업무] 업무용 클로드 코드 플러그인 정리"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[리레이]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "AWS 운영 인프라 구축 및 첫 배포 완료"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "Android 서명 AAB 생성, 등급, 등 및 Play Console 내부 테스트 트랙 게시"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "개인정보처리방침·이용약관 작성"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "앱 디자인 QA, TTS 420종, 엔딩 아트 15종 품질 검증 완료"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "Lirae.love 도메인 및 웹 소개 렌딩페이지 제작"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "[폰테마샵]"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "원스토어·갤럭시스토어 크래시 수정 버전 배포 및 판매 정상화"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "최근 12개월 활성 스토어 테마 2,556건 재빌드 완료"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "앱 실행 → 테마 다운로드 → 설치 → 카카오톡 적용까지 실기기 전체 사용자 여정 검증 완료"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "iOS App Transfer 완료, 11년간 개인 명의였던 앱을 OGQ 법인 소유로 이전"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "애플 로그인 사용자 252,720명 중 251,403명 이관용 식별자 발급 완료"
+      },
+      {
+        "actionTitle": "신규 서비스",
+        "effectSummary": "iOS 유실 이미지 리소스·썸네일 장애 복구 및 1.1.42 빌드 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "커머스 · 델라키 미팅"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "아티산 키캡 제작 업체 · 커머스 업체 단가 조사 (디커버, 레드프린팅,신규업체)"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "아티산 키캡 제작 업체 · 스토어 예약 판매 마감"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "아티산 키캡 제작 업체 · 정산, 발주 진행"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "삼성 테마 · 삼성 배경화면, 테마 업데이트 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "삼성 TV · 신규 업로드 진행 위한 문의 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "LG 갤러리+ · 서플라이어 심사 관련 재문의 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "멍청새 · 콘텐츠 업로드 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "협업 · soop 이벤트상세페이지 및 배너 28종 완료"
+      },
+      {
+        "actionTitle": "IP커머스/사업화",
+        "effectSummary": "협업 · 앵콜스 데콘페 참여 취소 안내"
+      }
     ]
   }
 ]
