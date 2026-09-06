@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OGQ Docs Builder</title>
   <link rel="stylesheet" href="/admin/styles.css" />
+  <style>
+    .revenue-dashboard { padding: 18px 20px 16px; background: linear-gradient(135deg, #102a22 0%, #0d211b 100%); border-bottom: 1px solid #2d6a57; }
+    .revenue-dashboard__title { margin: 0 0 12px; color: #9aebcb; font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+    .revenue-kpis { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)); gap: 10px; }
+    .revenue-kpi { min-width: 0; padding: 12px 14px; border: 1px solid rgba(126, 226, 186, .18); border-radius: 8px; background: rgba(23, 58, 47, .72); }
+    .revenue-kpi__label { display: block; margin-bottom: 5px; color: #91bbae; font-size: 11px; font-weight: 700; }
+    .revenue-kpi__value { display: block; color: #eefbf6; font-size: 21px; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+    .revenue-kpi--accent .revenue-kpi__value { color: #64d9a3; }
+    .revenue-progress { margin-top: 11px; padding: 11px 14px; border-radius: 8px; background: rgba(5, 23, 18, .5); }
+    .revenue-progress__weeks, .revenue-progress__metrics { display: flex; flex-wrap: wrap; gap: 7px 22px; align-items: center; }
+    .revenue-progress__metrics { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(126, 226, 186, .14); }
+    .revenue-progress__item { color: #cfe9df; font-size: 12px; }
+    .revenue-progress__item strong { color: #f0fbf7; font-weight: 750; }
+    .revenue-progress__item--difference strong { color: #64d9a3; }
+    @media (max-width: 900px) { .revenue-kpis { grid-template-columns: repeat(2, minmax(140px, 1fr)); } }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
 </head>
@@ -38,8 +54,27 @@
       </div>
     </header>
 
-    <section id="revenueSummary" style="padding:10px 16px;background:#132b25;border-bottom:1px solid #2d6a57;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline"><h2 style="margin:0;font-size:13px;color:#7ee2ba;font-weight:800">총매출 달성률</h2><span data-field="cumulative" style="font-size:12px;color:#cfe9df">누적 매출: —</span><span data-field="target" style="font-size:12px;color:#cfe9df">목표: 50억</span><span data-field="attainment" style="font-size:12px;color:#64d9a3;font-weight:700">달성률: —</span></section>
-    <section id="revenueWeeklyProgress" style="padding:8px 16px;background:#0f231d;border-bottom:1px solid #2d6a57;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline"><h3 style="margin:0;font-size:12px;color:#7ee2ba;font-weight:800">주간 진행 현황</h3><span data-field="week" style="font-size:12px;color:#cfe9df">현재 —주차</span><span data-field="cumWeekly" style="font-size:12px;color:#cfe9df">누적 매출: —</span><span data-field="revProgress" style="font-size:12px;color:#cfe9df">매출 진행률: —</span><span data-field="timeProgress" style="font-size:12px;color:#cfe9df">시간 진행률: —</span><span data-field="diff" style="font-size:12px;color:#64d9a3;font-weight:700">대비: —</span></section>
+    <section id="revenueSummary" class="revenue-dashboard" aria-labelledby="revenueDashboardTitle">
+      <h2 id="revenueDashboardTitle" class="revenue-dashboard__title">50억 목표 관리</h2>
+      <div class="revenue-kpis">
+        <div class="revenue-kpi"><span class="revenue-kpi__label">누적 매출</span><strong class="revenue-kpi__value" data-field="cumulative">—</strong></div>
+        <div class="revenue-kpi"><span class="revenue-kpi__label">목표</span><strong class="revenue-kpi__value" data-field="target">—</strong></div>
+        <div class="revenue-kpi revenue-kpi--accent"><span class="revenue-kpi__label">달성률</span><strong class="revenue-kpi__value" data-field="attainment">—</strong></div>
+        <div class="revenue-kpi"><span class="revenue-kpi__label">최신 주간 매출</span><strong class="revenue-kpi__value" data-field="weeklyRevenue">—</strong></div>
+      </div>
+      <div id="revenueWeeklyProgress" class="revenue-progress">
+        <div class="revenue-progress__weeks">
+          <span class="revenue-progress__item">현재 운영 주차: <strong data-field="operatingWeek">—</strong></span>
+          <span class="revenue-progress__item">최신 확정 매출: <strong data-field="reportWeek">—</strong></span>
+          <span class="revenue-progress__item">확정 기간: <strong data-field="reportPeriod">—</strong></span>
+        </div>
+        <div class="revenue-progress__metrics">
+          <span class="revenue-progress__item">매출 진행률: <strong data-field="revProgress">—</strong></span>
+          <span class="revenue-progress__item">시간 진행률: <strong data-field="timeProgress">—</strong></span>
+          <span class="revenue-progress__item revenue-progress__item--difference">진행률 대비: <strong data-field="diff">—</strong></span>
+        </div>
+      </div>
+    </section>
     <section id="weeklyActions" style="padding:8px 16px;background:#0d1f1a;border-bottom:1px solid #2d6a57;font-size:12px;color:#cfe9df"><h3 style="margin:0 0 6px;font-size:12px;color:#7ee2ba;font-weight:800">주간 액션</h3><div style="margin-bottom:6px"><strong style="color:#9fe6c8">이번 주 핵심 액션</strong><ul data-list="current" style="margin:2px 0 0;padding-left:16px"></ul></div><div><strong style="color:#9fe6c8">지난 액션 효과</strong><ul data-list="previous" style="margin:2px 0 0;padding-left:16px"></ul></div></section>
 
     <!-- ===== Main 3-pane workspace ===== -->
