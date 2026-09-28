@@ -460,6 +460,10 @@ function buildStandaloneHtmlDocument(markdownContent, title, docsDir) {
   html, body {
     background: var(--bg-surface-2, #191c22);
     margin: 0;
+    /* Standalone HTML은 admin 앱의 고정 viewport 레이아웃을 사용하지 않으므로
+       admin/styles.css의 height/overflow 제한을 해제한다. */
+    height: auto;
+    overflow: visible;
   }
   body[data-theme="dark"] {
     background: var(--bg-surface-2);
